@@ -5,7 +5,7 @@
 - User: Accesses the website/ application.
 - System: Displays dropdowns to select departure airport code, date and time.
 - User: Selects airport code, date and time from the dropdowns.
-- System: Checks if the all the required data is entered. Shows error if one any of the fields is not entered, or date is too far in the future.
+- System: Checks if all the required data is entered. Shows error if one any of the fields is not entered, or date is too far in the future.
 - User: Clicks button to view the likelihood of delay of a flight starting from the departure airport at the given datetime.
 - System: Displays the predicted delay for the selected airport, date and time.
 
