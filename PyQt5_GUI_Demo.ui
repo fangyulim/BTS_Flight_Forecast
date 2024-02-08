@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1088</width>
-    <height>717</height>
+    <width>930</width>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QDateEdit" name="DateSelection">
@@ -28,11 +31,25 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="maximumDate">
+     <date>
+      <year>2025</year>
+      <month>2</month>
+      <day>8</day>
+     </date>
+    </property>
+    <property name="minimumDate">
+     <date>
+      <year>2024</year>
+      <month>2</month>
+      <day>8</day>
+     </date>
+    </property>
    </widget>
    <widget class="QTimeEdit" name="TimeSelection">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>480</x>
       <y>150</y>
       <width>161</width>
       <height>31</height>
@@ -214,7 +231,33 @@ p, li { white-space: pre-wrap; }
      <enum>Qt::NoContextMenu</enum>
     </property>
     <property name="text">
-     <string>BTS - FLight Forecast</string>
+     <string>BTS - Flight Forecast</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>320</y>
+      <width>231</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>The estimated delay percentage is:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>320</y>
+      <width>291</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>The average delay time based on past data is:</string>
     </property>
    </widget>
   </widget>
@@ -223,7 +266,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1088</width>
+     <width>930</width>
      <height>26</height>
     </rect>
    </property>
