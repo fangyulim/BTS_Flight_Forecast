@@ -9,7 +9,7 @@ api_token = "e1f10a1e78da46f5b10a1e78da96f525"
 # reading airport codes from csv
 airport_codes = pd.read_csv('../resources/airport_codes.csv')
 
-#TODO: use calendar module
+# TODO: use calendar module
 months_days = pd.read_csv('../resources/month_days.csv', converters={'month' : str})
 
 columns_of_interest = ['obs_id', # K+ airport code
