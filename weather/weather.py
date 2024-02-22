@@ -1,7 +1,6 @@
 import pandas as pd
 import requests
 import time
-import calendar
 
 # token needs to be in config file
 api_token = "e1f10a1e78da46f5b10a1e78da96f525"
@@ -51,13 +50,16 @@ def cleanData(airport_data_raw, location_code, columns_of_interest):
 
 def getWeatherDataAPI(startYear, endYear):
 
+    if(startYear > endYear):
+        raise ValueError("Start year should be less than or equal to end year")
+
     for airport_index, ac in airport_codes.iterrows():
 
         url = 'https://api.weather.com/v1/location/K' +ac['Airport Code']+':9:US/observations/historical.json'
 
         obs = []
 
-        for year in range(startYear, endYear):
+        for year in range(startYear, endYear+1):
             for index, md in months_days.iterrows():
                 startDate = "{year}{month}{date}".format(year = year, month = md['month'], date = "01")
                 endDate = "{year}{month}{date}".format(year = year, month = md['month'], date = md['end'])
@@ -79,6 +81,7 @@ def getWeatherDataAPI(startYear, endYear):
                 except Exception as e:
                     print("error while calling for airport code " + ac['Airport Code'] + " for dates " + startDate + ", " + endDate)
                     print(e)
+                    # should we raise an exception here? or just notify the user?
 
         airport_data = pd.DataFrame(obs)
         airport_data_clean = cleanData( airport_data, ac['Airport Code'], columns_of_interest )
