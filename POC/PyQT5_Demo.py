@@ -3,7 +3,7 @@ from PyQt5 import uic, QtCore, QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap, QBrush, QColor
 import sys
 
-qtCreatorFile = "../PyQt5_GUI_Demo.ui"
+qtCreatorFile = "./PyQt5_GUI_Demo.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class milestone2_v2(QMainWindow):
@@ -11,6 +11,10 @@ class milestone2_v2(QMainWindow):
         super(milestone2_v2, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        width = 1200
+        height = 750
+        self.setFixedWidth(width)
+        self.setFixedHeight(height)
 
         #Business Page
         self.loadStateList()
