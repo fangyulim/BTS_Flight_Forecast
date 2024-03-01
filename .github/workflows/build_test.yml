@@ -93,7 +93,7 @@ jobs:
       # Next step: run the unit tests with code coverage.
       - name: Unit tests
         run: |
-          cd weather
+          cd flight_forecast
           coverage run -m unittest discover
           coverage report
           coverage lcov
