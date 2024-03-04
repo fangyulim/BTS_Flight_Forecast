@@ -100,12 +100,13 @@ jobs:
           coverage lcov
 
       # Lastly: report code coverage to Coveralls.
+      # TODO: check if there is a way to denote single path for all 3
       - name: Report code coverage to Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: flight_forecast
-          path-to-lcov: flight_forecast/coverage.lcov
+          base-path: flight_forecast/weatherUtil
+          path-to-lcov: flight_forecast/weatherUtil/coverage.lcov
           # The following two options are needed for "parallel"
           # runs - ie if you have a matrix of python versions.
           # This holds off on reporting code coverage to
