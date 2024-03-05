@@ -88,13 +88,13 @@ jobs:
       # Next step: run pylint. Anything less than 10/10 will fail.
       - name: Lint with pylint
         run: |
-          pylint flight_forecast/**/**/*.py --fail-under=9
+          pylint flight_forecast/**/*.py --fail-under=9
 
       # Next step: run the unit tests with code coverage.
       # TODO: check how to write a single discover
       - name: Unit tests
         run: |
-          cd flight_forecast/weatherUtil
+          cd flight_forecast
           coverage run -m unittest discover
           coverage report
           coverage lcov
@@ -105,8 +105,8 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: flight_forecast/weatherUtil
-          path-to-lcov: flight_forecast/weatherUtil/coverage.lcov
+          base-path: flight_forecast
+          path-to-lcov: flight_forecast/coverage.lcov
           # The following two options are needed for "parallel"
           # runs - ie if you have a matrix of python versions.
           # This holds off on reporting code coverage to

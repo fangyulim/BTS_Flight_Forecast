@@ -206,7 +206,6 @@ def get_historic_weather_data(airports, start_year, end_year):
         raise ValueError("Start year should be less than or equal to end year")
 
     months_days = generate_date_ranges(list(range(start_year, end_year + 1)))
-    print(months_days)
 
     for airport in airports['Airport Code']:
         historic_weather_api = f"https://api.weather.com/v1/location/K{airport}:9:US/observations/historical.json"
@@ -280,7 +279,8 @@ def get_weather_forecast(airport_code, timestamp):
     timestamp (int): The Unix timestamp representing the desired forecast time.
 
     Returns:
-    pd.DataFrame: The refined weather forecast DataFrame, containing data for the specified timestamp.
+    pd.DataFrame: The refined weather forecast DataFrame, containing data for the
+     specified timestamp.
 
     Raises:
     Exception: If any errors occur during API calls or data processing.
@@ -301,7 +301,8 @@ def get_weather_forecast(airport_code, timestamp):
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
-        forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"].shift(-1)
+        forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
+                                                      .shift(-1)
                                                       .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
 
         refined_weather_df = refine_forecasted_data(forecasted_weather_df)
