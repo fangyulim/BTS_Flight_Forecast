@@ -36,6 +36,8 @@ import pandas as pd
 # The API token required for accessing the weather API.
 API_TOKEN = "e1f10a1e78da46f5b10a1e78da96f525"
 
+WEATHER_FORECAST_URL = 'https://api.weather.com/v3/wx/forecast/hourly/15day'
+
 """
 COI_HISTORIC: A list of strings specifying the columns to extract
 from historical weather data.
@@ -142,6 +144,11 @@ def enrich_date_time(weather_df):
     Assumes 'valid_time_gmt' and 'expire_time_gmt' are in UTC timestamps.
     """
 
+    if 'valid_time_gmt' not in weather_df.columns:
+        raise ValueError("Missing 'valid_time_gmt' in weather data")
+    if 'expire_time_gmt' not in weather_df.columns:
+        raise ValueError("Missing 'expire_time_gmt' in weather data")
+
     weather_df['record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
     weather_df['start_day'] = weather_df['record_start_date'].dt.day
     weather_df['start_month'] = weather_df['record_start_date'].dt.month
@@ -202,8 +209,7 @@ def get_historic_weather_data(airports, start_year, end_year):
     print(months_days)
 
     for airport in airports['Airport Code']:
-        url = f"https://api.weather.com/v1/location/K{airport}:9:US/observations/historical.json"
-        print(url)
+        historic_weather_api = f"https://api.weather.com/v1/location/K{airport}:9:US/observations/historical.json"
 
         obs = []
 
@@ -217,7 +223,7 @@ def get_historic_weather_data(airports, start_year, end_year):
                     'endDate': time_period['end_date']
                 }
 
-                resp = requests.get(url=url, params=params, timeout=15)
+                resp = requests.get(url=historic_weather_api, params=params, timeout=15)
                 data = resp.json()
 
                 # raise exception if observations is not present in the data
@@ -248,16 +254,16 @@ def refine_forecasted_data(forecasted_weather_df_raw):
 
     # rename columns
     column_mapping = {'validTimeUtc': 'valid_time_gmt',
-                     'expirationTimeUtc': 'expire_time_gmt',
-                     'dayOrNight': 'day_ind',
-                     'temperature': 'temp',
-                     'temperatureDewPoint': 'dewPt',
-                     'relativeHumidity': 'rh',
-                     'windDirectionCardinal': 'wdir_cardinal',
-                     'windGust': 'gust',
-                     'windSpeed': 'wspd',
-                     'pressureMeanSeaLevel': 'pressure',
-                     'wxPhraseShort': 'wx_phrase'}
+                      'expirationTimeUtc': 'expire_time_gmt',
+                      'dayOrNight': 'day_ind',
+                      'temperature': 'temp',
+                      'temperatureDewPoint': 'dewPt',
+                      'relativeHumidity': 'rh',
+                      'windDirectionCardinal': 'wdir_cardinal',
+                      'windGust': 'gust',
+                      'windSpeed': 'wspd',
+                      'pressureMeanSeaLevel': 'pressure',
+                      'wxPhraseShort': 'wx_phrase'}
 
     forecasted_weather_data = forecasted_weather_data.rename(
         columns=column_mapping)
@@ -266,18 +272,19 @@ def refine_forecasted_data(forecasted_weather_df_raw):
     return enrich_date_time(forecasted_weather_data)
 
 
-def get_weather_forecast(airport_code):
-    """
-    Fetches and refines 15-day weather forecast for an airport.
+def get_weather_forecast(airport_code, timestamp):
+    """Fetches weather forecast data for a given airport code and timestamp.
 
     Args:
-        airport_code (str): Airport code (e.g., 'JFK').
+    airport_code (str): The 3-letter ICAO code of the airport.
+    timestamp (int): The Unix timestamp representing the desired forecast time.
 
     Returns:
-        pd.DataFrame: Refined weather forecast data or raises exception on error.
-    """
+    pd.DataFrame: The refined weather forecast DataFrame, containing data for the specified timestamp.
 
-    url = 'https://api.weather.com/v3/wx/forecast/hourly/15day'
+    Raises:
+    Exception: If any errors occur during API calls or data processing.
+    """
 
     try:
         params = {
@@ -288,21 +295,30 @@ def get_weather_forecast(airport_code):
             'language': 'en-US'
         }
 
-        resp = requests.get(url=url, params=params, timeout=15)
+        resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
         print(resp.request.url)
         response_data = resp.json()
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
+        forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"].shift(-1)
+                                                      .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
 
-        return refine_forecasted_data(forecasted_weather_df)
+        refined_weather_df = refine_forecasted_data(forecasted_weather_df)
+
+        focused_forecast_df = refined_weather_df[
+            (refined_weather_df['valid_time_gmt'] <= timestamp) & (timestamp < refined_weather_df['expire_time_gmt'])]
+
+        return focused_forecast_df
 
     except Exception as e:
         print(e)
 
 
 if __name__ == '__main__':
-    # reading airport codes from csv
-    airports_data = pd.read_csv('../../../resources/airport_codes.csv')
+    # Read the Airport Codes from CSV
+    # airports_data = pd.read_csv('../../../resources/airport_codes.csv')
 
-    get_historic_weather_data(airports_data, 2022, 2023)
+    # get_historic_weather_data(airports_data, 2022, 2023)
+
+    print(get_weather_forecast('SEA', 1709770534))
