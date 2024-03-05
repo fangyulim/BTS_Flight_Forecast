@@ -1,0 +1,8 @@
+name: BTS_Flight_Forecast
+channels:
+  - defaults
+dependencies:
+  - python=3
+  - pip
+  - pip:
+      - -r requirements.txt
