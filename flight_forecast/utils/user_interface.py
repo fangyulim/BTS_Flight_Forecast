@@ -15,7 +15,7 @@ from PyQt5 import uic   # , QtWidgets. This prevents errors
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 #  QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QStackedWidget, QLabel,
 from PyQt5.QtCore import Qt
-from . import weather
+import weather
 
 # GUI file
 QT_CREATOR_FILE = '../../resources/flight_delay_multi_page.ui'
