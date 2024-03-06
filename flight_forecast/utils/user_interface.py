@@ -15,10 +15,10 @@ from PyQt5 import uic   # , QtWidgets. This prevents errors
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 #  QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QStackedWidget, QLabel,
 from PyQt5.QtCore import Qt
-import weather
+from . import weather
 
 # GUI file
-QT_CREATOR_FILE = '../../resources/flight_delay_multi_page.ui'
+QT_CREATOR_FILE = '../resources/flight_delay_multi_page.ui'
 ui_main_window, QtBaseClass = uic.loadUiType(QT_CREATOR_FILE)
 
 
@@ -90,7 +90,7 @@ class Milestone2V2(QMainWindow):
         Currently, we are only using the list of airports in the pacific northwest.
         """
         # Couldn't figure out path.
-        with open("../../resources/airport_codes.csv", "r", encoding="utf-8") as file:
+        with open("../resources/airport_codes.csv", "r", encoding="utf-8") as file:
             next(file)  # skips the header.
             airport_codes = [row[0] for row in csv.reader(file)]
 
