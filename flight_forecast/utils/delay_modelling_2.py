@@ -55,8 +55,6 @@ def pre_process_dataset(df_to_process, \
     input_df = df_to_process.drop(target_col,axis=1)
     input_df = input_df[relevant_columns]
 
-    input_df.OriginCityMarketID = input_df.OriginCityMarketID.astype(str)
-    input_df.DestCityMarketID = input_df.DestCityMarketID.astype(str)
     x_train, x_test, y_train, y_test = train_test_split(input_df, target_series)
 
     numeric_cols = x_train.dtypes[(x_train.dtypes == 'int64') | \
@@ -75,6 +73,8 @@ def pre_process_dataset(df_to_process, \
     #x_train_columns = encoder.get_feature_names_out()
     x_test_sparse = encoder.transform(x_test)
     #x_test_columns = encoder.get_feature_names_out()
+    with open('encoder.pkl','wb') as file:
+        pickle.dump(encoder,file)
 
     return (x_train_sparse, y_train,
             x_test_sparse, y_test,)
@@ -183,7 +183,7 @@ def create_model_from_dataset(data_path="combined_flight_data"):
         pickle.dump(regressor_modelling_results[1:],file)
 
 
-def predict_delay_probability(pred_vector):
+def predict_delay_probability(predictors):
     '''
     Predicts the probability of a given flight being delayed.
 
@@ -199,7 +199,10 @@ def predict_delay_probability(pred_vector):
     '''
     with open('classifier.pkl','rb') as file:
         delay_predictor = pickle.load(file)
-    return delay_predictor.predict_proba(pred_vector)
+    with open('encoder.pkl','rb') as file:
+        encoder = pickle.load(file)
+    encoded_pred = encoder.transform(predictors)
+    return delay_predictor.predict_proba(encoded_pred)
 
 
 def get_classifier_metrics():
@@ -211,7 +214,7 @@ def get_classifier_metrics():
     return delay_predictor_metrics
 
 
-def predict_delay_severity(pred_vector):
+def predict_delay_severity(predictors):
     '''
     Predicts the time a given flight will be delayed by.
 
@@ -227,7 +230,10 @@ def predict_delay_severity(pred_vector):
     '''
     with open('regressor.pkl','rb') as file:
         severity_predictor = pickle.load(file)
-    return severity_predictor.predict(pred_vector)
+    with open('encoder.pkl','rb') as file:
+        encoder = pickle.load(file)
+    encoded_pred = encoder.transform(predictors)
+    return severity_predictor.predict(encoded_pred)
 
 
 def get_regressor_metrics():
