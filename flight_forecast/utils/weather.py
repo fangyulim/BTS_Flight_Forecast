@@ -26,6 +26,7 @@ This module requires the following external libraries:
 """
 import time
 import calendar
+import sys
 
 from datetime import date, timedelta
 
@@ -174,17 +175,17 @@ def _enrich_date_time(weather_df):
     if weather_df.dtypes['expire_time_gmt'] != int:
         raise TypeError("Invalid 'expire_time_gmt' in weather data")
 
-    weather_df['record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
-    weather_df['start_day'] = weather_df['record_start_date'].dt.day
-    weather_df['start_month'] = weather_df['record_start_date'].dt.month
-    weather_df['start_year'] = weather_df['record_start_date'].dt.year
-    weather_df['start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
-    weather_df['start_hour_gmt'] = weather_df['record_start_date'].dt.hour
-    weather_df['start_minute_gmt'] = weather_df['record_start_date'].dt.minute
+    weather_df.loc[:,'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
+    weather_df.loc[:,'start_day'] = weather_df['record_start_date'].dt.day
+    weather_df.loc[:,'start_month'] = weather_df['record_start_date'].dt.month
+    weather_df.loc[:,'start_year'] = weather_df['record_start_date'].dt.year
+    weather_df.loc[:,'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
+    weather_df.loc[:,'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
+    weather_df.loc[:,'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
 
-    weather_df['record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
-    weather_df['end_hour_gmt'] = weather_df['record_end_date'].dt.hour
-    weather_df['end_minute_gmt'] = weather_df['record_end_date'].dt.minute
+    weather_df.loc[:,'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
+    weather_df.loc[:,'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
+    weather_df.loc[:,'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
 
     weather_df.drop(['record_start_date', 'record_end_date'], axis=1)
 
@@ -211,8 +212,8 @@ def _clean_historic_weather_data(weather_data_raw, location_code, columns_of_int
     if not set(columns_of_interest) <= set(weather_data_raw.columns):
         raise ValueError("'weather_data_raw' does not have all the 'columns_of_interest'")
 
-    weather_data_cleaned = weather_data_raw[columns_of_interest]
-    weather_data_cleaned['location_id'] = location_code
+    weather_data_cleaned = weather_data_raw[columns_of_interest].copy()
+    weather_data_cleaned.loc[:,'location_id'] = location_code
 
     return _enrich_date_time(weather_data_cleaned)
 
@@ -236,11 +237,15 @@ def get_historic_weather_data(airports, start_year, end_year):
     if start_year > end_year:
         raise ValueError("Start year should be less than or equal to end year")
 
-    months_days = _generate_date_ranges(range(start_year, end_year + 1))
+    months_days = _generate_date_ranges(list(range(start_year, end_year + 1)))
 
-    for airport in airports['Airport Code']:
-        historic_weather_api = (f"https://api.weather.com/v1/location/K{airport}:9:US"
-                                f"/observations/historical.json")
+    for ind, airport in enumerate(airports['Airport Code']):
+        progress_str = f"Getting weather for airport {airport}. " + \
+                       f"({ind}/{airports['Airport Code'].shape[0]})"
+        print(progress_str, end="\r")
+        sys.stdout.flush()
+        historic_weather_api = f"https://api.weather.com/v1/location/K{airport}" + \
+                               ":9:US/observations/historical.json"
 
         obs = []
 
@@ -260,9 +265,9 @@ def get_historic_weather_data(airports, start_year, end_year):
                 # raise exception if observations is not present in the data
                 obs = obs + data['observations']
 
-            except Exception as e:
+            except Exception as excep:
                 print(f"Error while fetching weather data for {airport}")
-                print(e)
+                print(excep)
                 # should we raise an exception here? or just notify the user?
 
         if len(obs) > 0:
@@ -333,6 +338,9 @@ def get_weather_forecast(airport_code, timestamp):
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
+        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
+                                                            .shift(-1)
+                                                            .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
         forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
                                                       .shift(-1)
                                                       .fillna(forecasted_weather_df["validTimeUtc"]
@@ -341,8 +349,8 @@ def get_weather_forecast(airport_code, timestamp):
         refined_weather_df = _refine_forecasted_data(forecasted_weather_df)
 
         focused_forecast_df = refined_weather_df[
-            refined_weather_df['valid_time_gmt'] <= timestamp
-            & timestamp < refined_weather_df['expire_time_gmt']]
+            (refined_weather_df['valid_time_gmt'] <= timestamp) & \
+            (timestamp < refined_weather_df['expire_time_gmt'])]
 
         return focused_forecast_df
 
