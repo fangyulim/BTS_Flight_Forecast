@@ -13,6 +13,7 @@ on:
     branches:
       - main
       - vanksu
+      - Fiona
   pull_request:
     # Configuring this means that your PRs will get a GitHub comment
     # from Coveralls with your coverage.
@@ -88,7 +89,7 @@ jobs:
       # Next step: run pylint. Anything less than 10/10 will fail.
       - name: Lint with pylint
         run: |
-          pylint flight_forecast/**/*.py --fail-under=9
+          pylint flight_forecast/**/*.py --fail-under=9 --extension-pkg-whitelist=PyQt5
 
       # Next step: run the unit tests with code coverage.
       # TODO: check how to write a single discover
