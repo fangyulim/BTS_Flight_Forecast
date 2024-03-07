@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>811</height>
+    <width>1204</width>
+    <height>820</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -175,7 +175,7 @@
          <string>Select Airport:</string>
         </property>
        </widget>
-       <widget class="QTimeEdit" name="TimeSelection">
+       <widget class="QTimeEdit" name="time_selection">
         <property name="geometry">
          <rect>
           <x>550</x>
@@ -621,17 +621,60 @@ p, li { white-space: pre-wrap; }
          <string>TextLabel</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="airport_date_lb">
         <property name="geometry">
          <rect>
-          <x>770</x>
-          <y>210</y>
-          <width>231</width>
-          <height>131</height>
+          <x>530</x>
+          <y>130</y>
+          <width>511</width>
+          <height>61</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Add start and end years</string>
+         <string>Please enter your start year (YYYY), end year (YYYY), and airport code:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>610</x>
+          <y>190</y>
+          <width>421</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Format: YYYY, YYYY, airport_code</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="geometry">
+         <rect>
+          <x>610</x>
+          <y>210</y>
+          <width>231</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="admin_airport_code">
+        <property name="geometry">
+         <rect>
+          <x>900</x>
+          <y>210</y>
+          <width>171</width>
+          <height>31</height>
+         </rect>
         </property>
        </widget>
       </widget>
@@ -644,8 +687,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>26</height>
+     <width>1204</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
