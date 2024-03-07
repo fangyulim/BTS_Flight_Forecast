@@ -13,12 +13,16 @@ To run using IDE, please change file paths.
 """
 import csv
 import sys
+import pandas as pd
+
 from datetime import datetime
 from PyQt5 import uic   # , QtWidgets. This prevents errors
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 #  QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QStackedWidget, QLabel,
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDateTime, QTimeZone
 from . import weather
+from . import data_combination_1
+from . import delay_modelling_2
 
 # GUI file
 QT_CREATOR_FILE = '../resources/flight_delay_multi_page.ui'
@@ -108,13 +112,14 @@ class Milestone2V2(QMainWindow):
 
         # Clear the existing items in airport_selection widget
         self.user_int.airport_selection.clear()
-
+        self.user_int.admin_airport_code.clear()
         # Adding airport names to the widget.
         self.user_int.airport_selection.addItems(airport_codes)
+        self.user_int.admin_airport_code.addItems(airport_codes)
 
     def load_airlines_list(self):
         with open("../resources/airline_list.csv", "r", encoding="utf-8") as file:
-            print(file)
+
             next(file)  # skips the header.
             airline_list = [row[0] for row in csv.reader(file)]
 
@@ -129,30 +134,15 @@ class Milestone2V2(QMainWindow):
         """
         airport_selected = self.user_int.airport_selection.currentText()
         airline_selected = self.user_int.airline_selection.currentText()
+
         date_selection = self.user_int.date_selection.date().toString("yy.MM.dd")
-        time_selection = self.user_int.TimeSelection.time().toString("HH:mm:ss")
+        time_selection = self.user_int.time_selection.time().toString("HH:mm:ss")
 
-        datetime_info = [
-            date_selection.split(".")[0],  # year
-            date_selection.split(".")[1],  # month
-            date_selection.split(".")[2],  # day_of_month
-            time_selection.split(":")[0],  # hour
-            time_selection.split(":")[1],  # minute
-            time_selection.split(":")[2]   # second
-        ]
-        time_obj = datetime.strptime(time_selection, "%H:%M:%S")
-
-        # temp print to test pylint
-        print(datetime_info)
-        print(time_obj)
-
-        total_seconds =time_obj.second + time_obj.minute * 60 + time_obj.hour * 3600
-
-        # Now 'total_seconds' contains the time represented by 'time_selection' in seconds
-        print(total_seconds)
-
-        # Weather needs time in seconds as integer.
-            # Needs to be in unix time so DATE -TIME -> Seconds
+        date = self.user_int.date_selection.date()
+        time = self.user_int.time_selection.time()
+        gmt_timezone = QTimeZone.utc()
+        date_time_selection = QDateTime(date,time, gmt_timezone)
+        unix_timestamp = date_time_selection.toSecsSinceEpoch()
 
         # If selected day is within 15 days, then we are able to give a prediction
 
@@ -163,8 +153,8 @@ class Milestone2V2(QMainWindow):
         if difference.days < 15:
             delay_prediction = airport_selected + date_selection + time_selection \
                                + " forecast is: "
-            forecast = weather.get_weather_forecast(airport_selected, total_seconds)
-            #print(forecast)
+            forecast_weather = weather.get_weather_forecast(airport_selected,unix_timestamp)
+            print(forecast_weather)
             if self.user_int.check_box.isChecked():
 
                 severity_prediction = airport_selected + date_selection + time_selection
@@ -211,6 +201,7 @@ class Milestone2V2(QMainWindow):
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
         # Open the file dialog and get the selected file paths
         files, _ = file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
+
         if files:
             folder_path = "/".join(files[0].split("/")[:-1])
             # temp print to test pylint
@@ -241,7 +232,6 @@ class Milestone2V2(QMainWindow):
         else:
             self.user_int.file_lb.setText("No files have been uploaded.")
             self.user_int.file_lb.setVisible(True)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

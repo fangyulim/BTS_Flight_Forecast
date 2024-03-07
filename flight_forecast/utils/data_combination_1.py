@@ -14,6 +14,8 @@ import os
 from datetime import datetime as dt
 import pandas as pd
 
+from . import weather
+
 AIRPORT_FOLDER_PATH = "BTS_Data"
 WEATHER_FOLDER_PATH = "WeatherData_Clean"
 
@@ -75,6 +77,13 @@ def combine_weather_data(root_data_folder_path):
     A Pandas DataFrame containing the weather data from all airport weather csvs in the given
     folder, with an additional column containing the airport code for each measurement.
     '''
+    airports = pd.read_csv('C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast/resources/airport_codes.csv')
+
+    # this should be changed later
+    start_year = 2022
+    end_year = 2022
+    weather.get_historic_weather_data(airports, start_year, end_year)
+
     data_to_combine = []
     with os.scandir(root_data_folder_path) as root_data_folder:
         total_files = len(os.listdir(root_data_folder_path))
@@ -195,3 +204,6 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
     combined_flight_data = match_flight_and_weather_data(relevant_flights_df, weather_data)
 
     combined_flight_data.to_pickle("combined_flight_data")
+
+
+create_dataset(airport_path="./flight_data", weather_path="./weather_data")
