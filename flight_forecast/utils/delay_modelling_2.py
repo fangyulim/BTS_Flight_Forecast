@@ -21,10 +21,13 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 
 TARGET_COL_CLASSIFIER = "ArrDel15"
 TARGET_COL_REGRESSOR = "ArrDelayMinutes"
-RELEVANT_COLS = ('Year', 'Quarter', 'Month', 'DayofMonth', 'DayOfWeek', 'Distance',
-                 'Origin', 'Dest', 'Reporting_Airline', 'temp', 'dewPt', 'day_ind',
+
+# RELEVANT_COLS = ('Year', 'Quarter', 'Month', 'DayofMonth', 'DayOfWeek', 'Distance',
+#                  'Origin', 'Dest', 'Reporting_Airline', 'temp', 'dewPt', 'day_ind',
+#                  'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase')
+
+RELEVANT_COLS = ('Year', 'Month', 'DayofMonth','Origin','temp', 'dewPt', 'day_ind',
                  'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase')
-# Q: Which variable is forecasted weather data??
 
 def pre_process_dataset(df_to_process, \
                         target_col=TARGET_COL_CLASSIFIER, \

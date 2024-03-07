@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1204</width>
-    <height>820</height>
+    <width>1200</width>
+    <height>811</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -654,25 +654,15 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>Format: YYYY, YYYY, airport_code</string>
+         <string>Format: YYYY, YYYY</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="years_input">
         <property name="geometry">
          <rect>
           <x>610</x>
           <y>210</y>
           <width>231</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="admin_airport_code">
-        <property name="geometry">
-         <rect>
-          <x>900</x>
-          <y>210</y>
-          <width>171</width>
           <height>31</height>
          </rect>
         </property>
@@ -687,8 +677,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1204</width>
-     <height>21</height>
+     <width>1200</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

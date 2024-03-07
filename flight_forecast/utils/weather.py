@@ -216,7 +216,7 @@ def get_historic_weather_data(airports, start_year, end_year):
         obs = []
 
         for time_period in months_days:
-            time.sleep(5)
+            time.sleep(1)
             try:
                 params = {
                     'apiKey': API_TOKEN,
@@ -314,7 +314,9 @@ def get_weather_forecast(airport_code, timestamp):
         focused_forecast_df = refined_weather_df[
             (refined_weather_df['valid_time_gmt'] <= timestamp) & (timestamp < refined_weather_df['expire_time_gmt'])]
 
-        return focused_forecast_df
+        print(focused_forecast_df)
+
+        return focused_forecast_df.to_dict('records')[0]
 
     except Exception as e:
         print(e)
