@@ -3,19 +3,19 @@ Provides functions for gathering weather data, including historical and forecast
 for specified airports.
 
 Functions:
-- get_month_range(year, month):
+- _get_month_range(year, month):
     Calculates start and end dates for a month.
-- generate_date_ranges(years):
+- _generate_date_ranges(years):
     Generates a list of dictionaries containing date ranges for a year range.
-- enrich_date_time(weather_df):
+- _enrich_date_time(weather_df):
     Adds derived date and time information to a weather DataFrame.
-- clean_historic_weather_data(weather_data_raw, location_code, columns_of_interest):
+- _clean_historic_weather_data(weather_data_raw, location_code, columns_of_interest):
     Cleans and enriches historical weather data.
 - get_historic_weather_data(airports, start_year, end_year):
     Retrieves and saves historical weather data for multiple airports.
-- refine_forecasted_data(forecasted_weather_df_raw):
+- _refine_forecasted_data(forecasted_weather_df_raw):
     Refines and reformats forecasted weather data.
-- get_weather_forecast(airport_code):
+- get_weather_forecast(airport_code, timestamp):
     Fetches and refines 15-day weather forecast for an airport.
 
 This module requires the following external libraries:
@@ -26,6 +26,7 @@ This module requires the following external libraries:
 """
 import time
 import calendar
+import sys
 
 from datetime import date, timedelta
 
@@ -63,7 +64,6 @@ COI_HISTORIC = [
 COI_FORECASTED: A list of strings specifying the columns to extract
 from forecasted weather data.
 """
-
 COI_FORECASTED = [
     'validTimeUtc',
     'expirationTimeUtc',
@@ -80,7 +80,7 @@ COI_FORECASTED = [
 ]
 
 
-def get_month_range(year, month):
+def _get_month_range(year, month):
     """
     This function returns a tuple containing the start and end dates of
     a specific month in a given year.
@@ -91,34 +91,54 @@ def get_month_range(year, month):
 
     Returns:
         tuple: A tuple containing the start and end dates of a month.
+
+    Raises:
+        ValueError: If 'month' or 'year' is invalid.
+        TypeError: If 'month' or 'year' is not integer.
     """
-    # Create the first day of the month
-    start_date = date(year, month, 1)
-    # For February, check if it's a leap year to get the correct end date
-    if month == 2:
-        end_date = start_date + timedelta(days=27 + calendar.isleap(year))
-    else:
-        # For other months, use the appropriate number of days based on month length
-        end_date = start_date + timedelta(days=(30 if month in (1, 3, 5, 7, 8, 10, 12) else 29))
-    return start_date, end_date
+
+    try:
+        # Create the first day of the month
+        start_date = date(year, month, 1)
+        # For February, check if it's a leap year to get the correct end date
+        if month == 2:
+            end_date = start_date + timedelta(days=27 + calendar.isleap(year))
+        else:
+            # For other months, use the appropriate number of days based on month length
+            end_date = start_date + timedelta(days=(30 if month in (1, 3, 5, 7, 8, 10, 12) else 29))
+        return start_date, end_date
+    except TypeError as type_error:
+        raise type_error
+    except ValueError as value_error:
+        raise value_error
 
 
-def generate_date_ranges(years):
+def _generate_date_ranges(years):
     """
     This function generates a list of dictionaries containing start and end dates
     for each month in a given list of years.
 
     Args:
-        years (list): A list of integers representing the years for which date ranges are desired.
+        years (range): A range of years for which date ranges are desired.
 
     Returns:
         list: A list of dictionaries, where each dictionary contains 'year', 'month', 'start_date',
          and 'end_date' keys.
+
+    Raises:
+        TypeError: If 'years' is not a range.
+        ValueError: If 'years' is not a valid range
     """
+
+    if not isinstance(years, range):
+        raise TypeError("'years' is not a range")
+    if years.start <= 0 or years.stop <= 0:
+        raise ValueError("'years' is not a valid range")
+
     date_ranges = []
     for year in years:
         for month in range(1, 13):
-            start_date, end_date = get_month_range(year, month)
+            start_date, end_date = _get_month_range(year, month)
             date_ranges.append({
                 'year': year,
                 'month': month,
@@ -128,7 +148,7 @@ def generate_date_ranges(years):
     return date_ranges
 
 
-def enrich_date_time(weather_df):
+def _enrich_date_time(weather_df):
     """
     Enriches weather data with derived date/time columns and drops originals.
 
@@ -140,33 +160,39 @@ def enrich_date_time(weather_df):
 
     Raises:
         ValueError: If 'valid_time_gmt' or 'expire_time_gmt' is missing.
+        TypeError: If 'valid_time_gmt' or 'expire_time_gmt' is invalid.
 
-    Assumes 'valid_time_gmt' and 'expire_time_gmt' are in UTC timestamps.
+    Assumes 'valid_time_gmt' and 'expire_time_gmt' are in UTC timestamps (in seconds).
     """
 
     if 'valid_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'valid_time_gmt' in weather data")
+    if weather_df.dtypes['valid_time_gmt'] != int:
+        raise TypeError("Invalid 'valid_time_gmt' in weather data")
+
     if 'expire_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'expire_time_gmt' in weather data")
+    if weather_df.dtypes['expire_time_gmt'] != int:
+        raise TypeError("Invalid 'expire_time_gmt' in weather data")
 
-    weather_df['record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
-    weather_df['start_day'] = weather_df['record_start_date'].dt.day
-    weather_df['start_month'] = weather_df['record_start_date'].dt.month
-    weather_df['start_year'] = weather_df['record_start_date'].dt.year
-    weather_df['start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
-    weather_df['start_hour_gmt'] = weather_df['record_start_date'].dt.hour
-    weather_df['start_minute_gmt'] = weather_df['record_start_date'].dt.minute
+    weather_df.loc[:,'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
+    weather_df.loc[:,'start_day'] = weather_df['record_start_date'].dt.day
+    weather_df.loc[:,'start_month'] = weather_df['record_start_date'].dt.month
+    weather_df.loc[:,'start_year'] = weather_df['record_start_date'].dt.year
+    weather_df.loc[:,'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
+    weather_df.loc[:,'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
+    weather_df.loc[:,'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
 
-    weather_df['record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
-    weather_df['end_hour_gmt'] = weather_df['record_end_date'].dt.hour
-    weather_df['end_minute_gmt'] = weather_df['record_end_date'].dt.minute
+    weather_df.loc[:,'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
+    weather_df.loc[:,'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
+    weather_df.loc[:,'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
 
     weather_df.drop(['record_start_date', 'record_end_date'], axis=1)
 
     return weather_df
 
 
-def clean_historic_weather_data(weather_data_raw, location_code, columns_of_interest):
+def _clean_historic_weather_data(weather_data_raw, location_code, columns_of_interest):
     """
     Cleans and enriches historical weather data: selects relevant columns, adds location ID,
      and enriches date/time.
@@ -178,12 +204,18 @@ def clean_historic_weather_data(weather_data_raw, location_code, columns_of_inte
 
     Returns:
         pd.DataFrame: Cleaned and enriched weather data.
+
+    Raises:
+        ValueError: If 'weather_data_raw' does not have all 'columns_of_interest'
     """
 
-    weather_data_cleaned = weather_data_raw[columns_of_interest]
-    weather_data_cleaned['location_id'] = location_code
+    if not set(columns_of_interest) <= set(weather_data_raw.columns):
+        raise ValueError("'weather_data_raw' does not have all the 'columns_of_interest'")
 
-    return enrich_date_time(weather_data_cleaned)
+    weather_data_cleaned = weather_data_raw[columns_of_interest].copy()
+    weather_data_cleaned.loc[:,'location_id'] = location_code
+
+    return _enrich_date_time(weather_data_cleaned)
 
 
 def get_historic_weather_data(airports, start_year, end_year):
@@ -205,18 +237,20 @@ def get_historic_weather_data(airports, start_year, end_year):
     if start_year > end_year:
         raise ValueError("Start year should be less than or equal to end year")
 
-    months_days = generate_date_ranges(list(range(start_year, end_year + 1)))
-#TODO: call get_historic_data from weather.py
-    #call
-    print(airports.columns)
-    for airport in airports['Airport Code']:
+    months_days = _generate_date_ranges(range(start_year, end_year + 1))
 
-        historic_weather_api = f"https://api.weather.com/v1/location/K{airport}:9:US/observations/historical.json"
+    for ind, airport in enumerate(airports['Airport Code']):
+        progress_str = f"Getting weather for airport {airport}. " + \
+                       f"({ind}/{airports['Airport Code'].shape[0]})"
+        print(progress_str, end="\r")
+        sys.stdout.flush()
+        historic_weather_api = f"https://api.weather.com/v1/location/K{airport}" + \
+                               ":9:US/observations/historical.json"
 
         obs = []
 
         for time_period in months_days:
-            time.sleep(1)
+            time.sleep(5)
             try:
                 params = {
                     'apiKey': API_TOKEN,
@@ -231,19 +265,18 @@ def get_historic_weather_data(airports, start_year, end_year):
                 # raise exception if observations is not present in the data
                 obs = obs + data['observations']
 
-            except Exception as e:
+            except Exception as excep:
                 print(f"Error while fetching weather data for {airport}")
-                print(e)
+                print(excep)
                 # should we raise an exception here? or just notify the user?
 
-        airport_data = pd.DataFrame(obs)
-        airport_data_clean = clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-        #airport_data_clean.to_csv("../../../resources/generated/" + airport + ".csv")
-        airport_data_clean.to_csv("./weather_data/"+ airport + ".csv")
+        if len(obs) > 0:
+            airport_data = pd.DataFrame(obs)
+            airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
+            airport_data_clean.to_csv("../../resources/generated/" + airport + ".csv")
 
 
-
-def refine_forecasted_data(forecasted_weather_df_raw):
+def _refine_forecasted_data(forecasted_weather_df_raw):
     """
     Refines forecasted weather data: selects columns, renames, and enriches date/time.
 
@@ -272,7 +305,7 @@ def refine_forecasted_data(forecasted_weather_df_raw):
         columns=column_mapping)
 
     # refine start and end times for each record
-    return enrich_date_time(forecasted_weather_data)
+    return _enrich_date_time(forecasted_weather_data)
 
 
 def get_weather_forecast(airport_code, timestamp):
@@ -300,34 +333,39 @@ def get_weather_forecast(airport_code, timestamp):
         }
 
         resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
-        print(resp.request.url)
+
         response_data = resp.json()
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
+        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
+                                                            .shift(-1)
+                                                            .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
         forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
                                                       .shift(-1)
-                                                      .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
+                                                      .fillna(forecasted_weather_df["validTimeUtc"]
+                                                              + 3600))
 
-        refined_weather_df = refine_forecasted_data(forecasted_weather_df)
+        refined_weather_df = _refine_forecasted_data(forecasted_weather_df)
 
         focused_forecast_df = refined_weather_df[
-            (refined_weather_df['valid_time_gmt'] <= timestamp) & (timestamp < refined_weather_df['expire_time_gmt'])]
+            (refined_weather_df['valid_time_gmt'] <= timestamp) & \
+            (timestamp < refined_weather_df['expire_time_gmt'])]
 
-        print(focused_forecast_df)
+        focused_forecast_dict = focused_forecast_df.to_dict('records')
 
-        return focused_forecast_df.to_dict('records')[0]
+        if len(focused_forecast_dict) > 0:
+            return focused_forecast_dict[0]
+        else:
+            raise ValueError("Forcast data unavailable for given date and airport")
 
     except Exception as e:
         print(e)
 
 
-
 if __name__ == '__main__':
     # Read the Airport Codes from CSV
-    airports_data = pd.read_csv('../resources/airport_codes.csv')
-    #print(airports_data)
+    airports_data = pd.read_csv('../../resources/airport_codes.csv')
+    get_historic_weather_data(airports_data, 2022, 2023)
 
-    #get_historic_weather_data(airports_data, 2022, 2023)
-
-    #print(get_weather_forecast('SEA',1709823106))
+    # print(get_weather_forecast('SEA', 1709770534))

@@ -11,6 +11,7 @@ each flight.
 
 import zipfile
 import os
+import sys
 from datetime import datetime as dt
 import pandas as pd
 
@@ -45,6 +46,7 @@ def combine_zipped_data(root_data_folder_path):
             # Displaying current progress
             current_progress += 1
             print(f"Processing airport file {current_progress}/{total_files} ...", end="\r")
+            sys.stdout.flush()
             # Searching for zipped data
             if entry.name.endswith(".zip") and entry.is_file():
                 # Opening zipped data folders
@@ -57,8 +59,10 @@ def combine_zipped_data(root_data_folder_path):
                                 data_to_combine.append(pd.read_csv(delay_data, low_memory=False))
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
+    sys.stdout.flush()
     combined_data = pd.concat(data_to_combine)
     print('Airport data successfully combined!           ')
+    sys.stdout.flush()
     return combined_data
 
 
@@ -78,7 +82,6 @@ def combine_weather_data(root_data_folder_path):
     folder, with an additional column containing the airport code for each measurement.
     '''
 
-
     data_to_combine = []
     with os.scandir(root_data_folder_path) as root_data_folder:
         total_files = len(os.listdir(root_data_folder_path))
@@ -87,6 +90,7 @@ def combine_weather_data(root_data_folder_path):
             # Displaying current progress
             current_progress += 1
             print(f"Processing weather file {current_progress}/{total_files} ...", end="\r")
+            sys.stdout.flush()
             # Searching for csv data
             if entry.is_file() and entry.name[-4:] == ".csv":
                 # Collecting csv files for combination
@@ -96,8 +100,10 @@ def combine_weather_data(root_data_folder_path):
                 data_to_combine.append(airport_df)
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
+    sys.stdout.flush()
     combined_data = pd.concat(data_to_combine)
     print('Weather data successfully combined!           ')
+    sys.stdout.flush()
     return combined_data
 
 
@@ -127,6 +133,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
         if airport_code in airports_with_known_weather_data:
             print("Currently processing airport code {airport_code}." + \
                   f"{ind}/{num_airports_to_inspect}  ", end='\r')
+            sys.stdout.flush()
             # Obtaining flight data for current airport and sorting by departure time
             airport_flight_df = flight_df[flight_df.Origin == airport_code]
             airport_flight_df.loc[:,"FlightDate"] = (airport_flight_df.FlightDate + " " +
@@ -138,7 +145,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
                                                                              if time != "2400" \
                                                                              else "2359"))
             #parse_airport_date = lambda date: dt.strptime(date, "%Y-%m-%d %H%M")
-            time_str = ("%Y-%m-%d %H:%M",)
+            time_str = ("%Y-%m-%d %H%M",)
             airport_flight_df.loc[:,"FlightDate"] = airport_flight_df.FlightDate \
                                                                      .apply(dt.strptime, \
                                                                             args=time_str)
@@ -162,6 +169,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
                 flight_df.loc[flight_ind,weather_cols] = airport_weather_df.iloc[current_weather,:]
                 current_flight += 1
     print("Data successfully attached!                                       ", end="\r")
+    sys.stdout.flush()
     return flight_df
 
 
@@ -200,5 +208,9 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
 
     combined_flight_data.to_pickle("combined_flight_data")
 
-
-# create_dataset(airport_path="./flight_data", weather_path="./weather_data")
+if __name__ == "__main__":
+    airports = pd.read_csv('../../BTS_Flight_Forecast/resources/airport_codes.csv')
+    # this should be changed later
+    weather.get_historic_weather_data(airports, start_year=2022, end_year=2022)
+    create_dataset(airport_path="./flight_data", weather_path="./weather_data")
+    
