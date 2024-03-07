@@ -206,8 +206,11 @@ def get_historic_weather_data(airports, start_year, end_year):
         raise ValueError("Start year should be less than or equal to end year")
 
     months_days = generate_date_ranges(list(range(start_year, end_year + 1)))
-
+#TODO: call get_historic_data from weather.py
+    #call
+    print(airports.columns)
     for airport in airports['Airport Code']:
+
         historic_weather_api = f"https://api.weather.com/v1/location/K{airport}:9:US/observations/historical.json"
 
         obs = []
@@ -235,8 +238,9 @@ def get_historic_weather_data(airports, start_year, end_year):
 
         airport_data = pd.DataFrame(obs)
         airport_data_clean = clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-        airport_data_clean.to_csv("../../../resources/generated/" + airport + ".csv")
-        break
+        #airport_data_clean.to_csv("../../../resources/generated/" + airport + ".csv")
+        airport_data_clean.to_csv("./weather_data/"+ airport + ".csv")
+
 
 
 def refine_forecasted_data(forecasted_weather_df_raw):
@@ -316,10 +320,12 @@ def get_weather_forecast(airport_code, timestamp):
         print(e)
 
 
+
 if __name__ == '__main__':
     # Read the Airport Codes from CSV
-    # airports_data = pd.read_csv('../../../resources/airport_codes.csv')
+    airports_data = pd.read_csv('../resources/airport_codes.csv')
+    #print(airports_data)
 
-    # get_historic_weather_data(airports_data, 2022, 2023)
+    #get_historic_weather_data(airports_data, 2022, 2023)
 
-    print(get_weather_forecast('SEA', 1709770534))
+    #print(get_weather_forecast('SEA',1709823106))
