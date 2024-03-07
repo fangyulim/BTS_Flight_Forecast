@@ -338,9 +338,10 @@ def get_weather_forecast(airport_code, timestamp):
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
-        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
+        valid_time_series = forecasted_weather_df["validTimeUtc"]
+        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (valid_time_series
                                                             .shift(-1)
-                                                            .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
+                                                            .fillna(valid_time_series + 3600))
 
         refined_weather_df = _refine_forecasted_data(forecasted_weather_df)
 
@@ -348,7 +349,12 @@ def get_weather_forecast(airport_code, timestamp):
             (refined_weather_df['valid_time_gmt'] <= timestamp) & \
             (timestamp < refined_weather_df['expire_time_gmt'])]
 
-        return focused_forecast_df
+        focused_forecast_dict = focused_forecast_df.to_dict('records')
+
+        if len(focused_forecast_dict) > 0:
+            return focused_forecast_dict[0]
+        else:
+            raise ValueError("Forcast data unavailable for given date and airport")
 
     except Exception as e:
         print(e)
