@@ -5,10 +5,10 @@ BOI,"Boise, ID, Boise Municipal Arpt (Gowen Field)",
 BTM,"Butte, MT",
 BZN,"Bozeman, MT, Gallatin Field",
 CLM,"Port Angeles, WA, Wm Fairchild Intl Airport",
-ESD,"Eastsound, WA, Eastsound/Orcas Island Airport",ORS
+ORS,"Eastsound, WA, Eastsound/Orcas Island Airport",ESD
 EUG,"Eugene, OR, Eugene Airport",
-FCA,"Kalispell, MT, Glacier Park International",GPI
-FRD,"Friday Harbor, WA, Friday Harbor Airport",FHR
+GPI,"Kalispell, MT, Glacier Park International",FCA
+FHR,"Friday Harbor, WA, Friday Harbor Airport",FRD
 GDV,"Glendive, MT",
 GEG,"Spokane, WA, International/Geiger Field",
 GGW,"Glasgow, MT, USA",
@@ -16,13 +16,13 @@ GTF,"Great Falls, MT, Great Falls International",
 HLN,"Helena, MT",
 HVR,"Havre, MT, City County",
 IDA,"Idaho Falls, ID",
-LKE,"Seattle, WA, Lake Union Sea Plane Base",
+SEA,"Seattle, WA, Lake Union Sea Plane Base",LKE
 LMT,"Klamath Falls, OR, Kingsley Field Airport",
 LWS,"Lewiston, ID, Lewiston-Nez Perce Airport",
 LWT,"Lewistown, MT, Municipal",
 MLS,"Miles City, MT, Miles City",
 MSO,"Missoula, MT, Missoula International",
-ODW,"Oak Harbor, WA",OKH
+OKH,"Oak Harbor, WA",ODW
 OLF,"Wolf Point, MT",
 PDT,"Pendleton, OR",
 PDX,"Portland, OR, Portland International Airport",

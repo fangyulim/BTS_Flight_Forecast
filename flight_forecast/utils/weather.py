@@ -265,9 +265,10 @@ def get_historic_weather_data(airports, start_year, end_year):
                 print(e)
                 # should we raise an exception here? or just notify the user?
 
-        airport_data = pd.DataFrame(obs)
-        airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-        airport_data_clean.to_csv("../../resources/generated/" + airport + ".csv")
+        if len(obs) > 0:
+            airport_data = pd.DataFrame(obs)
+            airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
+            airport_data_clean.to_csv("../../resources/generated/" + airport + ".csv")
 
 
 def _refine_forecasted_data(forecasted_weather_df_raw):
