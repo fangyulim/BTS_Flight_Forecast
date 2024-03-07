@@ -68,7 +68,7 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QDateEdit" name="DateSelection">
+       <widget class="QDateEdit" name="date_selection">
         <property name="geometry">
          <rect>
           <x>230</x>
@@ -103,7 +103,7 @@
          <bool>false</bool>
         </property>
        </widget>
-       <widget class="QComboBox" name="AirportSelection">
+       <widget class="QComboBox" name="airport_selection">
         <property name="geometry">
          <rect>
           <x>320</x>
@@ -157,7 +157,7 @@
          <string>Time:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="airport_lb">
         <property name="geometry">
          <rect>
           <x>85</x>
@@ -275,7 +275,7 @@ p, li { white-space: pre-wrap; }
          <string>The average delay time is:</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="EstimateCheckBox">
+       <widget class="QCheckBox" name="check_box">
         <property name="geometry">
          <rect>
           <x>85</x>
@@ -313,6 +313,60 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="airline_lb">
+        <property name="geometry">
+         <rect>
+          <x>700</x>
+          <y>120</y>
+          <width>141</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Select Airline:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="airline_selection">
+        <property name="geometry">
+         <rect>
+          <x>860</x>
+          <y>110</y>
+          <width>291</width>
+          <height>38</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="fail_predict_lb">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>390</y>
+          <width>521</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
         </property>
        </widget>
       </widget>
