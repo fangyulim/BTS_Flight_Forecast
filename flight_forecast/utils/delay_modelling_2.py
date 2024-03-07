@@ -80,10 +80,6 @@ def pre_process_dataset(df_to_process, \
             x_test_sparse, y_test,)
 
 
-def pre_process_prediction_vector(pred_vactor):
-
-
-
 def train_classifier(datasets):
     '''
     Trains a logistic regression classifier for flight delay probability.
