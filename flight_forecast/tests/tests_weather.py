@@ -9,11 +9,11 @@ from unittest import mock
 import pandas as pd
 
 from utils.weather import (
-    get_month_range,
-    generate_date_ranges,
-    enrich_date_time,
-    clean_historic_weather_data,
-    refine_forecasted_data
+    _get_month_range,
+    _generate_date_ranges,
+    _enrich_date_time,
+    _clean_historic_weather_data,
+    _refine_forecasted_data
 )
 
 sample_weather_data_historic = {
@@ -44,6 +44,8 @@ sample_weather_data_forecasted = {
     'pressureMeanSeaLevel': 1013,
     'wxPhraseShort': 'Clear'
 }
+
+
 class TestWeather(unittest.TestCase):
 
     def test_get_month_range(self):
@@ -51,11 +53,11 @@ class TestWeather(unittest.TestCase):
         Tests that `get_month_range` returns the correct start and end dates for a month.
         """
 
-        start_date, end_date = get_month_range(2023, 1)
+        start_date, end_date = _get_month_range(2023, 1)
         self.assertEqual(start_date, date(2023, 1, 1))
         self.assertEqual(end_date, date(2023, 1, 31))
 
-        start_date, end_date = get_month_range(2024, 2)
+        start_date, end_date = _get_month_range(2024, 2)
         self.assertEqual(start_date, date(2024, 2, 1))
         self.assertEqual(end_date, date(2024, 2, 29))
 
@@ -64,7 +66,7 @@ class TestWeather(unittest.TestCase):
         """
         Tests that `generate_date_ranges` returns the correct list of start and end dates per month.
         """
-        date_ranges = generate_date_ranges([2023, 2024])
+        date_ranges = _generate_date_ranges(range(2023, 2025))
         expected_ranges_start = [
             {"year": 2023, "month": 1, "start_date": "20230101", "end_date": "20230131"},
             {"year": 2023, "month": 2, "start_date": "20230201", "end_date": "20230228"},
@@ -84,7 +86,7 @@ class TestWeather(unittest.TestCase):
         Tests that `enrich_date_time` returns a dataframe with enriched datetime columns.
         """
         sample_weather_df = pd.DataFrame([sample_weather_data_historic])
-        enriched_weather_df = enrich_date_time(sample_weather_df)
+        enriched_weather_df = _enrich_date_time(sample_weather_df)
         self.assertIn("start_year", enriched_weather_df.columns)
         self.assertEqual(enriched_weather_df["start_year"][0], 2023)
 
@@ -97,15 +99,17 @@ class TestWeather(unittest.TestCase):
         mock_response.json = {"observations": [sample_weather_data_historic]}
         mock_get.return_value = mock_response
 
-        cleaned_data = clean_historic_weather_data(
-            pd.DataFrame([sample_weather_data_historic]), "SEA", ["valid_time_gmt", "expire_time_gmt"]
+        cleaned_data = _clean_historic_weather_data(
+            pd.DataFrame([sample_weather_data_historic]),
+            "SEA",
+            ["valid_time_gmt", "expire_time_gmt"]
         )
 
         self.assertEqual(cleaned_data["location_id"][0], "SEA")
         self.assertIn("start_year", cleaned_data.columns)
 
     def test_refine_forecasted_data(self):
-        refined_data = refine_forecasted_data(pd.DataFrame([sample_weather_data_forecasted]))
+        refined_data = _refine_forecasted_data(pd.DataFrame([sample_weather_data_forecasted]))
         self.assertEqual(refined_data["day_ind"][0], sample_weather_data_forecasted['dayOrNight'])
         self.assertIn("start_hour_gmt", refined_data.columns)
 
