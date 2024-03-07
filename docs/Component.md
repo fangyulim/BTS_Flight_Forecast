@@ -1,49 +1,50 @@
-### Usecase 1: View Flight Delay Prediction
-Component 1:
-- GUI (Allows user input, and output of flight delay predictions)
-- Inputs: 
-  None
-- Output: 
-  Display of the output from the prediction model, providing flight delay probability. 
-- Assumptions
-  Users know the airport code, and flight details. 
+## BTS Flight Forecast 
+<b> Background </b>b>
+BTS Flight Forecast is a tool to predict flight delays utilizing past weather data, and weather forecast, given a specified airport code, date, and time.
+<b> Data source </b>
+1. Flight Data: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
+2. Weather Data: https://www.wunderground.com/history
 
-Component 2:
-- Control logic (fetches the prediction model)
-- Inputs:
-  Airport code, string of alphanumeric that will be selected from a dropdown bar.
-  date and time, datetime that will be selected from a dropdown bar.
-  Model: ML prediction model trained on historic data, for flight delay probability.
-- Outputs:
-  Probability of delay, float.
-Assumptions: The model is already trained.
-  
-  
-### Usecase 2: Loading new data and re-training model
-Component 1:
-- GUI (Allows technician to upload data, and re-train the model and make modifications if necessary)
-- Outputs: 
-  Display of upload/ retrain status. (Fail/Success)
-- Assumptions:
-  The technician knows how to download the data from BTS.
-  
-Component 2:
-- Data processor (Pipeline that uses the uploaded data, fetches the corresponding weather data, and merges with previous data,involves data cleaning and data wrangling.)
-- Input:
-  Uploaded data
-  Existing data 
-- Output:
-  Cleaned and merged data
-- Assumption:
-  Uploaded data has the required columns to be transformed to existing schema.
-  
-Component 3:
-- Model trainer (Triggers a model training based on the provided data. Trains the model on the initial or updated data. Provides testing accuracy.)
-- Input:
-  Existing model
-  Training/ Testing data
-- Output:  
-  Training/testing accuracy
-- Assumptions:
-  Training and testing data are in the format as expected by the model.
-  
+## Use Case 1: View Flight Delay Prediction
+
+### Component 1: User GUI
+
+- <b>Description:</b> Provides a user interface for inputting flight details and displaying the predicted flight delay probability.
+- <b>Output:</b> Display of flight delay probability.
+- <b>Assumptions:</b> Users possess necessary flight details and understand airport codes.
+
+### Component 2: Predictive Model
+
+- <b>Description:</b> Orchestrates the retrieval of the prediction model and executes predictions.
+- <b>Inputs:</b> Airport code, departure date and time
+- <b>Output:</b> Probability of flight delay.
+- <b>Assumptions:</b> A trained ML prediction model is available.
+
+## Use Case 2: Train/Re-train Prediction Model
+
+### Component 3: Admin GUI
+
+- <b>Description:</b> Interface for technicians to upload flight data, trigger model training/re-training, and finetune parameters.
+- <b>Output:</b> Status display indicating success or failure of upload/retrain operations.
+- <b>Assumptions:</b> Technicians are proficient in downloading data from BTS.
+
+### Component 4: Weather Data Collection Pipeline
+
+- <b>Description:</b> Fetches historic weather data between two dates
+- <b>Inputs:</b> Start date, End date
+- <b>Output:</b> Cleaned and processed Weather Data between given dates
+- <b>Assumptions:</b> The input dates are in the past. The weather APIs are up and running.
+
+### Component 5: Data Processing Pipeline
+
+- <b>Description:</b> Manages the processing of uploaded flight data. Merges the flight schedules with corresponding weather data.
+- <b>Inputs:</b> Existing merged data, uploaded data on flight schedules, weather data collected by Weather Data Collection pipeline.
+- <b>Output:</b> Cleaned and merged dataset containing flight schedules and corresponding weather parameters.
+- <b>Assumptions:</b> Uploaded data conforms to expected schema.
+
+### Component 6: Model Trainer
+
+- <b>Description:</b> Initiates model training based on provided data, evaluates model accuracy.
+- <b>Inputs:</b> Existing model, training/testing data.
+- <b>Output:</b> Training/testing accuracy.
+- <b>Assumptions:</b> Training and testing data format aligns with model requirements.
