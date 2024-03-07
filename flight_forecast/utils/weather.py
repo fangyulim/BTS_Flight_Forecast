@@ -237,7 +237,7 @@ def get_historic_weather_data(airports, start_year, end_year):
     if start_year > end_year:
         raise ValueError("Start year should be less than or equal to end year")
 
-    months_days = _generate_date_ranges(list(range(start_year, end_year + 1)))
+    months_days = _generate_date_ranges(range(start_year, end_year + 1))
 
     for ind, airport in enumerate(airports['Airport Code']):
         progress_str = f"Getting weather for airport {airport}. " + \
@@ -352,7 +352,12 @@ def get_weather_forecast(airport_code, timestamp):
             (refined_weather_df['valid_time_gmt'] <= timestamp) & \
             (timestamp < refined_weather_df['expire_time_gmt'])]
 
-        return focused_forecast_df
+        focused_forecast_dict = focused_forecast_df.to_dict('records')
+
+        if len(focused_forecast_dict) > 0:
+            return focused_forecast_dict[0]
+        else:
+            raise ValueError("Forcast data unavailable for given date and airport")
 
     except Exception as e:
         print(e)
