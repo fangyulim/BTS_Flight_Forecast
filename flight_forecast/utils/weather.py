@@ -211,7 +211,7 @@ def get_historic_weather_data(airports, start_year, end_year):
     #call
     for ind, airport in enumerate(airports['Airport Code']):
         progress_str = f"Getting weather for airport {airport}. " + \
-                       f"({ind}/{airports["Airport Code"].shape[0]})"
+                       f"({ind}/{airports['Airport Code'].shape[0]})"
         print(progress_str, end="\r")
         sys.stdout.flush()
         historic_weather_api = f"https://api.weather.com/v1/location/K{airport}" + \

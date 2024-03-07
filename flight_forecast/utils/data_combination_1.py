@@ -213,3 +213,4 @@ if __name__ == "__main__":
     # this should be changed later
     weather.get_historic_weather_data(airports, start_year=2022, end_year=2022)
     create_dataset(airport_path="./flight_data", weather_path="./weather_data")
+    
