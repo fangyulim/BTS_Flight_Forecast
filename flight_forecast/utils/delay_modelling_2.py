@@ -18,18 +18,19 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.linear_model import LogisticRegression, LinearRegression
 
-
 TARGET_COL_CLASSIFIER = "ArrDel15"
 TARGET_COL_REGRESSOR = "ArrDelayMinutes"
 RELEVANT_COLS = ['Year', 'Month', 'DayofMonth',
                  'Origin', 'temp', 'dewPt', 'day_ind',
                  'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
+PICKLE_FOLDER_PATH = "../resources/generated/pickles"
+
+
 # Q: Which variable is forecasted weather data??
 
-def pre_process_dataset(df_to_process, \
-                        target_col=TARGET_COL_CLASSIFIER, \
-                        relevant_columns = RELEVANT_COLS,
-                        encoder_path="unknown_encoder.pkl"):
+def pre_process_dataset(df_to_process, target_col=TARGET_COL_CLASSIFIER,
+                        relevant_columns=RELEVANT_COLS,
+                        encoder_path=PICKLE_FOLDER_PATH + "/unknown_encoder.pkl"):
     '''
     Preprocesses flight data for use in training an sklearn model.
 
@@ -53,7 +54,7 @@ def pre_process_dataset(df_to_process, \
     * a Pandas Series with testing target data
     '''
     target_series = df_to_process[[target_col]]
-    input_df = df_to_process.drop(target_col,axis=1)
+    input_df = df_to_process.drop(target_col, axis=1)
     input_df = input_df[relevant_columns]
 
     x_train, x_test, y_train, y_test = train_test_split(input_df, target_series)
@@ -64,18 +65,18 @@ def pre_process_dataset(df_to_process, \
                                       (x_train.dtypes != 'float64')].index.tolist()
 
     encoder = ColumnTransformer([
-    ('scaler', StandardScaler(), numeric_cols),
-    ('one_hot', OneHotEncoder(drop='first', handle_unknown='ignore'), non_numeric_cols)],
-    remainder='drop',
-    verbose_feature_names_out=False)
+        ('scaler', StandardScaler(), numeric_cols),
+        ('one_hot', OneHotEncoder(drop='first', handle_unknown='ignore'), non_numeric_cols)],
+        remainder='drop',
+        verbose_feature_names_out=False)
 
     encoder.fit(x_train)
     x_train_sparse = encoder.transform(x_train)
-    #x_train_columns = encoder.get_feature_names_out()
+    # x_train_columns = encoder.get_feature_names_out()
     x_test_sparse = encoder.transform(x_test)
-    #x_test_columns = encoder.get_feature_names_out()
-    with open(encoder_path,'wb') as file:
-        pickle.dump(encoder,file)
+    # x_test_columns = encoder.get_feature_names_out()
+    with open(encoder_path, 'wb') as file:
+        pickle.dump(encoder, file)
 
     return (x_train_sparse, y_train,
             x_test_sparse, y_test,)
@@ -102,8 +103,8 @@ def train_classifier(datasets):
     '''
     # Defining logistic regression parameters to sweep over
     logreg_params = {
-        'penalty':['l1','l2'],
-        'C':[0.1,1,10]
+        'penalty': ['l1', 'l2'],
+        'C': [0.1, 1, 10]
     }
     # GridSearching logistic regression classifiers
     logreg_grid = GridSearchCV(LogisticRegression(solver='liblinear'), logreg_params, n_jobs=-2)
@@ -147,7 +148,7 @@ def train_regressor(datasets):
     return (linreg, train_acc, test_acc)
 
 
-def create_model_from_dataset(data_path="combined_flight_data"):
+def create_model_from_dataset(data_path=PICKLE_FOLDER_PATH+"/combined_flight_data"):
     '''
     Uses flight and weather data to train a classifier and regressor.
 
@@ -172,20 +173,22 @@ def create_model_from_dataset(data_path="combined_flight_data"):
     delay_df = pd.read_pickle(data_path)
     processed_datasets = pre_process_dataset(delay_df,
                                              target_col=TARGET_COL_CLASSIFIER,
-                                             encoder_path="classification_encoder.pkl")
+                                             encoder_path=(PICKLE_FOLDER_PATH +
+                                                           "/classification_encoder.pkl"))
     classifier_modelling_results = train_classifier(processed_datasets)
     processed_datasets = pre_process_dataset(delay_df,
                                              target_col=TARGET_COL_REGRESSOR,
-                                             encoder_path="regression_encoder.pkl")
+                                             encoder_path=(PICKLE_FOLDER_PATH +
+                                                           "/regression_encoder.pkl"))
     regressor_modelling_results = train_regressor(processed_datasets)
-    with open('classifier.pkl','wb') as file:
-        pickle.dump(classifier_modelling_results[0],file)
-    with open('classifier_metrics.pkl','wb') as file:
-        pickle.dump(classifier_modelling_results[1:],file)
-    with open('regressor.pkl','wb') as file:
-        pickle.dump(regressor_modelling_results[0],file)
-    with open('regressor_metrics.pkl','wb') as file:
-        pickle.dump(regressor_modelling_results[1:],file)
+    with open(PICKLE_FOLDER_PATH + '/classifier.pkl', 'wb') as file:
+        pickle.dump(classifier_modelling_results[0], file)
+    with open(PICKLE_FOLDER_PATH + '/classifier_metrics.pkl', 'wb') as file:
+        pickle.dump(classifier_modelling_results[1:], file)
+    with open(PICKLE_FOLDER_PATH + '/regressor.pkl', 'wb') as file:
+        pickle.dump(regressor_modelling_results[0], file)
+    with open(PICKLE_FOLDER_PATH + '/regressor_metrics.pkl', 'wb') as file:
+        pickle.dump(regressor_modelling_results[1:], file)
 
 
 def predict_delay_probability(predictors):
@@ -202,9 +205,9 @@ def predict_delay_probability(predictors):
     -------
     A float containing the log-probability of a flight delay.
     '''
-    with open('classifier.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/classifier.pkl', 'rb') as file:
         delay_predictor = pickle.load(file)
-    with open('classification_encoder.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/classification_encoder.pkl', 'rb') as file:
         encoder = pickle.load(file)
     encoded_pred = encoder.transform(predictors)
     return delay_predictor.predict_proba(encoded_pred)
@@ -214,7 +217,7 @@ def get_classifier_metrics():
     '''
     Returns training metrics for "classifier.pkl".
     '''
-    with open('classifier_metrics.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/classifier_metrics.pkl', 'rb') as file:
         delay_predictor_metrics = pickle.load(file)
     return delay_predictor_metrics
 
@@ -233,9 +236,9 @@ def predict_delay_severity(predictors):
     -------
     A float containing the estimated minutes of flight delay.
     '''
-    with open('regressor.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/regressor.pkl', 'rb') as file:
         severity_predictor = pickle.load(file)
-    with open('regression_encoder.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/regression_encoder.pkl', 'rb') as file:
         encoder = pickle.load(file)
     encoded_pred = encoder.transform(predictors)
     return severity_predictor.predict(encoded_pred)
@@ -245,6 +248,10 @@ def get_regressor_metrics():
     '''
     Returns training metrics for "regressor.pkl"
     '''
-    with open('regressor_metrics.pkl','rb') as file:
+    with open(PICKLE_FOLDER_PATH + '/regressor_metrics.pkl', 'rb') as file:
         severity_predictor_metrics = pickle.load(file)
     return severity_predictor_metrics
+
+
+if __name__ == "__main__":
+    create_model_from_dataset(data_path=PICKLE_FOLDER_PATH+"/combined_flight_data")
