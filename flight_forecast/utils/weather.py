@@ -205,18 +205,7 @@ def _enrich_date_time(weather_df):
         raise TypeError("Invalid 'expire_time_gmt' in weather data")
 
     weather_df.loc[:, 'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
-    weather_df.loc[:, 'start_day'] = weather_df['record_start_date'].dt.day
-    weather_df.loc[:, 'start_month'] = weather_df['record_start_date'].dt.month
-    weather_df.loc[:, 'start_year'] = weather_df['record_start_date'].dt.year
-    weather_df.loc[:, 'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
-    weather_df.loc[:, 'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
-    weather_df.loc[:, 'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
-
     weather_df.loc[:, 'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
-    weather_df.loc[:, 'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
-    weather_df.loc[:, 'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
-
-    weather_df.drop(['record_start_date', 'record_end_date'], axis=1)
 
     return weather_df
 
@@ -307,9 +296,7 @@ def get_historic_weather_data(airports, start_year, end_year):
         if len(obs) > 0:
             airport_data = pd.DataFrame(obs)
             airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-            airport_data_clean.to_csv("../resources/generated/" + airport + ".csv")
-
-        break
+            airport_data_clean.to_csv("../resources/generated/weather_data/" + airport + ".csv")
 
 
 def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
@@ -395,5 +382,3 @@ if __name__ == '__main__':
     # Read the Airport Codes from CSV
     airports_data = pd.read_csv('../resources/airport_codes.csv')
     get_historic_weather_data(airports_data, 2022, 2023)
-
-    print(get_weather_forecast('SEA', 1710226747))
