@@ -26,8 +26,8 @@ TARGET_COL_REGRESSOR = "ArrDelayMinutes"
 #                  'Origin', 'Dest', 'Reporting_Airline', 'temp', 'dewPt', 'day_ind',
 #                  'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase')
 
-RELEVANT_COLS = ('Year', 'Month', 'DayofMonth','Origin','temp', 'dewPt', 'day_ind',
-                 'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase')
+RELEVANT_COLS = ['Year', 'Month', 'DayofMonth','Origin','temp', 'dewPt', 'day_ind',
+                 'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
 
 def pre_process_dataset(df_to_process, \
                         target_col=TARGET_COL_CLASSIFIER, \
@@ -71,6 +71,8 @@ def pre_process_dataset(df_to_process, \
     remainder='passthrough',
     verbose_feature_names_out=False)
 
+    x_train.columns = x_train.columns.astype(str)
+    x_test.columns = x_test.columns.astype(str)
     encoder.fit(x_train)
     x_train_sparse = encoder.transform(x_train)
     #x_train_columns = encoder.get_feature_names_out()
@@ -204,7 +206,13 @@ def predict_delay_probability(predictors):
         delay_predictor = pickle.load(file)
     with open('encoder.pkl','rb') as file:
         encoder = pickle.load(file)
-    encoded_pred = encoder.transform(predictors)
+
+    print(delay_predictor)
+    print(type(delay_predictor))
+    net_predictors = predictors[RELEVANT_COLS].copy()
+
+    print(net_predictors)
+    encoded_pred = encoder.transform(net_predictors)
     return delay_predictor.predict_proba(encoded_pred)
 
 
@@ -246,3 +254,6 @@ def get_regressor_metrics():
     with open('regressor_metrics.pkl','rb') as file:
         severity_predictor_metrics = pickle.load(file)
     return severity_predictor_metrics
+
+# if __name__ == "__main__":
+# create_model_from_dataset(data_path="C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast/flight_forecast/combined_flight_data")

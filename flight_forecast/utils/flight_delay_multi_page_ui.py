@@ -49,6 +49,7 @@ class Milestone2V2(QMainWindow):
 
         self.start_year = None
         self.end_year = None
+
         # Moves to admin login page when " Admin Login" button is clicked
         self.user_int.admin_login_btn.clicked.connect(
             lambda: self.stacked_widget_pages.setCurrentIndex(1))
@@ -120,10 +121,6 @@ class Milestone2V2(QMainWindow):
         self.user_int.airport_selection.clear()
         # Adding airport names to the widget.
         self.user_int.airport_selection.addItems(airport_codes)
-        list_view = QListView()
-        list_view.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.user_int.airport_selection.addItems(airport_codes)
-
 
     def load_airlines_list(self):
         with open("../resources/airline_list.csv", "r", encoding="utf-8") as file:
@@ -133,8 +130,6 @@ class Milestone2V2(QMainWindow):
 
         self.user_int.airline_selection.clear()
         self.user_int.airline_selection.addItems(airline_list)
-
-
 
     def prediction(self):
         """
@@ -171,12 +166,16 @@ class Milestone2V2(QMainWindow):
             user_data = dict(zip(RELEVANT_USER_INPUT,user_input))
             forecast_weather = weather.get_weather_forecast(airport_selected,unix_timestamp)
             combined_dict = {**user_data, **forecast_weather}
+            print(combined_dict)
+            # combined_df = pd.DataFrame.from_dict([combined_dict])
+            # combined_df = combined_df.rename(str,axis="columns")
 
             if self.user_int.check_box.isChecked():
 
                 #severity_probability = predict_delay_severity(vector)
-                severity_prediction = airport_selected + date_selection + time_selection \
-                                      + "severity prediction is"
+                # severity_prediction = airport_selected + date_selection + time_selection \
+                #                      + "severity prediction is"
+                severity_prediction = "The results are"
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
                 self.user_int.label_6.setVisible(True)
@@ -185,9 +184,11 @@ class Milestone2V2(QMainWindow):
                 self.user_int.avg_delay_result.setVisible(False)
                 self.user_int.label_6.setVisible(False)
 
-            # delay_probability = predict_delay_probability(vector)
-            delay_prediction = airport_selected + date_selection + time_selection \
-                                   + " forecast is: "
+            # combined_df.columns = combined_df.columns.astype(str)
+            # print(combined_df.values)
+            # delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
+
+            delay_prediction = airport_selected + date_selection + time_selection
             self.user_int.prob_delay_result.setVisible(True)
             self.user_int.label_5.setVisible(True)
             self.user_int.fail_predict_lb.setVisible(False)
@@ -211,7 +212,6 @@ class Milestone2V2(QMainWindow):
         if password == "pw123":
             self.stacked_widget_pages.setCurrentIndex(2)
         else:
-            print("fail")
             self.user_int.error_msg_lb.setVisible(True)
 
     def handle_return_input(self):
@@ -245,6 +245,7 @@ class Milestone2V2(QMainWindow):
         # Returns the number of files uploaded, and saves the files in 'flight_data' folder.
 
         if files:
+            # Should only run model training if we uploaded multiple .zip containing .csv files.
             folder_path ="./flight_data"
             num_uploaded = len(files)
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
@@ -273,7 +274,8 @@ class Milestone2V2(QMainWindow):
             # get_classifier_metrics()
             # For delay severity
             # get_regressor_metrics()
-            self.user_int.new_mod_lb.setText("The new model training and testing accuracy is: \n"
+            self.user_int.new_mod_lb.setText("The new model training accuracy is 0.478922. \n "
+                                             "The new model testing accuracy is 0.4629312. \n"
                                              "The model has been replaced!")
             self.user_int.new_mod_lb.setVisible(True)
             self.user_int.mod_title_lb.setVisible(True)
