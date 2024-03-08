@@ -14,7 +14,6 @@ To run using IDE, please change file paths.
 import csv
 import sys
 import pandas as pd
-import numpy as np
 import os
 import shutil
 
@@ -151,28 +150,55 @@ class Milestone2V2(QMainWindow):
         current_date = datetime.now()
         qdate = self.user_int.date_selection.date()
         date_selected = datetime(qdate.year(), qdate.month(), qdate.day())
-        difference = current_date - date_selected
+        difference = abs(current_date - date_selected)
         month_input = date.month()
+
         day_input = date.day()
         year_input = date.year()
-
-        if difference.days < 15:
+        print(difference.days)
+        if 1 < difference.days < 15:
             # TODO:
             # 1. call the get_weather_forecast from weather.py (airport code, timestamp in seconds): check
             # 2. pass the output from step1 to predict_delay_probability from data_modelling_2.py
             # call the predict_delay_time from data_modelling_2.py if the checkbox is selected
-            RELEVANT_USER_INPUT = np.array(['Year', 'Month', 'DayofMonth','Origin'])
-            user_input = np.array([year_input, month_input, day_input,airport_selected])
-            user_data = dict(zip(RELEVANT_USER_INPUT,user_input))
-            forecast_weather = weather.get_weather_forecast(airport_selected,unix_timestamp)
-            combined_dict = {**user_data, **forecast_weather}
-            print(combined_dict)
+            RELEVANT_USER_INPUT_COLUMNS = ['Year', 'Month', 'DayofMonth','Origin']
+            user_input = [year_input, month_input, day_input,airport_selected]
+
+            forecast_weather_df = weather.get_weather_forecast(airport_selected,unix_timestamp)
+            forecast_weather_df_focused = forecast_weather_df[['temp', 'dewPt', 'day_ind',
+                                                               'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']]
+            FORECAST_WEATHER_COLUMNS = list(forecast_weather_df_focused.columns)
+            forecast_weather_df_focused_values = forecast_weather_df_focused.values.tolist()[0]
+            #
+            # print(FORECAST_WEATHER_COLUMNS)
+            # print(type(FORECAST_WEATHER_COLUMNS))
+            #
+            # print(forecast_weather_df_focused_values)
+            # print(type(forecast_weather_df_focused_values))
+            #
+            # print(RELEVANT_USER_INPUT_COLUMNS)
+            # print(type(RELEVANT_USER_INPUT_COLUMNS))
+            #
+            # print(user_input)
+            # print(type(user_input))
+            #
+            # total_columns = RELEVANT_USER_INPUT_COLUMNS + FORECAST_WEATHER_COLUMNS
+
+            combined_df = pd.DataFrame(columns=RELEVANT_USER_INPUT_COLUMNS + FORECAST_WEATHER_COLUMNS )
+            combined_df.loc[0,:] = user_input+forecast_weather_df_focused_values
+
+            print(combined_df)
+            #
             # combined_df = pd.DataFrame.from_dict([combined_dict])
             # combined_df = combined_df.rename(str,axis="columns")
+            # columns_to_keep = ['Year', 'Month', 'DayofMonth',
+            #                    'Origin', 'temp', 'dewPt', 'day_ind',
+            #                    'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
+            # filtered_df = combined_df[columns_to_keep]
 
             if self.user_int.check_box.isChecked():
 
-                #severity_probability = predict_delay_severity(vector)
+                # severity_probability = delay_modelling_2.predict_delay_severity(filtered_df)
                 # severity_prediction = airport_selected + date_selection + time_selection \
                 #                      + "severity prediction is"
                 severity_prediction = "The results are"
@@ -186,8 +212,8 @@ class Milestone2V2(QMainWindow):
 
             # combined_df.columns = combined_df.columns.astype(str)
             # print(combined_df.values)
-            # delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
-
+            delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
+            print(delay_probability)
             delay_prediction = airport_selected + date_selection + time_selection
             self.user_int.prob_delay_result.setVisible(True)
             self.user_int.label_5.setVisible(True)
