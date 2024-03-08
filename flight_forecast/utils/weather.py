@@ -338,13 +338,10 @@ def get_weather_forecast(airport_code, timestamp):
 
         # transpose data from array to dictionary list
         forecasted_weather_df = pd.DataFrame(response_data)
-        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
+        valid_time_series = forecasted_weather_df["validTimeUtc"]
+        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (valid_time_series
                                                             .shift(-1)
-                                                            .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
-        forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
-                                                      .shift(-1)
-                                                      .fillna(forecasted_weather_df["validTimeUtc"]
-                                                              + 3600))
+                                                            .fillna(valid_time_series + 3600))
 
         refined_weather_df = _refine_forecasted_data(forecasted_weather_df)
 
