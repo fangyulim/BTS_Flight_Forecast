@@ -79,6 +79,34 @@ COI_FORECASTED = [
     'wxPhraseShort'
 ]
 
+"""
+COI_WEATHER_FORECAST: A list of strings specifying the data to extract from 
+filtered and refined weather data.
+"""
+COI_WEATHER_FORECAST = [
+    'day_ind',  # night or day
+    'temp',  # temperature
+    'dewPt',  # dew point
+    'rh',  # humidity
+    'wdir_cardinal',  # wind direction
+    'gust',  # wind gust
+    'wspd',  # wind speed
+    'pressure',  # pressure
+    'wx_phrase'  # phrase
+]
+
+WEATHER_FORECAST_COLUMN_MAP = {'validTimeUtc': 'valid_time_gmt',
+                               'expirationTimeUtc': 'expire_time_gmt',
+                               'dayOrNight': 'day_ind',
+                               'temperature': 'temp',
+                               'temperatureDewPoint': 'dewPt',
+                               'relativeHumidity': 'rh',
+                               'windDirectionCardinal': 'wdir_cardinal',
+                               'windGust': 'gust',
+                               'windSpeed': 'wspd',
+                               'pressureMeanSeaLevel': 'pressure',
+                               'wxPhraseShort': 'wx_phrase'}
+
 
 def _get_month_range(year, month):
     """
@@ -167,25 +195,25 @@ def _enrich_date_time(weather_df):
 
     if 'valid_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'valid_time_gmt' in weather data")
-    # if weather_df.dtypes['valid_time_gmt'] != int:
-    #     raise TypeError("Invalid 'valid_time_gmt' in weather data")
+    if weather_df.dtypes['valid_time_gmt'] != int:
+        raise TypeError("Invalid 'valid_time_gmt' in weather data")
 
     if 'expire_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'expire_time_gmt' in weather data")
-    # if weather_df.dtypes['expire_time_gmt'] != int:
-    #     raise TypeError("Invalid 'expire_time_gmt' in weather data")
+    if weather_df.dtypes['expire_time_gmt'] != int:
+        raise TypeError("Invalid 'expire_time_gmt' in weather data")
 
-    weather_df.loc[:,'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
-    weather_df.loc[:,'start_day'] = weather_df['record_start_date'].dt.day
-    weather_df.loc[:,'start_month'] = weather_df['record_start_date'].dt.month
-    weather_df.loc[:,'start_year'] = weather_df['record_start_date'].dt.year
-    weather_df.loc[:,'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
-    weather_df.loc[:,'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
-    weather_df.loc[:,'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
+    weather_df.loc[:, 'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
+    weather_df.loc[:, 'start_day'] = weather_df['record_start_date'].dt.day
+    weather_df.loc[:, 'start_month'] = weather_df['record_start_date'].dt.month
+    weather_df.loc[:, 'start_year'] = weather_df['record_start_date'].dt.year
+    weather_df.loc[:, 'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
+    weather_df.loc[:, 'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
+    weather_df.loc[:, 'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
 
-    weather_df.loc[:,'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
-    weather_df.loc[:,'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
-    weather_df.loc[:,'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
+    weather_df.loc[:, 'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
+    weather_df.loc[:, 'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
+    weather_df.loc[:, 'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
 
     weather_df.drop(['record_start_date', 'record_end_date'], axis=1)
 
@@ -213,7 +241,7 @@ def _clean_historic_weather_data(weather_data_raw, location_code, columns_of_int
         raise ValueError("'weather_data_raw' does not have all the 'columns_of_interest'")
 
     weather_data_cleaned = weather_data_raw[columns_of_interest].copy()
-    weather_data_cleaned.loc[:,'location_id'] = location_code
+    weather_data_cleaned.loc[:, 'location_id'] = location_code
 
     return _enrich_date_time(weather_data_cleaned)
 
@@ -250,25 +278,30 @@ def get_historic_weather_data(airports, start_year, end_year):
         obs = []
 
         for time_period in months_days:
-            time.sleep(1)
-            try:
-                params = {
-                    'apiKey': API_TOKEN,
-                    'units': 'e',
-                    'startDate': time_period['start_date'],
-                    'endDate': time_period['end_date']
-                }
+            time.sleep(5)
+            params = {
+                'apiKey': API_TOKEN,
+                'units': 'e',
+                'startDate': time_period['start_date'],
+                'endDate': time_period['end_date']
+            }
 
-                resp = requests.get(url=historic_weather_api, params=params, timeout=15)
+            resp = requests.get(url=historic_weather_api, params=params, timeout=15)
+
+            if 200 <= resp.status_code < 300:
+
                 data = resp.json()
 
-                # raise exception if observations is not present in the data
-                obs = obs + data['observations']
-
-            except Exception as excep:
-                print(f"Error while fetching weather data for {airport}")
-                print(excep)
-                # should we raise an exception here? or just notify the user?
+                if 'observations' in data.keys:
+                    obs = obs + data['observations']
+                else:
+                    print(f"Error while fetching historic weather data for {airport} between the "
+                          f"dates {time_period['start_date']}, {time_period['end_date']}."
+                          f"Response does not have 'observations'.")
+            else:
+                print(f"Error while fetching historic weather data for {airport} "
+                      f"between the dates {time_period['start_date']}, {time_period['end_date']}."
+                      "Response code indicates failure.")
 
         if len(obs) > 0:
             airport_data = pd.DataFrame(obs)
@@ -276,33 +309,25 @@ def get_historic_weather_data(airports, start_year, end_year):
             airport_data_clean.to_csv("./weather_data/" + airport + ".csv")
 
 
-def _refine_forecasted_data(forecasted_weather_df_raw):
+def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
     """
     Refines forecasted weather data: selects columns, renames, and enriches date/time.
 
     Args:
         forecasted_weather_df_raw (pd.DataFrame): Raw forecasted weather data.
+        columns_of_interest (list): Columns to keep from the raw forecast data.
 
     Returns:
         pd.DataFrame: Refined forecasted weather data.
     """
-    forecasted_weather_data = forecasted_weather_df_raw[COI_FORECASTED]
 
-    # rename columns
-    column_mapping = {'validTimeUtc': 'valid_time_gmt',
-                      'expirationTimeUtc': 'expire_time_gmt',
-                      'dayOrNight': 'day_ind',
-                      'temperature': 'temp',
-                      'temperatureDewPoint': 'dewPt',
-                      'relativeHumidity': 'rh',
-                      'windDirectionCardinal': 'wdir_cardinal',
-                      'windGust': 'gust',
-                      'windSpeed': 'wspd',
-                      'pressureMeanSeaLevel': 'pressure',
-                      'wxPhraseShort': 'wx_phrase'}
+    if not set(columns_of_interest) <= set(forecasted_weather_df_raw.columns):
+        raise ValueError("'forecasted_weather_df_raw' does not have all the columns of interest")
+
+    forecasted_weather_data = forecasted_weather_df_raw[columns_of_interest]
 
     forecasted_weather_data = forecasted_weather_data.rename(
-        columns=column_mapping)
+        columns=WEATHER_FORECAST_COLUMN_MAP)
 
     # refine start and end times for each record
     return _enrich_date_time(forecasted_weather_data)
@@ -320,57 +345,52 @@ def get_weather_forecast(airport_code, timestamp):
      specified timestamp.
 
     Raises:
-    Exception: If any errors occur during API calls or data processing.
+    requests.HttpError: If the forecast API returns a 4xx or 5xx response code.
+    ValueError: If any errors occur during API calls or data processing.
     """
 
-    try:
-        params = {
-            'apiKey': API_TOKEN,
-            'icaoCode': f'K{airport_code}',
-            'units': 'm',
-            'format': 'json',
-            'language': 'en-US'
-        }
+    params = {
+        'apiKey': API_TOKEN,
+        'icaoCode': f'K{airport_code}',
+        'units': 'm',
+        'format': 'json',
+        'language': 'en-US'
+    }
 
-        resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
+    resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
 
-        response_data = resp.json()
+    # raise an error for 4xx and 5xx response codes
+    resp.raise_for_status()
+    response_data = resp.json()
 
-        # transpose data from array to dictionary list
-        forecasted_weather_df = pd.DataFrame(response_data)
-        # print(forecasted_weather_df)
-        forecasted_weather_df.loc[:,"expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
-                                                            .shift(-1)
-                                                            .fillna(forecasted_weather_df["validTimeUtc"] + 3600))
-        forecasted_weather_df["expirationTimeUtc"] = (forecasted_weather_df["validTimeUtc"]
-                                                      .shift(-1)
-                                                      .fillna(forecasted_weather_df["validTimeUtc"]
-                                                              + 3600))
+    # transpose data from array to dictionary list
+    forecasted_weather_df = pd.DataFrame(response_data)
+    if 'validTimeUtc' not in forecasted_weather_df.columns:
+        raise ValueError(f"Missing 'validTimeUtc' in the forecasted weather data for "
+                         f"airport {airport_code}")
 
-        refined_weather_df = _refine_forecasted_data(forecasted_weather_df)
-        # print(refined_weather_df)
+    forecasted_weather_df.loc[:, "expirationTimeUtc"] = \
+        (forecasted_weather_df["validTimeUtc"]
+         .shift(-1)
+         .fillna(forecasted_weather_df["validTimeUtc"]
+                 + 3600))
 
-        focused_forecast_df = refined_weather_df[
-            (refined_weather_df['valid_time_gmt'] <= timestamp) & \
-            (timestamp < refined_weather_df['expire_time_gmt'])]
+    refined_weather_df = _refine_forecasted_data(forecasted_weather_df, COI_FORECASTED)
 
-        return focused_forecast_df
+    focused_forecast_df = refined_weather_df[
+        (refined_weather_df['valid_time_gmt'] <= timestamp) & \
+        (timestamp < refined_weather_df['expire_time_gmt'])]
+    focused_forecast_df = focused_forecast_df[COI_WEATHER_FORECAST]
 
-        # focused_forecast_dict = focused_forecast_df.to_dict('records')
-        # # print(focused_forecast_dict)
-        # if len(focused_forecast_dict) > 0:
-        #     return focused_forecast_dict[0]
-        #
-        # else:
-        #     raise ValueError("Forcast data unavailable for given date and airport")
-
-    except Exception as e:
-        print(e)
+    if len(focused_forecast_df) == 0:
+        raise ValueError(f"Forcast data unavailable for given airport {airport_code} at "
+                         f"time {timestamp}")
+    return focused_forecast_df
 
 
 if __name__ == '__main__':
     # Read the Airport Codes from CSV
-    airports_data = pd.read_csv('../../resources/airport_codes.csv')
-    get_historic_weather_data(airports_data, 2022, 2023)
+    # airports_data = pd.read_csv('../../resources/airport_codes.csv')
+    # get_historic_weather_data(airports_data, 2022, 2023)
 
-    # print(get_weather_forecast('SEA', 1709770534))
+    print(get_weather_forecast('SEA', 1710226747))
