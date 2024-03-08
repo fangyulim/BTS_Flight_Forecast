@@ -50,7 +50,7 @@ class TestWeather(unittest.TestCase):
 
     def test_get_month_range(self):
         """
-        Tests that `get_month_range` returns the correct start and end dates for a month.
+        Tests that `_get_month_range` returns the correct start and end dates for a month.
         """
 
         start_date, end_date = _get_month_range(2023, 1)
@@ -64,7 +64,7 @@ class TestWeather(unittest.TestCase):
     def test_generate_date_ranges(self):
 
         """
-        Tests that `generate_date_ranges` returns the correct list of start and end dates per month.
+        Tests that `_generate_date_ranges` returns correct list of start and end dates per month.
         """
         date_ranges = _generate_date_ranges(range(2023, 2025))
         expected_ranges_start = [
@@ -83,7 +83,7 @@ class TestWeather(unittest.TestCase):
 
     def test_enrich_date_time(self):
         """
-        Tests that `enrich_date_time` returns a dataframe with enriched datetime columns.
+        Tests that `_enrich_date_time` returns a dataframe with enriched datetime columns.
         """
         sample_weather_df = pd.DataFrame([sample_weather_data_historic])
         enriched_weather_df = _enrich_date_time(sample_weather_df)
@@ -93,7 +93,7 @@ class TestWeather(unittest.TestCase):
     @mock.patch("requests.get")
     def test_clean_historic_weather_data(self, mock_get):
         """
-        Tests that `clean_historic_weather_data` returns adds new columns to the dataframe .
+        Tests that `_clean_historic_weather_data` adds new columns to the dataframe .
         """
         mock_response = mock.Mock(status_code=200)
         mock_response.json = {"observations": [sample_weather_data_historic]}
@@ -109,8 +109,13 @@ class TestWeather(unittest.TestCase):
         self.assertIn("start_year", cleaned_data.columns)
 
     def test_refine_forecasted_data(self):
-        refined_data = _refine_forecasted_data(pd.DataFrame([sample_weather_data_forecasted]))
-        self.assertEqual(refined_data["day_ind"][0], sample_weather_data_forecasted['dayOrNight'])
+        """
+        Tests that `_refine_forecasted_data` adds new columns to the dataframe .
+        """
+        refined_data = _refine_forecasted_data(
+            pd.DataFrame([sample_weather_data_forecasted]),
+            ['validTimeUtc', 'expirationTimeUtc', 'temperature'])
+        self.assertEqual(refined_data["temp"][0], sample_weather_data_forecasted['temperature'])
         self.assertIn("start_hour_gmt", refined_data.columns)
 
 
