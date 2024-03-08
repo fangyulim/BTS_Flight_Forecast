@@ -57,7 +57,7 @@ def pre_process_dataset(df_to_process, \
 
     x_train, x_test, y_train, y_test = train_test_split(input_df, target_series)
 
-    print(x_train.shape)
+    # print(x_train.shape)
 
     numeric_cols = x_train.dtypes[(x_train.dtypes == 'int64') | \
                                   (x_train.dtypes == 'float64')].index.tolist()
@@ -199,7 +199,7 @@ def predict_delay_probability(predictors):
     A float containing the log-probability of a flight delay.
     '''
 
-    print(predictors.shape)
+    # print(predictors.shape)
 
     with open('classifier.pkl','rb') as file:
         delay_predictor = pickle.load(file)
