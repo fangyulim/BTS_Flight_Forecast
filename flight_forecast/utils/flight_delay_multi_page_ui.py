@@ -155,7 +155,6 @@ class Milestone2V2(QMainWindow):
 
         day_input = date.day()
         year_input = date.year()
-        print(difference.days)
         if 1 < difference.days < 15:
             # TODO:
             # 1. call the get_weather_forecast from weather.py (airport code, timestamp in seconds): check
@@ -169,38 +168,19 @@ class Milestone2V2(QMainWindow):
                                                                'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']]
             FORECAST_WEATHER_COLUMNS = list(forecast_weather_df_focused.columns)
             forecast_weather_df_focused_values = forecast_weather_df_focused.values.tolist()[0]
-            #
-            # print(FORECAST_WEATHER_COLUMNS)
-            # print(type(FORECAST_WEATHER_COLUMNS))
-            #
-            # print(forecast_weather_df_focused_values)
-            # print(type(forecast_weather_df_focused_values))
-            #
-            # print(RELEVANT_USER_INPUT_COLUMNS)
-            # print(type(RELEVANT_USER_INPUT_COLUMNS))
-            #
-            # print(user_input)
-            # print(type(user_input))
-            #
-            # total_columns = RELEVANT_USER_INPUT_COLUMNS + FORECAST_WEATHER_COLUMNS
 
             combined_df = pd.DataFrame(columns=RELEVANT_USER_INPUT_COLUMNS + FORECAST_WEATHER_COLUMNS )
             combined_df.loc[0,:] = user_input+forecast_weather_df_focused_values
 
-            print(combined_df)
-            #
-            # combined_df = pd.DataFrame.from_dict([combined_dict])
-            # combined_df = combined_df.rename(str,axis="columns")
-            # columns_to_keep = ['Year', 'Month', 'DayofMonth',
-            #                    'Origin', 'temp', 'dewPt', 'day_ind',
-            #                    'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
-            # filtered_df = combined_df[columns_to_keep]
+            # print(combined_df)
 
             if self.user_int.check_box.isChecked():
 
-                # severity_probability = delay_modelling_2.predict_delay_severity(filtered_df)
+                severity_probability = delay_modelling_2.predict_delay_severity(combined_df)
                 # severity_prediction = airport_selected + date_selection + time_selection \
                 #                      + "severity prediction is"
+                print("severity probability")
+                print(severity_probability)
                 severity_prediction = "The results are"
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
@@ -210,9 +190,8 @@ class Milestone2V2(QMainWindow):
                 self.user_int.avg_delay_result.setVisible(False)
                 self.user_int.label_6.setVisible(False)
 
-            # combined_df.columns = combined_df.columns.astype(str)
-            # print(combined_df.values)
             delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
+            print("delay")
             print(delay_probability)
             delay_prediction = airport_selected + date_selection + time_selection
             self.user_int.prob_delay_result.setVisible(True)
@@ -306,16 +285,12 @@ class Milestone2V2(QMainWindow):
             self.user_int.new_mod_lb.setVisible(True)
             self.user_int.mod_title_lb.setVisible(True)
 
-            #
-
             # For later: Print out training and testing accuracy, then ask
             # if user would like to replace model.
             # Asking if user would like to refit the model.
             # self.user_int.retrain_optionlb.setText("Would you like to replace the model? ")
             # self.user_int.retrain_optionlb.setVisible(True)
             #self.user_int.option_btn.setVisible(True)
-
-
             # self.user_int.option_btn.accepted.connect \
             #    (lambda: self.user_int.refit_lb.setText("Replace model..."))
             #self.user_int.option_btn.rejected.connect \
