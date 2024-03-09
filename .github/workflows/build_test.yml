@@ -49,11 +49,6 @@ jobs:
     steps:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
-      - name: Run tests with eglfs plugin
-        run: |
-          export QT_QPA_PLATFORM=eglfs
-          coverage run -m unittest discover
-
       - name: Set Qt environment variables
         run: |
           export QT_QPA_PLATFORM=xcb
