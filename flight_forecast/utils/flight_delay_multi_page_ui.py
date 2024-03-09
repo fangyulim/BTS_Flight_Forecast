@@ -13,11 +13,11 @@ To run using IDE, please change file paths.
 """
 import csv
 import sys
-import pandas as pd
-import os
 import shutil
-
 from datetime import datetime
+import os
+
+import pandas as pd
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt, QDateTime, QTimeZone
@@ -28,7 +28,9 @@ from . import delay_modelling_2
 # GUI file
 QT_CREATOR_FILE = '../resources/flight_delay_multi_page.ui'
 ui_main_window, QtBaseClass = uic.loadUiType(QT_CREATOR_FILE)
-
+AIRPORT_FOLDER_PATH = "../resources/flight_data"
+WEATHER_FOLDER_PATH = "../resources/generated/weather_data"
+PICKLE_FOLDER_PATH = "../resources/generated/pickles"
 
 class Milestone2V2(QMainWindow):
     """
@@ -139,6 +141,7 @@ class Milestone2V2(QMainWindow):
         self.user_int.airline_selection.addItems(airline_list)
 
     def prediction(self):
+        # Too many local variables.
         """
         This function takes user input, fetches forecasted weather, runs prediction model and
         displays the predicted probability of delay or severity prediction.
@@ -150,10 +153,6 @@ class Milestone2V2(QMainWindow):
         airline_selected = self.user_int.airline_selection.currentText()
         day_input = date.day()
         year_input = date.year()
-        '''
-        date_selection = self.user_int.date_selection.date().toString("yy.MM.dd")
-        time_selection = self.user_int.time_selection.time().toString("HH:mm:ss")
-        '''
 
         # Combining data and time selection to convert to unit timestamp for weather forecast.
         gmt_timezone = QTimeZone.utc()
@@ -176,22 +175,24 @@ class Milestone2V2(QMainWindow):
 
             # 3. Create a list of relevant columns from df returned from step 2,
             # and a list of the corresponding values.
-            forecast_weather_df_focused = forecast_weather_df[['temp', 'dewPt', 'day_ind',
-                                                               'rh', 'wdir_cardinal', 'gust', 'wspd',
-                                                               'pressure', 'wx_phrase']]
+            forecast_weather_df_focused = forecast_weather_df[
+                                          ['temp', 'dewPt', 'day_ind',
+                                           'rh', 'wdir_cardinal', 'gust', 'wspd',
+                                           'pressure', 'wx_phrase']]
             forecast_weather_columns = list(forecast_weather_df_focused.columns)
             forecast_weather_df_focused_values = forecast_weather_df_focused.values.tolist()[0]
 
             # 4. Create a combined dataframe of (1) and (3)
-            combined_df = pd.DataFrame(columns=relevant_user_input_columns + forecast_weather_columns)
+            combined_df = pd.DataFrame(columns=relevant_user_input_columns +
+                                               forecast_weather_columns)
             combined_df.loc[0, :] = user_input+forecast_weather_df_focused_values
 
             # 5. Pass df from (4) into predict_delay_time() from data_modelling_2
-            # if checkbox is selected. Displays output.
+            # if checkbox is selected. Displays result.
             if self.user_int.check_box.isChecked():
 
                 severity_probability = delay_modelling_2.predict_delay_severity(combined_df)
-                severity_prediction = "The results are " + str("{:.2f}".format(severity_probability[0]))+"%."
+                severity_prediction = f"The results are {severity_probability[0]:.2f}%."
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
                 self.user_int.label_6.setVisible(True)
@@ -202,10 +203,10 @@ class Milestone2V2(QMainWindow):
                 self.user_int.label_6.setVisible(False)
 
             # 6. Pass df from (4) into predict_delay_probability from data_modelling_2.
-            # Displays output.
+            # Displays result.
             delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
             test = "{:.2f}".format(delay_probability[0][0] * 100)
-            delay_prediction = "The results are " + str(test)+"%."
+            delay_prediction = f"The results are {test}%."
             self.user_int.prob_delay_result.setText(delay_prediction)
             self.user_int.prob_delay_result.setVisible(True)
             self.user_int.label_5.setVisible(True)
@@ -265,6 +266,19 @@ class Milestone2V2(QMainWindow):
         This function allows users to upload files and triggers data combination and modelling
         if files were uploaded.
         Type of files expected: zip-files containing .csv files for flight data.
+        # Require admin to enter a start and end year before asking to upload data.
+        For later: Print out training and testing accuracy, then ask
+                if user would like to replace model.
+                Asking if user would like to refit the model.
+                self.user_int.retrain_optionlb.setText("Would you like to replace the model? ")
+                self.user_int.retrain_optionlb.setVisible(True)
+                self.user_int.option_btn.setVisible(True)
+                self.user_int.option_btn.accepted.connect \
+                   (lambda: self.user_int.refit_lb.setText("Replace model..."))
+                 self.user_int.option_btn.rejected.connect \
+                   (lambda: self.user_int.refit_lb.setText("Not replacing model."))
+                Refit
+                Can add a progress bar. When it hits 100% Display "Successfully retrained".
         """
 
         # Creates file upload dialog
@@ -274,50 +288,56 @@ class Milestone2V2(QMainWindow):
 
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
-            folder_path = "./flight_data"
+            folder_path = "../resources/flight_data"
             num_uploaded = len(files)
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
             self.user_int.file_lb.setVisible(True)
+            start_year_input = int(self.start_year)
+            end_year_input = int(self.end_year)
+
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(f"Failed to delete {file_path}. Reason: {e}")
+
             for file_path in files:
                 file_name = os.path.basename(file_path)
                 destination_path = os.path.join(folder_path, file_name)
-                shutil.move(file_path, destination_path)
+                shutil.copy(file_path, destination_path)
 
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
                 # 1) Obtain entered start and end years entered by user.
                 airports = pd.read_csv('../resources/airport_codes.csv')
-                start_year_input = self.start_year
-                end_year_input = self.end_year
+
                 # 2) Obtain historical weather data
-                # weather.get_historic_weather_data(airports, start_year=2022, end_year=2022)
+                weather.get_historic_weather_data(airports, start_year=start_year_input,
+                                                  end_year=end_year_input)
                 # 3) Call data combination
-                # data_combination_1.create_dataset(airport_path="./flight_data", weather_path="./weather_data")
+
+                data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
+                                                  weather_path=WEATHER_FOLDER_PATH)
                 # 4) Calls model training
-                # create_model_from_dataset(data_path="combined_flight_data")
+                delay_modelling_2.create_model_from_dataset(data_path="../resources/generated/pickles/combined_flight_data")
                 # 5) Print out new training and testing accuracies
                 # For delay probability
-                # get_classifier_metrics()
+                delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
+                delay_probability_metrics_results = ', '.join(str(item) for item in delay_probability_metrics[:-1])
+
                 # For delay severity
-                # get_regressor_metrics()
-                self.user_int.new_mod_lb.setText("The new model training accuracy is 0.478922. \n "
-                                                 "The new model testing accuracy is 0.4629312. \n"
-                                                 "The model has been replaced!")
+                delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
+                delay_severity_metrics_results =  ', '.join(str(item) for item in delay_severity_metrics)
+                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
+                                                 + "The training metrics for probability of delay is \n "
+                                                 + delay_probability_metrics_results + "\n"
+                                                 +"The training metrics for severity of delay is \n "
+                                                 +delay_severity_metrics_results)
                 self.user_int.new_mod_lb.setVisible(True)
                 self.user_int.mod_title_lb.setVisible(True)
 
-                # For later: Print out training and testing accuracy, then ask
-                # if user would like to replace model.
-                # Asking if user would like to refit the model.
-                # self.user_int.retrain_optionlb.setText("Would you like to replace the model? ")
-                # self.user_int.retrain_optionlb.setVisible(True)
-                # self.user_int.option_btn.setVisible(True)
-                # self.user_int.option_btn.accepted.connect \
-                #    (lambda: self.user_int.refit_lb.setText("Replace model..."))
-                #  self.user_int.option_btn.rejected.connect \
-                #    (lambda: self.user_int.refit_lb.setText("Not replacing model."))
-                # Refit
-                # Can add a progress bar. When it hits 100% Display "Successfully retrained".
             else:
                 print("Unable to retrain")
 
