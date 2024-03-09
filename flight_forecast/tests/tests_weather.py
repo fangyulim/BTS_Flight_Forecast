@@ -4,6 +4,7 @@ This module contains unit tests for various function defined in the `weather` mo
 
 import unittest
 from datetime import date
+from unittest import mock
 
 import pandas as pd
 
@@ -12,7 +13,8 @@ from utils.weather import (
     _generate_date_ranges,
     _enrich_date_time,
     _clean_historic_weather_data,
-    _refine_forecasted_data
+    _refine_forecasted_data,
+    get_historic_weather_data
 )
 
 sample_weather_data_historic = {
@@ -203,6 +205,196 @@ class TestWeather(unittest.TestCase):
             _refine_forecasted_data(
                 pd.DataFrame([sample_weather_data_forecasted]),
                 ['validTimeUtc', 'expirationTimeUtc', 'TEMP'])
+
+    def test_get_historic_weather_data_smoke(self):
+        """
+        Tests that `get_historic_weather_data` works without errors for valid inputs.
+        """
+        # Sample airport data
+        airports_df = pd.DataFrame({'Airport Code': ['BIL', 'SEA']})
+
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._generate_date_ranges') as mock_generate_dates, \
+                mock.patch('pandas.DataFrame.to_csv'):
+            # Mock _generate_date_ranges to return a list of date ranges
+            mock_generate_dates.return_value = [
+                {"year": 2023, "month": 1, "start_date": "20230101", "end_date": "20230131"},
+                {"year": 2023, "month": 2, "start_date": "20230201", "end_date": "20230228"}
+            ]
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "metadata": {
+                    "language": "en-US",
+                    "transaction_id": "1709947547415:dd54786bfab23fca11a53b9a9c2878a5",
+                    "version": "1",
+                    "location_id": "KBIL:9:US",
+                    "units": "e",
+                    "expire_time_gmt": 1709951147,
+                    "status_code": 200
+                },
+                "observations": [
+                    {
+                        "key": "KBIL",
+                        "class": "observation",
+                        "expire_time_gmt": 1641030780,
+                        "obs_id": "KBIL",
+                        "obs_name": "Billings",
+                        "valid_time_gmt": 1641023580,
+                        "day_ind": "N",
+                        "temp": -11,
+                        "wx_icon": 33,
+                        "icon_extd": 3300,
+                        "wx_phrase": "Fair",
+                        "pressure_tend": "",
+                        "pressure_desc": "",
+                        "dewPt": -16,
+                        "heat_index": -11,
+                        "rh": 78,
+                        "pressure": 26.25,
+                        "vis": 10,
+                        "wc": -30,
+                        "wdir": 220,
+                        "wdir_cardinal": "SW",
+                        "gust": "",
+                        "wspd": 10,
+                        "max_temp": "",
+                        "min_temp": "",
+                        "precip_total": "",
+                        "precip_hrly": 0,
+                        "snow_hrly": "",
+                        "uv_desc": "Low",
+                        "feels_like": -30,
+                        "uv_index": 0,
+                        "qualifier": "",
+                        "qualifier_svrty": "",
+                        "blunt_phrase": "",
+                        "terse_phrase": "",
+                        "clds": "FEW",
+                        "water_temp": "",
+                        "primary_wave_period": "",
+                        "primary_wave_height": "",
+                        "primary_swell_period": "",
+                        "primary_swell_height": "",
+                        "primary_swell_direction": "",
+                        "secondary_swell_period": "",
+                        "secondary_swell_height": "",
+                        "secondary_swell_direction": ""
+                    }]}
+            mock_get.return_value = mock_response
+
+            # Call the function
+            get_historic_weather_data(airports_df, 2023, 2023)
+
+    def test_get_historic_weather_data_edge_years(self):
+        """
+        Tests that `get_historic_weather_data` raises error for invalid years.
+        """
+
+        airports_df = pd.DataFrame({'Airport Code': ['BIL', 'SEA']})
+
+        with self.assertRaises(ValueError):
+            get_historic_weather_data(airports_df, 2025, 2023)
+        with self.assertRaises(ValueError):
+            get_historic_weather_data(airports_df, -2023, 2023)
+        with self.assertRaises(TypeError):
+            get_historic_weather_data(airports_df, 2023, 2023.00)
+
+    def test_get_historic_weather_data_edge_airports(self):
+        """
+        Tests that `get_historic_weather_data` raises error for invalid 'airports' data.
+        """
+
+        airports_df_1 = pd.DataFrame({'Airport Code 123': ['BIL', 'SEA']})
+        airports_df_2 = ['BIL', 'SEA']
+
+        with mock.patch('utils.weather._generate_date_ranges') as mock_generate_dates:
+            mock_generate_dates.return_value = [
+                {"year": 2023, "month": 1, "start_date": "20230101", "end_date": "20230131"},
+                {"year": 2023, "month": 2, "start_date": "20230201", "end_date": "20230228"}
+            ]
+
+            with self.assertRaises(ValueError):
+                get_historic_weather_data(airports_df_1, 2023, 2025)
+            with self.assertRaises(TypeError):
+                get_historic_weather_data(airports_df_2, 2023, 2025)
+
+    def test_get_historic_weather_data_edge_response_1(self):
+        """
+        Tests that `get_historic_weather_data` handles error responses from API
+        """
+
+        airports_df = pd.DataFrame({'Airport Code': ['BIL', 'SEA']})
+
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._generate_date_ranges') as mock_generate_dates, \
+                mock.patch('pandas.DataFrame.to_csv'):
+
+            # Mock _generate_date_ranges to return a list of date ranges
+            mock_generate_dates.return_value = [
+                {"year": 2023, "month": 1, "start_date": "20230101", "end_date": "20230131"},
+                {"year": 2023, "month": 2, "start_date": "20230201", "end_date": "20230228"}
+            ]
+
+            # Mock a failure API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 400
+            mock_response.json.return_value = {
+                "metadata": {
+                    "transaction_id": "1709954422494:62a0930670c953864da3f0ade2af1c80",
+                    "status_code": 400
+                },
+                "success": False,
+                "errors": [
+                    {
+                        "error": {
+                            "code": "ILA-0001",
+                            "message": "The location supplied is invalid."
+                        }
+                    }
+                ]
+            }
+            mock_get.return_value = mock_response
+
+            # Call the function
+            get_historic_weather_data(airports_df, 2023, 2023)
+
+    def test_get_historic_weather_data_edge_response_2(self):
+        """
+        Tests that `get_historic_weather_data` handles error responses from API
+        """
+
+        airports_df = pd.DataFrame({'Airport Code': ['BIL', 'SEA']})
+
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._generate_date_ranges') as mock_generate_dates, \
+                mock.patch('pandas.DataFrame.to_csv'):
+
+            # Mock _generate_date_ranges to return a list of date ranges
+            mock_generate_dates.return_value = [
+                {"year": 2023, "month": 1, "start_date": "20230101", "end_date": "20230131"},
+                {"year": 2023, "month": 2, "start_date": "20230201", "end_date": "20230228"}
+            ]
+
+            # Mock successful API response with missing data
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "metadata": {
+                    "language": "en-US",
+                    "transaction_id": "1709947547415:dd54786bfab23fca11a53b9a9c2878a5",
+                    "version": "1",
+                    "location_id": "KBIL:9:US",
+                    "units": "e",
+                    "expire_time_gmt": 1709951147,
+                    "status_code": 200
+                }}
+            mock_get.return_value = mock_response
+
+            # Call the function
+            get_historic_weather_data(airports_df, 2023, 2023)
 
 
 if __name__ == '__main__':
