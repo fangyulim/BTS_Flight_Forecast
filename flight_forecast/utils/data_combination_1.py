@@ -17,12 +17,13 @@ import pandas as pd
 
 from . import weather
 
-AIRPORT_FOLDER_PATH = "BTS_Data"
-WEATHER_FOLDER_PATH = "WeatherData_Clean"
+AIRPORT_FOLDER_PATH = "../resources/bts_data"
+WEATHER_FOLDER_PATH = "../resources/weather_data_clean"
+RESOURCES_FOLDER_PATH = "../resources"
 
 
 def combine_zipped_data(root_data_folder_path):
-    '''
+    """
     This function opens all zip files in a given folder and combines any csv data found
     within them into a single Pandas DataFrame.
     
@@ -35,7 +36,7 @@ def combine_zipped_data(root_data_folder_path):
     -------
     A Pandas Dataframe with all csv data found in the given folder, combined together along
     the index (0) axis.
-    '''
+    """
     # Creating empty list of DataFrames
     data_to_combine = []
     # Looping through raw data folder
@@ -67,7 +68,7 @@ def combine_zipped_data(root_data_folder_path):
 
 
 def combine_weather_data(root_data_folder_path):
-    '''
+    """
     This function finds all csvs of airport weather data in a given folder and combines them
     into a single Pandas DataFrame.
 
@@ -80,7 +81,7 @@ def combine_weather_data(root_data_folder_path):
     -------
     A Pandas DataFrame containing the weather data from all airport weather csvs in the given
     folder, with an additional column containing the airport code for each measurement.
-    '''
+    """
 
     data_to_combine = []
     with os.scandir(root_data_folder_path) as root_data_folder:
@@ -95,8 +96,8 @@ def combine_weather_data(root_data_folder_path):
             if entry.is_file() and entry.name[-4:] == ".csv":
                 # Collecting csv files for combination
                 airport_df = pd.read_csv(entry.path)
-                airport_df.loc[:,"airport_code"] = entry.name[:-4]
-                airport_df = airport_df.fillna(value={"gust":0})
+                airport_df.loc[:, "airport_code"] = entry.name[:-4]
+                airport_df = airport_df.fillna(value={"gust": 0})
                 data_to_combine.append(airport_df)
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
@@ -108,7 +109,7 @@ def combine_weather_data(root_data_folder_path):
 
 
 def match_flight_and_weather_data(flight_df, weather_df):
-    '''
+    """
     This function takes a Pandas DataFrame of flights and weather columns corresponding to
     the weather at departure time according to a DataFrame of airport weather conditions.
 
@@ -121,10 +122,10 @@ def match_flight_and_weather_data(flight_df, weather_df):
     -------
     A DataFrame containing the entries in flight_df with the weather data at each flight's
     departure time added as additional columns.
-    '''
+    """
     # Preparing flight dataframe to recieve weather data rows
     flight_df = flight_df.reset_index()
-    flight_df.loc[:,weather_df.columns] = pd.NA
+    flight_df.loc[:, weather_df.columns] = pd.NA
     weather_cols = weather_df.columns
     # Recording airport counts to display function's current progress
     num_airports_to_inspect = len(flight_df.Origin.unique())
@@ -136,25 +137,25 @@ def match_flight_and_weather_data(flight_df, weather_df):
             sys.stdout.flush()
             # Obtaining flight data for current airport and sorting by departure time
             airport_flight_df = flight_df[flight_df.Origin == airport_code]
-            airport_flight_df.loc[:,"FlightDate"] = (airport_flight_df.FlightDate + " " +
-                                                     airport_flight_df.DepTime \
-                                                                      .apply(int) \
-                                                                      .apply(str) \
-                                                                      .str.zfill(4) \
-                                                                      .apply(lambda time: time \
-                                                                             if time != "2400" \
-                                                                             else "2359"))
-            #parse_airport_date = lambda date: dt.strptime(date, "%Y-%m-%d %H%M")
+            airport_flight_df.loc[:, "FlightDate"] = (airport_flight_df.FlightDate + " " +
+                                                      airport_flight_df.DepTime \
+                                                      .apply(int) \
+                                                      .apply(str) \
+                                                      .str.zfill(4) \
+                                                      .apply(lambda time: time \
+                                                      if time != "2400" \
+                                                      else "2359"))
+            # parse_airport_date = lambda date: dt.strptime(date, "%Y-%m-%d %H%M")
             time_str = ("%Y-%m-%d %H%M",)
-            airport_flight_df.loc[:,"FlightDate"] = airport_flight_df.FlightDate \
+            airport_flight_df.loc[:, "FlightDate"] = airport_flight_df.FlightDate \
                                                                      .apply(dt.strptime, \
                                                                             args=time_str)
             airport_flight_df = airport_flight_df.sort_values(by="FlightDate")
             # Obtaining weather data for current airport and sorting by measurement time
             airport_weather_df = weather_df[weather_df.airport_code == airport_code]
-            #parse_weather_date = lambda date: dt.strptime(date, "%Y-%m-%d %H:%M:%S")
+            # parse_weather_date = lambda date: dt.strptime(date, "%Y-%m-%d %H:%M:%S")
             time_str = ("%Y-%m-%d %H:%M:%S",)
-            airport_weather_df.loc[:,"record_start_date"] = airport_weather_df.record_start_date \
+            airport_weather_df.loc[:, "record_start_date"] = airport_weather_df.record_start_date \
                                                                               .apply(dt.strptime, \
                                                                                      args=time_str)
             airport_weather_df = airport_weather_df.sort_values(by="record_start_date")
@@ -166,7 +167,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
                       airport_weather_df.record_start_date.iloc[current_weather]:
                     current_weather += 1
                 flight_ind = airport_flight_df.index[current_flight]
-                flight_df.loc[flight_ind,weather_cols] = airport_weather_df.iloc[current_weather,:]
+                flight_df.loc[flight_ind, weather_cols] = airport_weather_df.iloc[current_weather, :]
                 current_flight += 1
     print("Data successfully attached!                                       ", end="\r")
     sys.stdout.flush()
@@ -174,7 +175,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
 
 
 def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER_PATH):
-    '''
+    """
     Creates a combined airport/weather dataset from paths to individual data files.
 
     Parameters
@@ -183,10 +184,10 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
                   sourced from the Bureau of Transportation Statistics.
     weather_path: String containing a path to a folder of Meteostat airport weather data csvs.
                   Requires the csvs to be named after their respective airport codes.
-    '''
+    """
     # Preparing flight data
     flight_data = combine_zipped_data(airport_path)
-    flight_data = flight_data.dropna(subset=["FlightDate","DepTime"])
+    flight_data = flight_data.dropna(subset=["FlightDate", "DepTime"])
     # Removing all columns that are more than 5% NaN values
     flight_data = flight_data[flight_data.columns[flight_data.isna().sum() < \
                                                   flight_data.shape[0] / 20]]
@@ -203,14 +204,15 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
     # Subsetting dataset for demo purposes
     relevant_flights_df = relevant_flights_df[relevant_flights_df.Origin == "SEA"]
     relevant_flights_df = relevant_flights_df[relevant_flights_df.Year == 2022]
-    relevant_flights_df = relevant_flights_df[relevant_flights_df.Month.isin((5,6,7))]
+    relevant_flights_df = relevant_flights_df[relevant_flights_df.Month.isin((5, 6, 7))]
     combined_flight_data = match_flight_and_weather_data(relevant_flights_df, weather_data)
 
+    file_path = os.path.join(RESOURCES_FOLDER_PATH, "combined_flight_data")
     combined_flight_data.to_pickle("combined_flight_data")
 
+
 if __name__ == "__main__":
-    airports = pd.read_csv('../../BTS_Flight_Forecast/resources/airport_codes.csv')
-    # this should be changed later
+    airports = pd.read_csv('../resources/airport_codes.csv')
+    # airports = pd.read_csv('../../BTS_Flight_Forecast/resources/airport_codes.csv')
     weather.get_historic_weather_data(airports, start_year=2022, end_year=2022)
-    create_dataset(airport_path="./flight_data", weather_path="./weather_data")
-    
+    create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER_PATH)

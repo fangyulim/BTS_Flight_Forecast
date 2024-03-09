@@ -273,7 +273,7 @@ def get_historic_weather_data(airports, start_year, end_year):
         if len(obs) > 0:
             airport_data = pd.DataFrame(obs)
             airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-            airport_data_clean.to_csv("./weather_data/" + airport + ".csv")
+            airport_data_clean.to_csv("../resources/weather_data_clean/" + airport + ".csv")
 
 
 def _refine_forecasted_data(forecasted_weather_df_raw):
