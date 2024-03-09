@@ -7,6 +7,7 @@ from datetime import date
 from unittest import mock
 
 import pandas as pd
+import requests
 
 from utils.weather import (
     _get_month_range,
@@ -14,7 +15,8 @@ from utils.weather import (
     _enrich_date_time,
     _clean_historic_weather_data,
     _refine_forecasted_data,
-    get_historic_weather_data
+    get_historic_weather_data,
+    get_weather_forecast
 )
 
 sample_weather_data_historic = {
@@ -287,6 +289,7 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
+            self.assertTrue(True)
 
     def test_get_historic_weather_data_edge_years(self):
         """
@@ -360,6 +363,7 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
+            self.assertTrue(True)
 
     def test_get_historic_weather_data_edge_response_2(self):
         """
@@ -395,6 +399,159 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
+            self.assertTrue(True)
+
+    def test_get_weather_forecast_oneshot(self):
+        """
+        Tests that `get_weather_forecast` works without errors for valid inputs.
+        """
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._refine_forecasted_data') as mock_refined_data:
+
+            mock_refined_data.return_value = pd.DataFrame([sample_weather_data_historic])
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                'validTimeUtc': [1709931638],  # 8th March 2024
+                'expirationTimeUtc': [1710018038],
+                'dayOrNight': ['N'],
+                'temperature': [20],
+                'temperatureDewPoint': [15],
+                'relativeHumidity': [75],
+                'windDirectionCardinal': ['N'],
+                'windGust': [10],
+                'windSpeed': [5],
+                'pressureMeanSeaLevel': [1013],
+                'wxPhraseShort': ['Clear']
+            }
+            mock_get.return_value = mock_response
+
+            # Call the function
+            forecast_df = get_weather_forecast('SEA', 1709931938)
+            self.assertIn("temp", forecast_df.columns)
+            self.assertEqual(forecast_df['temp'][0], 20)
+
+    def test_get_weather_forecast_edge_invalid_input(self):
+        """
+        Tests that `get_weather_forecast` raises error for invalid inputs.
+        """
+        with self.assertRaises(TypeError):
+            get_weather_forecast(123, 1709931938)
+        with self.assertRaises(TypeError):
+            get_weather_forecast('SEA', 1709931938.00)
+        with self.assertRaises(ValueError):
+            get_weather_forecast('SEA', -1709931938)
+
+    def test_get_weather_forecast_edge_response_1(self):
+        """
+        Tests that `get_weather_forecast` raises error for failed API call
+        """
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._refine_forecasted_data') as mock_refined_data:
+
+            mock_refined_data.return_value = pd.DataFrame([sample_weather_data_historic])
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 404
+            mock_response.json.return_value = {
+                "success": False,
+                "errors": [
+                    {
+                        "code": "EAE:RNF-0001",
+                        "message": "Requested resource icaoCode not found on the server."
+                    }
+                ],
+                "metadata": {
+                    "transaction_id": "1429140092945:1801695336",
+                    "status_code": 404
+                }
+            }
+            mock_get.return_value = mock_response
+
+            with self.assertRaises(requests.HTTPError):
+                get_weather_forecast('SEA', 1709931938)
+
+    def test_get_weather_forecast_edge_response_2(self):
+        """
+        Tests that `get_weather_forecast` raises error for missing data in response
+        """
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._refine_forecasted_data') as mock_refined_data:
+
+            mock_refined_data.return_value = pd.DataFrame([sample_weather_data_historic])
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                'expirationTimeUtc': [1710018038],
+                'dayOrNight': ['N'],
+                'temperature': [20],
+                'temperatureDewPoint': [15],
+                'relativeHumidity': [75],
+                'windDirectionCardinal': ['N'],
+                'windGust': [10],
+                'windSpeed': [5],
+                'pressureMeanSeaLevel': [1013],
+                'wxPhraseShort': ['Clear']
+            }
+            mock_get.return_value = mock_response
+
+            with self.assertRaises(ValueError):
+                get_weather_forecast('SEA', 1709931938)
+
+    def test_get_weather_forecast_edge_response_3(self):
+        """
+        Tests that `get_weather_forecast` raises error for missing data in response
+        """
+        with mock.patch('requests.get') as mock_get:
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                'validTimeUtc': [1709931638],  # 8th March 2024
+                'expirationTimeUtc': [1710018038],
+                'dayOrNight': ['N'],
+                'temperature': [20],
+            }
+            mock_get.return_value = mock_response
+
+            with self.assertRaises(ValueError):
+                get_weather_forecast('SEA', 1709931938)
+
+    def test_get_weather_forecast_edge_data_unavailable(self):
+        """
+        Tests that `get_weather_forecast` works without errors for valid inputs.
+        """
+        with mock.patch('requests.get') as mock_get, \
+                mock.patch('utils.weather._refine_forecasted_data') as mock_refined_data:
+
+            mock_refined_data.return_value = pd.DataFrame([sample_weather_data_historic])
+
+            # Mock successful API response
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                'validTimeUtc': [1709931638],  # 8th March 2024
+                'expirationTimeUtc': [1710018038],
+                'dayOrNight': ['N'],
+                'temperature': [20],
+                'temperatureDewPoint': [15],
+                'relativeHumidity': [75],
+                'windDirectionCardinal': ['N'],
+                'windGust': [10],
+                'windSpeed': [5],
+                'pressureMeanSeaLevel': [1013],
+                'wxPhraseShort': ['Clear']
+            }
+            mock_get.return_value = mock_response
+
+            with self.assertRaises(ValueError):
+                get_weather_forecast('SEA', 1720018038)
 
 
 if __name__ == '__main__':

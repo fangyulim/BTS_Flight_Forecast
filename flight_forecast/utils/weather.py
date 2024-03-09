@@ -323,6 +323,9 @@ def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
 
     Returns:
         pd.DataFrame: Refined forecasted weather data.
+
+    Raises:
+        ValueError: If 'forecasted_weather_df_raw' does not have all 'columns_of_interest'
     """
 
     if not set(columns_of_interest) <= set(forecasted_weather_df_raw.columns):
@@ -350,15 +353,16 @@ def get_weather_forecast(airport_code, timestamp):
 
     Raises:
         TypeError: 'airport_code' or 'timestamp' are of incorrect type.
-        requests.HttpError: If the forecast API returns a 4xx or 5xx response code.
+        requests.HttpError: If the forecast API returns non 2xx response code.
         ValueError: If any errors occur during API calls or data processing.
     """
 
     if not isinstance(airport_code, str):
         raise TypeError("Invalid 'airport_code'.")
-
     if type(timestamp) not in [int, numpy.int32, numpy.int64]:
         raise TypeError("Invalid 'timestamp'.")
+    if timestamp <= 0:
+        raise ValueError("'timestamp' cannot be negative.")
 
     params = {
         'apiKey': API_TOKEN,
@@ -370,8 +374,10 @@ def get_weather_forecast(airport_code, timestamp):
 
     resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
 
-    # raise an error for 4xx and 5xx response codes
-    resp.raise_for_status()
+    # raise an error for non 2xx response codes
+    if not 200 <= resp.status_code < 300:
+        raise requests.HTTPError(f"Error while calling forecast weather API for {airport_code}.")
+
     response_data = resp.json()
 
     # transpose data from array to dictionary list
