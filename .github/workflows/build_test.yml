@@ -84,8 +84,6 @@ jobs:
       - name: Install additional development dependencies
         run: |
           conda install --yes coverage
-          conda uninstall opencv-python
-          conda install opencv-python-headless
 
       # If there are any other steps in order for your tests to
       # run successfully, you can add those steps here!
