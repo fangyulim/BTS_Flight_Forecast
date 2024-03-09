@@ -52,16 +52,11 @@ class FlightUi(QMainWindow):
         # Instantiated stacked widget and set default page to be main page(user).
         self.stacked_widget_pages = self.user_int.stacked_widget
         self.stacked_widget_pages.setCurrentIndex(0)
-
+        self.setup_signal_slot_connection()
         self.start_year = None
         self.end_year = None
-
-        # Moves to admin login page when " Admin Login" button is clicked
-        self.user_int.admin_login_btn.clicked.connect(
-            lambda: self.stacked_widget_pages.setCurrentIndex(1))
-        # Moves to main page when "Main Page" button is clicked
-        self.user_int.main_page_btn.clicked.connect(
-            lambda: self.stacked_widget_pages.setCurrentIndex(0))
+        self.num_uploaded = None
+        self.day_difference = 0
 
         # Centering labels
         label_main_page = self.user_int.main_page_lb
@@ -75,6 +70,18 @@ class FlightUi(QMainWindow):
         self.load_airport_list()
         self.load_airlines_list()
 
+    def setup_signal_slot_connection(self):
+        """
+        This function sets up signal slot connections.
+        """
+        # Moves to admin login page when " Admin Login" button is clicked
+        self.user_int.admin_login_btn.clicked.connect(
+            lambda: self.stacked_widget_pages.setCurrentIndex(1))
+        # Moves to main page when "Main Page" button is clicked
+        self.user_int.main_page_btn.clicked.connect(
+            lambda: self.stacked_widget_pages.setCurrentIndex(0))
+        # Authentication page.
+        self.user_int.login_btn.clicked.connect(self.authenticate)
         # This will be used if we decide to move airport_selection as it's own function.
         # self.user_int.airport_selection.currentTextChanged.connect(self.airport_changed)
         self.user_int.PredictButton.clicked.connect(self.prediction)
@@ -85,6 +92,7 @@ class FlightUi(QMainWindow):
         # Admin page.
         self.user_int.years_input.returnPressed.connect(self.handle_return_input)
         self.user_int.upload_btn.clicked.connect(self.upload_files)
+        self.user_int.upload_btn.clicked.connect(self.retrain_models)
 
     def setup_ui(self):
         """
@@ -152,7 +160,7 @@ class FlightUi(QMainWindow):
         date = self.user_int.date_selection.date()
         time = self.user_int.time_selection.time()
         airport_selected = self.user_int.airport_selection.currentText()
-        airline_selected = self.user_int.airline_selection.currentText()
+        # airline_selected = self.user_int.airline_selection.currentText()
         day_input = date.day()
         year_input = date.year()
 
@@ -166,8 +174,8 @@ class FlightUi(QMainWindow):
         date_selected = datetime(date.year(), date.month(), date.day())
         difference = date_selected - current_date
         month_input = date.month()
-
-        if 1 < difference.days <= 15:
+        day_difference = int(difference.days)
+        if 1 < day_difference <= 15:
             # 1. Create a list of relevant input columns, and a list of the inputs.
             relevant_user_input_columns = ['Year', 'Month', 'DayofMonth', 'Origin']
             user_input = [year_input, month_input, day_input, airport_selected]
@@ -186,7 +194,7 @@ class FlightUi(QMainWindow):
 
             # 4. Create a combined dataframe of (1) and (3)
             combined_df = pd.DataFrame(columns=relevant_user_input_columns +
-                                               forecast_weather_columns)
+                                       forecast_weather_columns)
             combined_df.loc[0, :] = user_input+forecast_weather_df_focused_values
 
             # 5. Pass df from (4) into predict_delay_time() from data_modelling_2
@@ -263,6 +271,59 @@ class FlightUi(QMainWindow):
         else:
             print("Please enter start and end year in format YYYY,YYYY with no space.")
 
+    def retrain_models(self,num_uploaded):
+        """
+        This function triggers models to be retrained after new files have been uploaded.
+        """
+        try:
+            start_year_input = int(self.start_year)
+            end_year_input = int(self.end_year)
+        except TypeError:
+            self.user_int.file_lb.setText("You have not entered a start or end year.")
+        else:
+            # if self.start_year is not None and self.end_year is not None:
+            #     start_year_input = int(self.start_year)
+            #     end_year_input = int(self.end_year)
+                # Only triggers model combination if more than 2 files are uploaded
+            if num_uploaded > 2:
+                # 1) Obtain entered start and end years entered by user.
+                airports = pd.read_csv('resources/airport_codes.csv')
+
+                # 2) Obtain historical weather data
+                weather.get_historic_weather_data(airports, start_year=start_year_input,
+                                                  end_year=end_year_input)
+                # 3) Call data combination
+
+                data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
+                                                  weather_path=WEATHER_FOLDER_PATH)
+                # 4) Calls model training
+                delay_modelling_2.create_model_from_dataset(
+                    data_path="resources/generated/pickles/combined_flight_data")
+                # 5) Print out new training and testing accuracies
+                # For delay probability
+                delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
+                delay_probability_metrics_results = ', '.join(str(item)
+                                                              for item in
+                                                              delay_probability_metrics[:-1])
+
+                # For delay severity
+                delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
+                delay_severity_metrics_results = ', '.join(str(item)
+                                                           for item in delay_severity_metrics)
+                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
+                                                 + "The training metrics for probability "
+                                                   "of delay is \n"
+                                                 + delay_probability_metrics_results + "\n"
+                                                 + "The training metrics for severity of delay is \n "
+                                                 + delay_severity_metrics_results)
+                self.user_int.new_mod_lb.setVisible(True)
+                self.user_int.mod_title_lb.setVisible(True)
+            else:
+                print("Unable to retrain")
+        # else:
+        #     self.user_int.file_lb.setText("You have not entered a start or end year.")
+
+
     def upload_files(self):
         """
         This function allows users to upload files and triggers data combination and modelling
@@ -294,59 +355,24 @@ class FlightUi(QMainWindow):
             num_uploaded = len(files)
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
             self.user_int.file_lb.setVisible(True)
-            start_year_input = int(self.start_year)
-            end_year_input = int(self.end_year)
 
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
-                except Exception as exception:
-                    #Catching too general exception Exception (broad-exception-caught)
-                    print(f"Failed to delete {file_path}. Reason: {exception}")
+                except FileNotFoundError:
+                    print(f"File not found: {file_path}")
+                except PermissionError:
+                    print(f"Permission desnied: {file_path} ")
+                except OSError as exception:
+                    print(f"OS error while deleting {file_path}: {exception}")
 
             for file_path in files:
                 file_name = os.path.basename(file_path)
                 destination_path = os.path.join(folder_path, file_name)
                 shutil.copy(file_path, destination_path)
-
-            # Only triggers model combination if more than 2 files are uploaded
-            if num_uploaded > 2:
-                # 1) Obtain entered start and end years entered by user.
-                airports = pd.read_csv('resources/airport_codes.csv')
-
-                # 2) Obtain historical weather data
-                weather.get_historic_weather_data(airports, start_year=start_year_input,
-                                                  end_year=end_year_input)
-                # 3) Call data combination
-
-                data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
-                                                  weather_path=WEATHER_FOLDER_PATH)
-                # 4) Calls model training : 326, 331,341 line too long 144 to many local variables(26/15) 265 too many local variables 204:Catching general exception Exception
-                delay_modelling_2.create_model_from_dataset(data_path="resources/generated/pickles/combined_flight_data")
-                # 5) Print out new training and testing accuracies
-                # For delay probability
-                delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
-                delay_probability_metrics_results = ', '.join(str(item)
-                                                              for item in delay_probability_metrics[:-1])
-
-                # For delay severity
-                delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
-                delay_severity_metrics_results =  ', '.join(str(item)
-                                                            for item in delay_severity_metrics)
-                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
-                                                 + "The training metrics for probability "
-                                                   "of delay is \n"
-                                                 + delay_probability_metrics_results + "\n"
-                                                 +"The training metrics for severity of delay is \n "
-                                                 +delay_severity_metrics_results)
-                self.user_int.new_mod_lb.setVisible(True)
-                self.user_int.mod_title_lb.setVisible(True)
-
-            else:
-                print("Unable to retrain")
-
+            self.retrain_models(num_uploaded)
         else:
             self.user_int.file_lb.setText("No files have been uploaded.")
             self.user_int.file_lb.setVisible(True)
