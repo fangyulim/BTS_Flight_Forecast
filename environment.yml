@@ -1,6 +1,7 @@
 name: BTS_Flight_Forecast
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - python >=3.9,<=3.11 # scikit-learn installation fails for 3.12 python.
   - pip
