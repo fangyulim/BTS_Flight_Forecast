@@ -10,6 +10,7 @@ not all airports have a name.
 
 To use this module, please use command: python -m utils.flight_delay_multi_page_ui in terminal.
 To run using IDE, please change file paths.
+On the admin page, please enter start end year before uploading.
 """
 import csv
 import sys
@@ -205,7 +206,7 @@ class Milestone2V2(QMainWindow):
             # 6. Pass df from (4) into predict_delay_probability from data_modelling_2.
             # Displays result.
             delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
-            test = "{:.2f}".format(delay_probability[0][0] * 100)
+            test = f"{delay_probability[0][0] * 100:.2f}"
             delay_prediction = f"The results are {test}%."
             self.user_int.prob_delay_result.setText(delay_prediction)
             self.user_int.prob_delay_result.setVisible(True)
@@ -300,8 +301,9 @@ class Milestone2V2(QMainWindow):
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
-                except Exception as e:
-                    print(f"Failed to delete {file_path}. Reason: {e}")
+                except Exception as exception:
+                    #Catching too general exception Exception (broad-exception-caught)
+                    print(f"Failed to delete {file_path}. Reason: {exception}")
 
             for file_path in files:
                 file_name = os.path.basename(file_path)
@@ -325,13 +327,16 @@ class Milestone2V2(QMainWindow):
                 # 5) Print out new training and testing accuracies
                 # For delay probability
                 delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
-                delay_probability_metrics_results = ', '.join(str(item) for item in delay_probability_metrics[:-1])
+                delay_probability_metrics_results = ', '.join(str(item)
+                                                              for item in delay_probability_metrics[:-1])
 
                 # For delay severity
                 delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
-                delay_severity_metrics_results =  ', '.join(str(item) for item in delay_severity_metrics)
+                delay_severity_metrics_results =  ', '.join(str(item)
+                                                            for item in delay_severity_metrics)
                 self.user_int.new_mod_lb.setText("The model has been successfully trained!"
-                                                 + "The training metrics for probability of delay is \n "
+                                                 + "The training metrics for probability "
+                                                   "of delay is \n"
                                                  + delay_probability_metrics_results + "\n"
                                                  +"The training metrics for severity of delay is \n "
                                                  +delay_severity_metrics_results)
