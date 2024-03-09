@@ -27,13 +27,14 @@ from . import data_combination_1
 from . import delay_modelling_2
 
 # GUI file
-QT_CREATOR_FILE = '../resources/flight_delay_multi_page.ui'
+QT_CREATOR_FILE = 'resources/flight_delay_multi_page.ui'
 ui_main_window, QtBaseClass = uic.loadUiType(QT_CREATOR_FILE)
-AIRPORT_FOLDER_PATH = "../resources/flight_data"
-WEATHER_FOLDER_PATH = "../resources/generated/weather_data"
-PICKLE_FOLDER_PATH = "../resources/generated/pickles"
+AIRPORT_FOLDER_PATH = "resources/flight_data"
+WEATHER_FOLDER_PATH = "resources/generated/weather_data"
+PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
-class Milestone2V2(QMainWindow):
+
+class FlightUi(QMainWindow):
     """
     This class initializes the GUI and the widgets.
     """
@@ -120,7 +121,7 @@ class Milestone2V2(QMainWindow):
         """
 
         # Reads in the airport codes from csv file.
-        with open("../resources/airport_codes.csv", "r", encoding="utf-8") as file:
+        with open("resources/airport_codes.csv", "r", encoding="utf-8") as file:
             next(file)  # skips the header.
             airport_codes = [row[0] for row in csv.reader(file)]
 
@@ -133,7 +134,7 @@ class Milestone2V2(QMainWindow):
         """
         This function displays the list of airlines in the airline_selection widget.
         """
-        with open("../resources/airline_list.csv", "r", encoding="utf-8") as file:
+        with open("resources/airline_list.csv", "r", encoding="utf-8") as file:
 
             next(file)  # skips the header.
             airline_list = [row[0] for row in csv.reader(file)]
@@ -289,7 +290,7 @@ class Milestone2V2(QMainWindow):
 
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
-            folder_path = "../resources/flight_data"
+            folder_path = "resources/flight_data"
             num_uploaded = len(files)
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
             self.user_int.file_lb.setVisible(True)
@@ -313,7 +314,7 @@ class Milestone2V2(QMainWindow):
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
                 # 1) Obtain entered start and end years entered by user.
-                airports = pd.read_csv('../resources/airport_codes.csv')
+                airports = pd.read_csv('resources/airport_codes.csv')
 
                 # 2) Obtain historical weather data
                 weather.get_historic_weather_data(airports, start_year=start_year_input,
@@ -322,8 +323,8 @@ class Milestone2V2(QMainWindow):
 
                 data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
                                                   weather_path=WEATHER_FOLDER_PATH)
-                # 4) Calls model training
-                delay_modelling_2.create_model_from_dataset(data_path="../resources/generated/pickles/combined_flight_data")
+                # 4) Calls model training : 326, 331,341 line too long 144 to many local variables(26/15) 265 too many local variables 204:Catching general exception Exception
+                delay_modelling_2.create_model_from_dataset(data_path="resources/generated/pickles/combined_flight_data")
                 # 5) Print out new training and testing accuracies
                 # For delay probability
                 delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
@@ -353,6 +354,6 @@ class Milestone2V2(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = Milestone2V2()
+    window = FlightUi()
     window.show()
     sys.exit(app.exec_())

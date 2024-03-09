@@ -2,8 +2,27 @@ import unittest
 """
 This module contains the test case for flight_delay_multi_page module.
 """
-from PyQt5.QtTest import QTest
 
+import csv
+import sys
+import shutil
+from datetime import datetime
+import os
+
+import pandas as pd
+from PyQt5 import uic
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtCore import Qt, QDateTime, QTimeZone
+from flight_forecast.utils import weather
+from flight_forecast.utils import data_combination_1
+from flight_forecast.utils import delay_modelling_2
+from flight_forecast.utils.flight_delay_multi_page_ui import FlightUi
+
+app = QApplication(sys.argv)
+window = FlightUi()
+button = window.user_int.PredictButton
+QTest.mouseClick(button, Qt.LeftButton)
 # Verify that components are displaying correctly
 # Check if buttons, labels, dropdowns, and input fields are functional.
 # Test UI layout is consistent??
@@ -33,9 +52,6 @@ from PyQt5.QtTest import QTest
 # Boundary values, empty inputs, or extreme scenarios
 
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, True)
 
 
 if __name__ == '__main__':
