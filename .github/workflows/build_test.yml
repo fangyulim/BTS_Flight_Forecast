@@ -86,8 +86,10 @@ jobs:
         run: |
           conda install --yes coverage
           conda env list
+          conda list
           echo $QT_QPA_PLATFORM
           export QT_QPA_PLATFORM=offscreen
+          echo $QT_QPA_PLATFORM
 
       # If there are any other steps in order for your tests to
       # run successfully, you can add those steps here!
