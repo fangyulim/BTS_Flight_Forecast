@@ -3,6 +3,7 @@ channels:
   - defaults
 dependencies:
   - python=3
+  - qt=5.15
   - pip
   - pip:
       - -r requirements.txt
