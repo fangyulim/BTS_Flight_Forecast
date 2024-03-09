@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1204</width>
-    <height>820</height>
+    <width>1200</width>
+    <height>811</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,6 +85,16 @@
         <property name="styleSheet">
          <string notr="true">background-color: white;</string>
         </property>
+        <property name="dateTime">
+         <datetime>
+          <hour>0</hour>
+          <minute>0</minute>
+          <second>0</second>
+          <year>2024</year>
+          <month>3</month>
+          <day>7</day>
+         </datetime>
+        </property>
         <property name="maximumDate">
          <date>
           <year>2025</year>
@@ -98,6 +108,9 @@
           <month>2</month>
           <day>8</day>
          </date>
+        </property>
+        <property name="displayFormat">
+         <string>M/d/yyyy</string>
         </property>
         <property name="calendarPopup">
          <bool>false</bool>
@@ -574,9 +587,14 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>120</x>
           <y>360</y>
-          <width>351</width>
-          <height>181</height>
+          <width>441</width>
+          <height>231</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
         </property>
         <property name="text">
          <string>TextLabel</string>
@@ -586,7 +604,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>290</x>
-          <y>610</y>
+          <y>630</y>
           <width>193</width>
           <height>28</height>
          </rect>
@@ -599,7 +617,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>560</y>
+          <y>580</y>
           <width>371</width>
           <height>31</height>
          </rect>
@@ -654,25 +672,15 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>Format: YYYY, YYYY, airport_code</string>
+         <string>Format: YYYY, YYYY</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="years_input">
         <property name="geometry">
          <rect>
           <x>610</x>
           <y>210</y>
           <width>231</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="admin_airport_code">
-        <property name="geometry">
-         <rect>
-          <x>900</x>
-          <y>210</y>
-          <width>171</width>
           <height>31</height>
          </rect>
         </property>
@@ -687,8 +695,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1204</width>
-     <height>21</height>
+     <width>1200</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>
