@@ -314,7 +314,8 @@ class FlightUi(QMainWindow):
                                                  + "The training metrics for probability "
                                                    "of delay is \n"
                                                  + delay_probability_metrics_results + "\n"
-                                                 + "The training metrics for severity of delay is \n "
+                                                 + "The training metrics for severity "
+                                                   "of delay is \n "
                                                  + delay_severity_metrics_results)
                 self.user_int.new_mod_lb.setVisible(True)
                 self.user_int.mod_title_lb.setVisible(True)
