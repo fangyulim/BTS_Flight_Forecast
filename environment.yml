@@ -2,9 +2,7 @@ name: BTS_Flight_Forecast
 channels:
   - defaults
 dependencies:
-  - python=3
-  - qt=5.15
-  - pyqt=5
+  - python >=3.9,<=3.11 # scikit-learn installation fails for 3.12 python.
   - pip
   - pip:
       - -r requirements.txt
