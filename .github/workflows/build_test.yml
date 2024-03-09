@@ -29,7 +29,7 @@ jobs:
 
     # Provide a runner. Options are listed on GitHub, but include
     # windows, ubuntu, and macos (latest, as well as specific versions)
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     # In order to get Conda environments to work properly, we need to
     # tell the runner to start up the bash shell in a way that respects
@@ -83,6 +83,7 @@ jobs:
       - name: Install additional development dependencies
         run: |
           conda install --yes coverage
+          conda install --yes libxcb-cursor0 --channel conda-forge/label/cf-202403
           conda list
 
       # If there are any other steps in order for your tests to
