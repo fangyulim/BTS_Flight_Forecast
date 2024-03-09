@@ -49,6 +49,7 @@ jobs:
     steps:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
+      - name: Set Qt environment variables
         run: |
           export QT_QPA_PLATFORM=xcb
       # Then set up Python with a python version from the matrix.
