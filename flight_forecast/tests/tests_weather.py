@@ -17,8 +17,8 @@ from utils.weather import (
 )
 
 sample_weather_data_historic = {
-    "valid_time_gmt": 1672531200,
-    "expire_time_gmt": 1672544800,
+    "valid_time_gmt": 1709931638,  # 8th March 2024
+    "expire_time_gmt": 1710018038,
     "day_ind": "N",
     "temp": 20,
     "dewPt": 15,
@@ -32,8 +32,8 @@ sample_weather_data_historic = {
 }
 
 sample_weather_data_forecasted = {
-    'validTimeUtc': 1672531200,
-    'expirationTimeUtc': 1672544800,
+    'validTimeUtc': 1709931638,  # 8th March 2024
+    'expirationTimeUtc': 1710018038,
     'dayOrNight': 'N',
     'temperature': 20,
     'temperatureDewPoint': 15,
@@ -48,9 +48,9 @@ sample_weather_data_forecasted = {
 
 class TestWeather(unittest.TestCase):
 
-    def test_get_month_range(self):
+    def test_get_month_range_oneshot(self):
         """
-        Tests that `get_month_range` returns the correct start and end dates for a month.
+        Tests that `_get_month_range` returns the correct start and end dates for a month.
         """
 
         start_date, end_date = _get_month_range(2023, 1)
@@ -61,10 +61,28 @@ class TestWeather(unittest.TestCase):
         self.assertEqual(start_date, date(2024, 2, 1))
         self.assertEqual(end_date, date(2024, 2, 29))
 
-    def test_generate_date_ranges(self):
-
+    def test_get_month_range_edge(self):
         """
-        Tests that `generate_date_ranges` returns the correct list of start and end dates per month.
+        Tests that `_get_month_range` raises error for invalid inputs.
+        """
+
+        # Value Errors:
+        with self.assertRaises(ValueError):
+            _get_month_range(2023, -1)
+        with self.assertRaises(ValueError):
+            _get_month_range(2023, 13)
+        with self.assertRaises(ValueError):
+            _get_month_range(-2023, 1)
+
+        # Type Errors:
+        with self.assertRaises(TypeError):
+            _get_month_range(2023, '-1')
+        with self.assertRaises(TypeError):
+            _get_month_range('2023', 13)
+
+    def test_generate_date_ranges_oneshot(self):
+        """
+        Tests that `_generate_date_ranges` returns correct list of start and end dates per month.
         """
         date_ranges = _generate_date_ranges(range(2023, 2025))
         expected_ranges_start = [
@@ -81,37 +99,111 @@ class TestWeather(unittest.TestCase):
         self.assertEqual(date_ranges[:3], expected_ranges_start)  # Check first 3 elements
         self.assertEqual(date_ranges[-3:], expected_ranges_end)  # Check last 3 elements
 
-    def test_enrich_date_time(self):
+    def test_generate_date_ranges_edge(self):
         """
-        Tests that `enrich_date_time` returns a dataframe with enriched datetime columns.
+        Tests that `_generate_date_ranges` raises error for invalid inputs.
+        """
+
+        with self.assertRaises(ValueError):
+            _generate_date_ranges(range(-2023, 2025))
+        with self.assertRaises(TypeError):
+            _generate_date_ranges([2023, 2024])
+        with self.assertRaises(TypeError):
+            _generate_date_ranges('2023')
+
+    def test_enrich_date_time_oneshot(self):
+        """
+        Tests that `_enrich_date_time` returns a dataframe with enriched datetime columns.
         """
         sample_weather_df = pd.DataFrame([sample_weather_data_historic])
         enriched_weather_df = _enrich_date_time(sample_weather_df)
-        self.assertIn("start_year", enriched_weather_df.columns)
-        self.assertEqual(enriched_weather_df["start_year"][0], 2023)
+        self.assertIn("record_start_date", enriched_weather_df.columns)
+        self.assertEqual(enriched_weather_df["record_start_date"][0].year, 2024)
 
-    @mock.patch("requests.get")
-    def test_clean_historic_weather_data(self, mock_get):
+    def test_enrich_date_time_edge(self):
         """
-        Tests that `clean_historic_weather_data` returns adds new columns to the dataframe .
+        Tests that `_enrich_date_time` raises error for invalid inputs.
         """
-        mock_response = mock.Mock(status_code=200)
-        mock_response.json = {"observations": [sample_weather_data_historic]}
-        mock_get.return_value = mock_response
+        # Invalid Data
+        weather_data_historic_bad = {
+            "valid_time_gmt": 1672531200.00,
+            "expire_time_gmt": 1672544800,
+            "day_ind": "N",
+            "temp": 20,
+            "dewPt": 15,
+            "rh": 75,
+            "wdir_cardinal": "N",
+            "gust": 10,
+            "wspd": 5,
+            "pressure": 1013,
+            "precip_hrly": 0,
+            "wx_phrase": "Clear",
+        }
 
-        cleaned_data = _clean_historic_weather_data(
+        sample_weather_df = pd.DataFrame([weather_data_historic_bad])
+        with self.assertRaises(TypeError):
+            _enrich_date_time(sample_weather_df)
+
+        # Missing Data
+        weather_data_historic_bad = {
+            "expire_time_gmt": 1672544800,
+            "day_ind": "N",
+            "temp": 20,
+            "dewPt": 15,
+            "rh": 75,
+            "wdir_cardinal": "N",
+            "gust": 10,
+            "wspd": 5,
+            "pressure": 1013,
+            "precip_hrly": 0,
+            "wx_phrase": "Clear",
+        }
+
+        sample_weather_df = pd.DataFrame([weather_data_historic_bad])
+        with self.assertRaises(ValueError):
+            _enrich_date_time(sample_weather_df)
+
+    def test_clean_historic_weather_data_oneshot(self):
+        """
+        Tests that `_clean_historic_weather_data` adds new columns to the dataframe .
+        """
+        refined_data = _clean_historic_weather_data(
             pd.DataFrame([sample_weather_data_historic]),
-            "SEA",
-            ["valid_time_gmt", "expire_time_gmt"]
-        )
+            'SEA',
+            ['valid_time_gmt', 'expire_time_gmt', 'day_ind'])
 
-        self.assertEqual(cleaned_data["location_id"][0], "SEA")
-        self.assertIn("start_year", cleaned_data.columns)
+        self.assertIn("record_start_date", refined_data.columns)
+        self.assertEqual(refined_data["record_start_date"][0].year, 2024)
 
-    def test_refine_forecasted_data(self):
-        refined_data = _refine_forecasted_data(pd.DataFrame([sample_weather_data_forecasted]))
-        self.assertEqual(refined_data["day_ind"][0], sample_weather_data_forecasted['dayOrNight'])
-        self.assertIn("start_hour_gmt", refined_data.columns)
+    def test_clean_historic_weather_data_edge(self):
+        """
+        Tests that `_clean_historic_weather_data` raises error for invalid inputs.
+        """
+        with self.assertRaises(ValueError):
+            _clean_historic_weather_data(
+                pd.DataFrame([sample_weather_data_historic]),
+                'SEA',
+                ['valid_time_gmt', 'expire_time_gmt', 'DayNight'])
+
+    def test_refine_forecasted_data_oneshot(self):
+        """
+        Tests that `_refine_forecasted_data` adds new columns to the dataframe .
+        """
+        refined_data = _refine_forecasted_data(
+            pd.DataFrame([sample_weather_data_forecasted]),
+            ['validTimeUtc', 'expirationTimeUtc', 'temperature'])
+
+        self.assertIn("record_start_date", refined_data.columns)
+        self.assertEqual(refined_data["record_start_date"][0].year, 2024)
+
+    def test_refine_forecasted_data_edge(self):
+        """
+        Tests that `_refine_forecasted_data` raises error for invalid inputs.
+        """
+        with self.assertRaises(ValueError):
+            _refine_forecasted_data(
+                pd.DataFrame([sample_weather_data_forecasted]),
+                ['validTimeUtc', 'expirationTimeUtc', 'TEMP'])
 
 
 if __name__ == '__main__':
