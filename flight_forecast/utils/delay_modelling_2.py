@@ -23,7 +23,7 @@ TARGET_COL_REGRESSOR = "ArrDelayMinutes"
 RELEVANT_COLS = ['Year', 'Month', 'DayofMonth',
                  'Origin', 'temp', 'dewPt', 'day_ind',
                  'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
-PICKLE_FOLDER_PATH = "../resources/generated/pickles"
+PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
 
 # Q: Which variable is forecasted weather data??

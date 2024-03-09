@@ -17,9 +17,9 @@ import pandas as pd
 
 from . import weather
 
-AIRPORT_FOLDER_PATH = "../resources/flight_data"
-WEATHER_FOLDER_PATH = "../resources/generated/weather_data"
-PICKLE_FOLDER_PATH = "../resources/generated/pickles"
+AIRPORT_FOLDER_PATH = "resources/flight_data"
+WEATHER_FOLDER_PATH = "resources/generated/weather_data"
+PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
 
 def combine_zipped_data(root_data_folder_path):
@@ -211,7 +211,7 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
 
 
 if __name__ == "__main__":
-    airports = pd.read_csv('../resources/airport_codes.csv')
+    airports = pd.read_csv('resources/airport_codes.csv')
     # this should be changed later
     weather.get_historic_weather_data(airports, start_year=2022, end_year=2022)
     create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER_PATH)

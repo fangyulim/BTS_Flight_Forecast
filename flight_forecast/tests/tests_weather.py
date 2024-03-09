@@ -4,7 +4,6 @@ This module contains unit tests for various function defined in the `weather` mo
 
 import unittest
 from datetime import date
-from unittest import mock
 
 import pandas as pd
 
