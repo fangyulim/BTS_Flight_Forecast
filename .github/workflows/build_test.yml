@@ -29,7 +29,7 @@ jobs:
 
     # Provide a runner. Options are listed on GitHub, but include
     # windows, ubuntu, and macos (latest, as well as specific versions)
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     # In order to get Conda environments to work properly, we need to
     # tell the runner to start up the bash shell in a way that respects
@@ -50,9 +50,7 @@ jobs:
     steps:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
-      - name: Set Qt environment variables
-        run: |
-          export QT_QPA_PLATFORM=xcb
+
       # Then set up Python with a python version from the matrix.
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -86,7 +84,6 @@ jobs:
         run: |
           conda install --yes coverage
           export QT_DEBUG_PLUGINS=1
-
 
       # If there are any other steps in order for your tests to
       # run successfully, you can add those steps here!
