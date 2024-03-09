@@ -49,11 +49,6 @@ jobs:
     steps:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qt5-default libxcb-xinerama0-dev
-      - name: Set Qt environment variables
         run: |
           export QT_QPA_PLATFORM=xcb
       # Then set up Python with a python version from the matrix.

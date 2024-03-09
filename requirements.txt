@@ -3,3 +3,4 @@ PyQt5==5.15
 pylint==2.16
 requests==2.31
 pandas==2.2
+qt==5.15
