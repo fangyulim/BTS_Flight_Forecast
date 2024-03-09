@@ -30,6 +30,7 @@ import sys
 
 from datetime import date, timedelta
 
+import numpy
 import requests
 
 import pandas as pd
@@ -195,27 +196,16 @@ def _enrich_date_time(weather_df):
 
     if 'valid_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'valid_time_gmt' in weather data")
-    if weather_df.dtypes['valid_time_gmt'] != int:
+    if weather_df.dtypes['valid_time_gmt'] not in [int, numpy.int32, numpy.int64]:
         raise TypeError("Invalid 'valid_time_gmt' in weather data")
 
     if 'expire_time_gmt' not in weather_df.columns:
         raise ValueError("Missing 'expire_time_gmt' in weather data")
-    if weather_df.dtypes['expire_time_gmt'] != int:
+    if weather_df.dtypes['expire_time_gmt'] not in [int, numpy.int32, numpy.int64]:
         raise TypeError("Invalid 'expire_time_gmt' in weather data")
 
     weather_df.loc[:, 'record_start_date'] = pd.to_datetime(weather_df['valid_time_gmt'], unit='s')
-    weather_df.loc[:, 'start_day'] = weather_df['record_start_date'].dt.day
-    weather_df.loc[:, 'start_month'] = weather_df['record_start_date'].dt.month
-    weather_df.loc[:, 'start_year'] = weather_df['record_start_date'].dt.year
-    weather_df.loc[:, 'start_isoweekday'] = weather_df['record_start_date'].dt.dayofweek
-    weather_df.loc[:, 'start_hour_gmt'] = weather_df['record_start_date'].dt.hour
-    weather_df.loc[:, 'start_minute_gmt'] = weather_df['record_start_date'].dt.minute
-
     weather_df.loc[:, 'record_end_date'] = pd.to_datetime(weather_df['expire_time_gmt'], unit='s')
-    weather_df.loc[:, 'end_hour_gmt'] = weather_df['record_end_date'].dt.hour
-    weather_df.loc[:, 'end_minute_gmt'] = weather_df['record_end_date'].dt.minute
-
-    weather_df.drop(['record_start_date', 'record_end_date'], axis=1)
 
     return weather_df
 
@@ -278,7 +268,7 @@ def get_historic_weather_data(airports, start_year, end_year):
         obs = []
 
         for time_period in months_days:
-            time.sleep(5)
+            time.sleep(1)
             params = {
                 'apiKey': API_TOKEN,
                 'units': 'e',
@@ -292,7 +282,7 @@ def get_historic_weather_data(airports, start_year, end_year):
 
                 data = resp.json()
 
-                if 'observations' in data.keys:
+                if 'observations' in data.keys():
                     obs = obs + data['observations']
                 else:
                     print(f"Error while fetching historic weather data for {airport} between the "
@@ -306,7 +296,7 @@ def get_historic_weather_data(airports, start_year, end_year):
         if len(obs) > 0:
             airport_data = pd.DataFrame(obs)
             airport_data_clean = _clean_historic_weather_data(airport_data, airport, COI_HISTORIC)
-            airport_data_clean.to_csv("./weather_data/" + airport + ".csv")
+            airport_data_clean.to_csv("resources/generated/weather_data/" + airport + ".csv")
 
 
 def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
@@ -390,7 +380,5 @@ def get_weather_forecast(airport_code, timestamp):
 
 if __name__ == '__main__':
     # Read the Airport Codes from CSV
-    # airports_data = pd.read_csv('../../resources/airport_codes.csv')
-    # get_historic_weather_data(airports_data, 2022, 2023)
-
-    print(get_weather_forecast('SEA', 1710226747))
+    airports_data = pd.read_csv('resources/airport_codes.csv')
+    get_historic_weather_data(airports_data, 2022, 2023)

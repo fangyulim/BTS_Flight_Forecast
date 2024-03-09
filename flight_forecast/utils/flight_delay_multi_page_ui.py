@@ -10,28 +10,31 @@ not all airports have a name.
 
 To use this module, please use command: python -m utils.flight_delay_multi_page_ui in terminal.
 To run using IDE, please change file paths.
+On the admin page, please enter start end year before uploading.
 """
 import csv
 import sys
-import pandas as pd
-import os
 import shutil
-
 from datetime import datetime
-from PyQt5 import uic   # , QtWidgets. This prevents errors
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QListView, QComboBox, QAbstractItemView
-#  QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QStackedWidget, QLabel,
+import os
+
+import pandas as pd
+from PyQt5 import uic
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt, QDateTime, QTimeZone
 from . import weather
 from . import data_combination_1
 from . import delay_modelling_2
 
 # GUI file
-QT_CREATOR_FILE = '../resources/flight_delay_multi_page.ui'
+QT_CREATOR_FILE = 'resources/flight_delay_multi_page.ui'
 ui_main_window, QtBaseClass = uic.loadUiType(QT_CREATOR_FILE)
+AIRPORT_FOLDER_PATH = "resources/flight_data"
+WEATHER_FOLDER_PATH = "resources/generated/weather_data"
+PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
 
-class Milestone2V2(QMainWindow):
+class FlightUi(QMainWindow):
     """
     This class initializes the GUI and the widgets.
     """
@@ -46,15 +49,14 @@ class Milestone2V2(QMainWindow):
         self.user_int.setupUi(self)
         self.setup_ui()
 
+        # Instantiated stacked widget and set default page to be main page(user).
+        self.stacked_widget_pages = self.user_int.stacked_widget
+        self.stacked_widget_pages.setCurrentIndex(0)
+        self.setup_signal_slot_connection()
         self.start_year = None
         self.end_year = None
-
-        # Moves to admin login page when " Admin Login" button is clicked
-        self.user_int.admin_login_btn.clicked.connect(
-            lambda: self.stacked_widget_pages.setCurrentIndex(1))
-        # Moves to main page when "Main Page" button is clicked
-        self.user_int.main_page_btn.clicked.connect(
-            lambda: self.stacked_widget_pages.setCurrentIndex(0))
+        self.num_uploaded = None
+        self.day_difference = 0
 
         # Centering labels
         label_main_page = self.user_int.main_page_lb
@@ -68,61 +70,79 @@ class Milestone2V2(QMainWindow):
         self.load_airport_list()
         self.load_airlines_list()
 
+    def setup_signal_slot_connection(self):
+        """
+        This function sets up signal slot connections.
+        """
+        # Moves to admin login page when " Admin Login" button is clicked
+        self.user_int.admin_login_btn.clicked.connect(
+            lambda: self.stacked_widget_pages.setCurrentIndex(1))
+        # Moves to main page when "Main Page" button is clicked
+        self.user_int.main_page_btn.clicked.connect(
+            lambda: self.stacked_widget_pages.setCurrentIndex(0))
+        # Authentication page.
+        self.user_int.login_btn.clicked.connect(self.authenticate)
         # This will be used if we decide to move airport_selection as it's own function.
         # self.user_int.airport_selection.currentTextChanged.connect(self.airport_changed)
         self.user_int.PredictButton.clicked.connect(self.prediction)
 
         # Authentication page.
-        self.user_int.error_msg_lb.setVisible(False)
         self.user_int.login_btn.clicked.connect(self.authenticate)
 
-        # Upload page.
+        # Admin page.
         self.user_int.years_input.returnPressed.connect(self.handle_return_input)
-        self.user_int.file_lb.setVisible(False)
         self.user_int.upload_btn.clicked.connect(self.upload_files)
-        self.user_int.new_mod_lb.setVisible(False)
-        self.user_int.mod_title_lb.setVisible(False)
-        self.user_int.option_btn.setVisible(False)
-        self.user_int.retrain_optionlb.setVisible(False)
-        self.user_int.refit_lb.setVisible(False)
+        self.user_int.upload_btn.clicked.connect(self.retrain_models)
 
     def setup_ui(self):
         """
         This function sets up the UI.
         - Sets up the dimension of the UI.
-        - Instantiated stacked widget (pages).
         - Sets label/ widgets to not appear before user input.
         """
         width = 1200
         height = 750
         self.setFixedWidth(width)
         self.setFixedHeight(height)
-        # Instantiated stacked widget and set default page to be main page(user).
-        self.stacked_widget_pages = self.user_int.stacked_widget
-        self.stacked_widget_pages.setCurrentIndex(0)
+        # Main page
         self.user_int.avg_delay_result.setVisible(False)
         self.user_int.label_6.setVisible(False)
         self.user_int.prob_delay_result.setVisible(False)
         self.user_int.label_5.setVisible(False)
         self.user_int.fail_predict_lb.setVisible(False)
 
+        # Authentication page
+        self.user_int.error_msg_lb.setVisible(False)
+
+        # Admin page
+        self.user_int.file_lb.setVisible(False)
+        self.user_int.new_mod_lb.setVisible(False)
+        self.user_int.mod_title_lb.setVisible(False)
+        self.user_int.option_btn.setVisible(False)
+        self.user_int.retrain_optionlb.setVisible(False)
+        self.user_int.refit_lb.setVisible(False)
+
     def load_airport_list(self):
         """
-        This function displays the list of airports in the dropdown bar.
+        This function displays the list of airports in the airport_selection widget.
         Currently, we are only using the list of airports in the pacific northwest.
         """
-        # Couldn't figure out path.
-        with open("../resources/airport_codes.csv", "r", encoding="utf-8") as file:
+
+        # Reads in the airport codes from csv file.
+        with open("resources/airport_codes.csv", "r", encoding="utf-8") as file:
             next(file)  # skips the header.
             airport_codes = [row[0] for row in csv.reader(file)]
 
         # Clear the existing items in airport_selection widget
         self.user_int.airport_selection.clear()
-        # Adding airport names to the widget.
+        # Adds airport codes to the widget
         self.user_int.airport_selection.addItems(airport_codes)
 
     def load_airlines_list(self):
-        with open("../resources/airline_list.csv", "r", encoding="utf-8") as file:
+        """
+        This function displays the list of airlines in the airline_selection widget.
+        """
+        with open("resources/airline_list.csv", "r", encoding="utf-8") as file:
 
             next(file)  # skips the header.
             airline_list = [row[0] for row in csv.reader(file)]
@@ -131,74 +151,80 @@ class Milestone2V2(QMainWindow):
         self.user_int.airline_selection.addItems(airline_list)
 
     def prediction(self):
+        # Too many local variables.
         """
-        This function processes input information and displays prediction
+        This function takes user input, fetches forecasted weather, runs prediction model and
+        displays the predicted probability of delay or severity prediction.
         """
-        airport_selected = self.user_int.airport_selection.currentText()
-        airline_selected = self.user_int.airline_selection.currentText()
-
-        date_selection = self.user_int.date_selection.date().toString("yy.MM.dd")
-        time_selection = self.user_int.time_selection.time().toString("HH:mm:ss")
-
+        # Obtaining user input
         date = self.user_int.date_selection.date()
         time = self.user_int.time_selection.time()
-        gmt_timezone = QTimeZone.utc()
-        date_time_selection = QDateTime(date,time, gmt_timezone)
-        unix_timestamp = date_time_selection.toSecsSinceEpoch()
-
-        # If selected day is within 15 days, then we are able to give a prediction
-        current_date = datetime.now()
-        qdate = self.user_int.date_selection.date()
-        date_selected = datetime(qdate.year(), qdate.month(), qdate.day())
-        difference = abs(current_date - date_selected)
-        month_input = date.month()
-
+        airport_selected = self.user_int.airport_selection.currentText()
+        # airline_selected = self.user_int.airline_selection.currentText()
         day_input = date.day()
         year_input = date.year()
-        if 1 < difference.days < 15:
-            # TODO:
-            # 1. call the get_weather_forecast from weather.py (airport code, timestamp in seconds): check
-            # 2. pass the output from step1 to predict_delay_probability from data_modelling_2.py
-            # call the predict_delay_time from data_modelling_2.py if the checkbox is selected
-            RELEVANT_USER_INPUT_COLUMNS = ['Year', 'Month', 'DayofMonth','Origin']
-            user_input = [year_input, month_input, day_input,airport_selected]
 
-            forecast_weather_df = weather.get_weather_forecast(airport_selected,unix_timestamp)
-            forecast_weather_df_focused = forecast_weather_df[['temp', 'dewPt', 'day_ind',
-                                                               'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']]
-            FORECAST_WEATHER_COLUMNS = list(forecast_weather_df_focused.columns)
+        # Combining data and time selection to convert to unit timestamp for weather forecast.
+        gmt_timezone = QTimeZone.utc()
+        date_time_selection = QDateTime(date, time, gmt_timezone)
+        unix_timestamp = date_time_selection.toSecsSinceEpoch()
+
+        # If selected day is within 15 days from today, then we are able to give a prediction
+        current_date = datetime.now()
+        date_selected = datetime(date.year(), date.month(), date.day())
+        difference = date_selected - current_date
+        month_input = date.month()
+        day_difference = int(difference.days)
+        if 1 < day_difference <= 15:
+            # 1. Create a list of relevant input columns, and a list of the inputs.
+            relevant_user_input_columns = ['Year', 'Month', 'DayofMonth', 'Origin']
+            user_input = [year_input, month_input, day_input, airport_selected]
+
+            # 2. Calls the get_weather_forecast() from weather module.
+            forecast_weather_df = weather.get_weather_forecast(airport_selected, unix_timestamp)
+
+            # 3. Create a list of relevant columns from df returned from step 2,
+            # and a list of the corresponding values.
+            forecast_weather_df_focused = forecast_weather_df[
+                                          ['temp', 'dewPt', 'day_ind',
+                                           'rh', 'wdir_cardinal', 'gust', 'wspd',
+                                           'pressure', 'wx_phrase']]
+            forecast_weather_columns = list(forecast_weather_df_focused.columns)
             forecast_weather_df_focused_values = forecast_weather_df_focused.values.tolist()[0]
 
-            combined_df = pd.DataFrame(columns=RELEVANT_USER_INPUT_COLUMNS + FORECAST_WEATHER_COLUMNS )
-            combined_df.loc[0,:] = user_input+forecast_weather_df_focused_values
+            # 4. Create a combined dataframe of (1) and (3)
+            combined_df = pd.DataFrame(columns=relevant_user_input_columns +
+                                       forecast_weather_columns)
+            combined_df.loc[0, :] = user_input+forecast_weather_df_focused_values
 
-            # print(combined_df)
-
+            # 5. Pass df from (4) into predict_delay_time() from data_modelling_2
+            # if checkbox is selected. Displays result.
             if self.user_int.check_box.isChecked():
 
                 severity_probability = delay_modelling_2.predict_delay_severity(combined_df)
-                # severity_prediction = airport_selected + date_selection + time_selection \
-                #                      + "severity prediction is"
-                print("severity probability")
-                print(severity_probability)
-                severity_prediction = "The results are"
+                severity_prediction = f"The results are {severity_probability[0]:.2f}%."
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
                 self.user_int.label_6.setVisible(True)
 
             else:
+                # Labels do not display if check box is not checked.
                 self.user_int.avg_delay_result.setVisible(False)
                 self.user_int.label_6.setVisible(False)
 
+            # 6. Pass df from (4) into predict_delay_probability from data_modelling_2.
+            # Displays result.
             delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
-            print("delay")
-            print(delay_probability)
-            delay_prediction = airport_selected + date_selection + time_selection
+            test = f"{delay_probability[0][0] * 100:.2f}"
+            delay_prediction = f"The results are {test}%."
+            self.user_int.prob_delay_result.setText(delay_prediction)
             self.user_int.prob_delay_result.setVisible(True)
             self.user_int.label_5.setVisible(True)
             self.user_int.fail_predict_lb.setVisible(False)
-            self.user_int.prob_delay_result.setText("The predicted delay is")
+
         else:
+            # Displays fail_predict_lb label.
+            # Does not display all other labels.
             self.user_int.fail_predict_lb.setVisible(True)
             self.user_int.prob_delay_result.setVisible(False)
             self.user_int.avg_delay_result.setVisible(False)
@@ -214,17 +240,26 @@ class Milestone2V2(QMainWindow):
         if user is an admin.
         """
         password = self.user_int.password_input.text()
-        if password == "pw123":
+        # Password can be changed here.
+        if password == "123":
             self.stacked_widget_pages.setCurrentIndex(2)
         else:
             self.user_int.error_msg_lb.setVisible(True)
 
     def handle_return_input(self):
+        """
+        This function obtains the start and end years entered by the admin.
+        """
         years_input_info = self.user_int.years_input.text()
         self.process_input(years_input_info)
 
-        # Define a method to process the input
     def process_input(self, years_input_info):
+        """
+        This function processes whether the enters start and end years entered
+        are in the correct format.
+        :param years_input_info: the start and end years entered by the admin.
+               Obtained by handle_return_input() function.
+        """
         if "," in years_input_info:
             years = years_input_info.split(",")
             if len(years) == 2 and all(len(year) == 4 and year.isdigit() for year in years):
@@ -236,74 +271,116 @@ class Milestone2V2(QMainWindow):
         else:
             print("Please enter start and end year in format YYYY,YYYY with no space.")
 
+    def retrain_models(self,num_uploaded):
+        """
+        This function triggers models to be retrained after new files have been uploaded.
+        """
+        try:
+            start_year_input = int(self.start_year)
+            end_year_input = int(self.end_year)
+        except TypeError:
+            self.user_int.file_lb.setText("You have not entered a start or end year.")
+        else:
+            # if self.start_year is not None and self.end_year is not None:
+            #     start_year_input = int(self.start_year)
+            #     end_year_input = int(self.end_year)
+                # Only triggers model combination if more than 2 files are uploaded
+            if num_uploaded > 2:
+                # 1) Obtain entered start and end years entered by user.
+                airports = pd.read_csv('resources/airport_codes.csv')
+
+                # 2) Obtain historical weather data
+                weather.get_historic_weather_data(airports, start_year=start_year_input,
+                                                  end_year=end_year_input)
+                # 3) Call data combination
+
+                data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
+                                                  weather_path=WEATHER_FOLDER_PATH)
+                # 4) Calls model training
+                delay_modelling_2.create_model_from_dataset(
+                    data_path="resources/generated/pickles/combined_flight_data")
+                # 5) Print out new training and testing accuracies
+                # For delay probability
+                delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
+                delay_probability_metrics_results = ', '.join(str(item)
+                                                              for item in
+                                                              delay_probability_metrics[:-1])
+
+                # For delay severity
+                delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
+                delay_severity_metrics_results = ', '.join(str(item)
+                                                           for item in delay_severity_metrics)
+                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
+                                                 + "The training metrics for probability "
+                                                   "of delay is \n"
+                                                 + delay_probability_metrics_results + "\n"
+                                                 + "The training metrics for severity "
+                                                   "of delay is \n "
+                                                 + delay_severity_metrics_results)
+                self.user_int.new_mod_lb.setVisible(True)
+                self.user_int.mod_title_lb.setVisible(True)
+            else:
+                print("Unable to retrain")
+        # else:
+        #     self.user_int.file_lb.setText("You have not entered a start or end year.")
+
+
     def upload_files(self):
         """
-        This function allows users to upload files and triggers pipeline
-        for data cleaning and model retraining.
+        This function allows users to upload files and triggers data combination and modelling
+        if files were uploaded.
+        Type of files expected: zip-files containing .csv files for flight data.
+        # Require admin to enter a start and end year before asking to upload data.
+        For later: Print out training and testing accuracy, then ask
+                if user would like to replace model.
+                Asking if user would like to refit the model.
+                self.user_int.retrain_optionlb.setText("Would you like to replace the model? ")
+                self.user_int.retrain_optionlb.setVisible(True)
+                self.user_int.option_btn.setVisible(True)
+                self.user_int.option_btn.accepted.connect \
+                   (lambda: self.user_int.refit_lb.setText("Replace model..."))
+                 self.user_int.option_btn.rejected.connect \
+                   (lambda: self.user_int.refit_lb.setText("Not replacing model."))
+                Refit
+                Can add a progress bar. When it hits 100% Display "Successfully retrained".
         """
 
         # Creates file upload dialog
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        # Open the file dialog and get the selected file paths
         files, _ = file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
-        # Returns the number of files uploaded, and saves the files in 'flight_data' folder.
 
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
-            folder_path ="./flight_data"
+            folder_path = "resources/flight_data"
             num_uploaded = len(files)
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
             self.user_int.file_lb.setVisible(True)
+
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except FileNotFoundError:
+                    print(f"File not found: {file_path}")
+                except PermissionError:
+                    print(f"Permission desnied: {file_path} ")
+                except OSError as exception:
+                    print(f"OS error while deleting {file_path}: {exception}")
+
             for file_path in files:
                 file_name = os.path.basename(file_path)
-                destination_path = os.path.join(folder_path,file_name)
-                shutil.move(file_path, destination_path)
-
-            # Call data collection + cleaning pipeline
-            # 1) Call weather API to obtain historic weather data
-
-            airports = pd.read_csv('../resources/airport_codes.csv')
-            start_year_input = self.start_year
-            end_year_input = self.end_year
-            # weather.get_historic_weather_data(airports, start_year_input, end_year_input)
-
-            # 2) Create dataset:
-            # create_dataset(airport_path="./flight_data", weather_path="./weather_data")
-
-            # 3) Call model retrain:
-            # create_model_from_dataset(data_path="combined_flight_data")
-
-            # 4) Prints out new training and testing accuracy
-            # For delay probability
-            # get_classifier_metrics()
-            # For delay severity
-            # get_regressor_metrics()
-            self.user_int.new_mod_lb.setText("The new model training accuracy is 0.478922. \n "
-                                             "The new model testing accuracy is 0.4629312. \n"
-                                             "The model has been replaced!")
-            self.user_int.new_mod_lb.setVisible(True)
-            self.user_int.mod_title_lb.setVisible(True)
-
-            # For later: Print out training and testing accuracy, then ask
-            # if user would like to replace model.
-            # Asking if user would like to refit the model.
-            # self.user_int.retrain_optionlb.setText("Would you like to replace the model? ")
-            # self.user_int.retrain_optionlb.setVisible(True)
-            #self.user_int.option_btn.setVisible(True)
-            # self.user_int.option_btn.accepted.connect \
-            #    (lambda: self.user_int.refit_lb.setText("Replace model..."))
-            #self.user_int.option_btn.rejected.connect \
-            #    (lambda: self.user_int.refit_lb.setText("Not replacing model."))
-            # Refit
-            # Can add a progress bar. When it hits 100% Display "Successfully retrained".
-
+                destination_path = os.path.join(folder_path, file_name)
+                shutil.copy(file_path, destination_path)
+            self.retrain_models(num_uploaded)
         else:
             self.user_int.file_lb.setText("No files have been uploaded.")
             self.user_int.file_lb.setVisible(True)
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = Milestone2V2()
+    window = FlightUi()
     window.show()
     sys.exit(app.exec_())
