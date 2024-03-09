@@ -83,8 +83,9 @@ jobs:
       - name: Install additional development dependencies
         run: |
           conda install --yes coverage
-          conda install libxcb-cursor0 --channel conda-forge
           conda list
+          sudo apt install libxcb-cursor0
+          export QT_QPA_PLATFORM=offscreen
           export QT_DEBUG_PLUGINS=1
 
       # If there are any other steps in order for your tests to
