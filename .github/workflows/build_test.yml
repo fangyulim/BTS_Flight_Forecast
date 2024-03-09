@@ -85,7 +85,7 @@ jobs:
       - name: Install additional development dependencies
         run: |
           conda install --yes coverage
-          conda env list
+          conda install --yes opencv-python-headless
           conda list
           export QT_DEBUG_PLUGINS=1
           echo $QT_QPA_PLATFORM
