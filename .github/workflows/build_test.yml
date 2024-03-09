@@ -50,10 +50,6 @@ jobs:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
 
-      # Adding steps to set the Qt platform
-      - name: Set Qt environment variables
-        run: |
-          export QT_QPA_PLATFORM=xcb
       # Then set up Python with a python version from the matrix.
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
