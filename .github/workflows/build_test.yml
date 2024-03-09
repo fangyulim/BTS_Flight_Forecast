@@ -53,6 +53,7 @@ jobs:
         run: |
           export QT_QPA_PLATFORM=eglfs
           coverage run -m unittest discover
+
       - name: Set Qt environment variables
         run: |
           export QT_QPA_PLATFORM=xcb
