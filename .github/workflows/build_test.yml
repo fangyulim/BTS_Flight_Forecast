@@ -83,7 +83,7 @@ jobs:
       - name: Install additional development dependencies
         run: |
           conda install --yes coverage
-          conda install libxcb-cursor0
+          conda install libxcb-cursor0 --channel conda-forge
           conda list
           export QT_DEBUG_PLUGINS=1
 
