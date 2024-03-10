@@ -12,9 +12,9 @@ dependencies:
   - pandas=2.2
   - pip
   - pip:
-      - PyQt5=5.15
+      - PyQt5==5.15
       - pytest-qt
       - pyqt5-tools
-      - pylint=2.15
+      - pylint==2.15
 
 
