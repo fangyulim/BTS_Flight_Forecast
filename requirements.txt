@@ -1,5 +1,5 @@
-requests==2.31
-pandas==2.2
-pylint==2.16
 scikit-learn==1.2
 PyQt5==5.15
+pylint==2.16
+requests==2.31
+pandas==2.2

@@ -20,6 +20,7 @@ import os
 
 import pandas as pd
 from PyQt5 import uic
+from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt, QDateTime, QTimeZone
 from . import weather
