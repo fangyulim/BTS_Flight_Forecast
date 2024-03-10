@@ -29,7 +29,7 @@ jobs:
 
     # Provide a runner. Options are listed on GitHub, but include
     # windows, ubuntu, and macos (latest, as well as specific versions)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     # In order to get Conda environments to work properly, we need to
     # tell the runner to start up the bash shell in a way that respects
@@ -50,6 +50,10 @@ jobs:
     steps:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
+
+      - name: Commands for ubuntu runner
+        run: |
+          sudo apt install libxcb-cursor0
 
       # Then set up Python with a python version from the matrix.
       - name: Set up Python ${{ matrix.python-version }}
