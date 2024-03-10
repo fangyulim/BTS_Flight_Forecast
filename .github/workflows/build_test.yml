@@ -52,17 +52,6 @@ jobs:
       - name: Set Qt environment variables
         run: |
           export QT_QPA_PLATFORM=xcb
-      # Then set up Python with a python version from the matrix.
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install PyQt5 for windows
-        run: |
-          $env:PYTHONPATH="$env:PYTHONPATH;${{ env.PYTHON }}\Lib\site-packages"
-          $env:PATH="${{ env.PATH }};${{ env.PYTHON }};${{ env.PYTHON }}\Scripts"
-          pip install git+git://github.com/pyqt/python-qt5.git
 
       # This is an Action published by the Conda team to get your
       # Conda environment set up using your environment.yml file.
