@@ -7,7 +7,8 @@ dependencies:
   - pip:
       - PyQt5==5.15
       - pyqt5-tools
-      - pytest pytest-qt
+      - pytest
+      - pytest-qt
       - scikit-learn=1.2
       - pylint==2.15
       - requests==2.31
