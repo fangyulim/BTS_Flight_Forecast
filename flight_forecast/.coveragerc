@@ -1,0 +1,11 @@
+[run]
+omit = 
+	config.py
+	config-3.py
+
+[report]
+omit =
+	*__init__*
+	*tests*
+exclude_lines = 
+	if __name__ == .__main__.:
