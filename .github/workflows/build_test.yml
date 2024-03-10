@@ -51,15 +51,17 @@ jobs:
       # First, check out the repository for the current branch.
       - uses: actions/checkout@v3
 
-      - name: Commands for ubuntu runner
-        run: |
-          sudo apt install libxcb-cursor0
-
       # Then set up Python with a python version from the matrix.
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Commands for ubuntu runner
+        run: |
+          sudo apt install libxcb-cursor0
+          export QT_DEBUG_PLUGINS=1
+          export QT_QPA_PLATFORM=offscreen
 
       # This is an Action published by the Conda team to get your
       # Conda environment set up using your environment.yml file.
