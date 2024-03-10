@@ -289,7 +289,6 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
-            self.assertTrue(True)
 
     def test_get_historic_weather_data_edge_years(self):
         """
@@ -363,7 +362,6 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
-            self.assertTrue(True)
 
     def test_get_historic_weather_data_edge_response_2(self):
         """
@@ -399,7 +397,6 @@ class TestWeather(unittest.TestCase):
 
             # Call the function
             get_historic_weather_data(airports_df, 2023, 2023)
-            self.assertTrue(True)
 
     def test_get_weather_forecast_oneshot(self):
         """
