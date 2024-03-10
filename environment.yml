@@ -5,7 +5,6 @@ dependencies:
   - python >=3.9,<=3.11 # scikit-learn installation fails for 3.12 python.
   #- pyqt5-tools
   - pytest
-  - pyqt5
   # - pytest-qt
   - scikit-learn=1.2
   - requests=2.31
