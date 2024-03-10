@@ -99,6 +99,7 @@ jobs:
         run: |
           cd flight_forecast
           export QT_DEBUG_PLUGINS=1
+          ldd /usr/share/miniconda/envs/BTS_Flight_Forecast/lib/python3.11/site-packages/PyQt5/Qt/plugins/platforms/libqxcb.so | grep "not found"
           coverage run -m unittest discover
           coverage report
           coverage lcov
