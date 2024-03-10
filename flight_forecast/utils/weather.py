@@ -246,14 +246,28 @@ def get_historic_weather_data(airports, start_year, end_year):
          end_year (int): Ending year (inclusive).
 
      Raises:
-         ValueError: If start_year > end_year.
+         TypeError: If start_year or end_year is not an integer
+                    If 'airports' is not a dataframe
+         ValueError: If start_year <= 0 or end_year <= 0 or start_year > end_year
+                     If 'Airport Code' not present in the 'airports' dataframe
+
 
      Iterates through airports, fetching data for each within the year range,
      saving cleaned/enriched data as CSV files.
      """
-
+    # check validity of start_year and end_year
+    if not isinstance(start_year, int) or not isinstance(end_year, int):
+        raise TypeError(" 'start_year' or 'end_year' is not an integer")
+    if start_year <= 0 or end_year <= 0:
+        raise ValueError("Invalid 'start_year' or 'end_year' in the input")
     if start_year > end_year:
-        raise ValueError("Start year should be less than or equal to end year")
+        raise ValueError("'start_year' should be less than or equal to 'end_year'")
+
+    # check validity of 'airports'
+    if not isinstance(airports, pd.DataFrame):
+        raise TypeError("'airports' is not a valid dataframe")
+    if 'Airport Code' not in airports.columns:
+        raise ValueError("'Airport Code' not present in the input dataframe")
 
     months_days = _generate_date_ranges(range(start_year, end_year + 1))
 
@@ -309,6 +323,9 @@ def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
 
     Returns:
         pd.DataFrame: Refined forecasted weather data.
+
+    Raises:
+        ValueError: If 'forecasted_weather_df_raw' does not have all 'columns_of_interest'
     """
 
     if not set(columns_of_interest) <= set(forecasted_weather_df_raw.columns):
@@ -327,17 +344,25 @@ def get_weather_forecast(airport_code, timestamp):
     """Fetches weather forecast data for a given airport code and timestamp.
 
     Args:
-    airport_code (str): The 3-letter ICAO code of the airport.
-    timestamp (int): The Unix timestamp representing the desired forecast time.
+        airport_code (str): The 3-letter ICAO code of the airport.
+        timestamp (int): The Unix timestamp representing the desired forecast time.
 
     Returns:
-    pd.DataFrame: The refined weather forecast DataFrame, containing data for the
-     specified timestamp.
+        pd.DataFrame: The refined weather forecast DataFrame, containing data for the
+         specified timestamp.
 
     Raises:
-    requests.HttpError: If the forecast API returns a 4xx or 5xx response code.
-    ValueError: If any errors occur during API calls or data processing.
+        TypeError: 'airport_code' or 'timestamp' are of incorrect type.
+        requests.HttpError: If the forecast API returns non 2xx response code.
+        ValueError: If any errors occur during API calls or data processing.
     """
+
+    if not isinstance(airport_code, str):
+        raise TypeError("Invalid 'airport_code'.")
+    if type(timestamp) not in [int, numpy.int32, numpy.int64]:
+        raise TypeError("Invalid 'timestamp'.")
+    if timestamp <= 0:
+        raise ValueError("'timestamp' cannot be negative.")
 
     params = {
         'apiKey': API_TOKEN,
@@ -349,8 +374,10 @@ def get_weather_forecast(airport_code, timestamp):
 
     resp = requests.get(url=WEATHER_FORECAST_URL, params=params, timeout=15)
 
-    # raise an error for 4xx and 5xx response codes
-    resp.raise_for_status()
+    # raise an error for non 2xx response codes
+    if not 200 <= resp.status_code < 300:
+        raise requests.HTTPError(f"Error while calling forecast weather API for {airport_code}.")
+
     response_data = resp.json()
 
     # transpose data from array to dictionary list
