@@ -30,8 +30,8 @@ dynamic = ["dependencies"]
 # In conjunction with the "dynamic" option above in the "project"
 # section, this tells the build system to add any dependencies
 # specified in requirements.txt.
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+# [tool.setuptools.dynamic]
+# dependencies = {file = ["requirements.txt"]}
 
 # Where can someone find out more about your project?
 [project.urls]
