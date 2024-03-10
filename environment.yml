@@ -6,6 +6,3 @@ dependencies:
   - pip
   - pip:
       - -r requirements.txt
-variables:
-  -QT_DEBUG_PLUGINS: 1
-  -QT_QPA_PLATFORM: offscreen
