@@ -93,6 +93,7 @@ jobs:
       - name: Unit tests
         run: |
           cd flight_forecast
+          export QT_QPA_PLATFORM=offscreen
           coverage run -m unittest discover
           coverage report
           coverage lcov
