@@ -99,8 +99,7 @@ jobs:
         run: |
           cd flight_forecast
           export QT_DEBUG_PLUGINS=1
-          ldd /usr/share/miniconda/envs/BTS_Flight_Forecast/lib/python3.11/site-packages/PyQt5/Qt/plugins/platforms/libqxcb.so | grep "not found"
-#          sudo apt install libxcb-icccm libxcb-image libxcb-keysyms libxcb-render-util libxcb-shape libxcb-xinerama libxcb-xkb libxkbcommon-x11
+          ldd /usr/share/miniconda/envs/BTS_Flight_Forecast/lib/python${{ matrix.python-version }}/site-packages/PyQt5/Qt/plugins/platforms/libqxcb.so | grep "not found"
           sudo apt install synaptic
           coverage run -m unittest discover
           coverage report
