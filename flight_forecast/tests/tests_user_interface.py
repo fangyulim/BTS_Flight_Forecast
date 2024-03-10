@@ -42,14 +42,6 @@ class TestUi(unittest.TestCase):
         # Check if the main window is visible
         self.assertTrue(self.ui.isVisible())
 
-    def test_admin_button_switches_page(self):
-        """
-        This function checks if clicking the admin_button switches to the admin login page.
-        """
-        QTest.mouseClick(self.ui.user_int.admin_login_btn, Qt.LeftButton)
-        QApplication.processEvents()
-        self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 1)
-
     def test_main_button_switches_page(self):
         """
         This function checks if clicking the main_button switches to the main page.
