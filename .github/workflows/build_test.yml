@@ -100,7 +100,7 @@ jobs:
           cd flight_forecast
           export QT_DEBUG_PLUGINS=1
           ldd /usr/share/miniconda/envs/BTS_Flight_Forecast/lib/python${{ matrix.python-version }}/site-packages/PyQt5/Qt/plugins/platforms/libqxcb.so | grep "not found"
-          sudo apt install synaptic
+          sudo apt install libxcb-icccm
           coverage run -m unittest discover
           coverage report
           coverage lcov
