@@ -3,14 +3,18 @@ channels:
   - defaults
 dependencies:
   - python >=3.9,<=3.11 # scikit-learn installation fails for 3.12 python.
-  - pip
-  - PyQt5=5.15
-  - pyqt5-tools
+  - PyQt5=5
+  #- pyqt5-tools
   - pytest
-  - pytest-qt
+  # - pytest-qt
   - scikit-learn=1.2
-  - pylint=2.15
   - requests=2.31
   - pandas=2.2
- # - pip:
+  - pip
+  - pip:
+      - PyQt5=5.15
+      - pytest-qt
+      - pyqt5-tools
+      - pylint=2.15
+
 
