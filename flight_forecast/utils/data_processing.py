@@ -201,10 +201,6 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
 
     # Restricting attachment to only airports with known weather data
     relevant_flights_df = flight_data[flight_data.Origin.isin(weather_data.airport_code.unique())]
-    # Subsetting dataset for demo purposes
-    relevant_flights_df = relevant_flights_df[relevant_flights_df.Origin == "SEA"]
-    relevant_flights_df = relevant_flights_df[relevant_flights_df.Year == 2022]
-    relevant_flights_df = relevant_flights_df[relevant_flights_df.Month.isin((5, 6, 7))]
     combined_flight_data = match_flight_and_weather_data(relevant_flights_df, weather_data)
 
     combined_flight_data.to_pickle(PICKLE_FOLDER_PATH + "/combined_flight_data")
