@@ -236,7 +236,7 @@ def _clean_historic_weather_data(weather_data_raw, location_code, columns_of_int
     return _enrich_date_time(weather_data_cleaned)
 
 
-def get_historic_weather_data(airports, start_year, end_year):
+def get_historic_weather_data(airports, start_year=2022, end_year=2023):
     """
      Fetches and saves historical weather data for airports over a specified period.
 
@@ -404,8 +404,3 @@ def get_weather_forecast(airport_code, timestamp):
                          f"time {timestamp}")
     return focused_forecast_df
 
-
-if __name__ == '__main__':
-    # Read the Airport Codes from CSV
-    airports_data = pd.read_csv('resources/airport_codes.csv')
-    get_historic_weather_data(airports_data, 2022, 2023)

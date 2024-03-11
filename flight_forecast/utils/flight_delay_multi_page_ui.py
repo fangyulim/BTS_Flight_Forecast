@@ -20,12 +20,11 @@ import os
 
 import pandas as pd
 from PyQt5 import uic
-from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt, QDateTime, QTimeZone
 from . import weather
-from . import data_combination_1
-from . import delay_modelling_2
+from . import data_processing
+from . import delay_predictor
 
 # GUI file
 QT_CREATOR_FILE = 'resources/flight_delay_multi_page.ui'
@@ -202,7 +201,7 @@ class FlightUi(QMainWindow):
             # if checkbox is selected. Displays result.
             if self.user_int.check_box.isChecked():
 
-                severity_probability = delay_modelling_2.predict_delay_severity(combined_df)
+                severity_probability = delay_predictor.predict_delay_severity(combined_df)
                 severity_prediction = f"The results are {severity_probability[0]:.2f}%."
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
@@ -215,7 +214,7 @@ class FlightUi(QMainWindow):
 
             # 6. Pass df from (4) into predict_delay_probability from data_modelling_2.
             # Displays result.
-            delay_probability = delay_modelling_2.predict_delay_probability(combined_df)
+            delay_probability = delay_predictor.predict_delay_probability(combined_df)
             test = f"{delay_probability[0][0] * 100:.2f}"
             delay_prediction = f"The results are {test}%."
             self.user_int.prob_delay_result.setText(delay_prediction)
@@ -293,22 +292,22 @@ class FlightUi(QMainWindow):
                 # 2) Obtain historical weather data
                 weather.get_historic_weather_data(airports, start_year=start_year_input,
                                                   end_year=end_year_input)
-                # 3) Call data combination
+                # 3) Call data processing util
 
-                data_combination_1.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
+                data_processing.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
                                                   weather_path=WEATHER_FOLDER_PATH)
                 # 4) Calls model training
-                delay_modelling_2.create_model_from_dataset(
+                delay_predictor.create_model_from_dataset(
                     data_path="resources/generated/pickles/combined_flight_data")
                 # 5) Print out new training and testing accuracies
                 # For delay probability
-                delay_probability_metrics = delay_modelling_2.get_classifier_metrics()
+                delay_probability_metrics = delay_predictor.get_classifier_metrics()
                 delay_probability_metrics_results = ', '.join(str(item)
                                                               for item in
                                                               delay_probability_metrics[:-1])
 
                 # For delay severity
-                delay_severity_metrics = delay_modelling_2.get_regressor_metrics()
+                delay_severity_metrics = delay_predictor.get_regressor_metrics()
                 delay_severity_metrics_results = ', '.join(str(item)
                                                            for item in delay_severity_metrics)
                 self.user_int.new_mod_lb.setText("The model has been successfully trained!"
