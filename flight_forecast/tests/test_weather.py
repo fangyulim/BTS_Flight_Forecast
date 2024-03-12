@@ -50,6 +50,9 @@ sample_weather_data_forecasted = {
 
 
 class TestWeather(unittest.TestCase):
+    """
+      Test class for the util module weather.py
+  """
 
     def test_get_month_range_oneshot(self):
         """

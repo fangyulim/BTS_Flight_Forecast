@@ -15,8 +15,6 @@ import sys
 from datetime import datetime as dt
 import pandas as pd
 
-from . import weather
-
 AIRPORT_FOLDER_PATH = "resources/flight_data"
 WEATHER_FOLDER_PATH = "resources/generated/weather_data"
 PICKLE_FOLDER_PATH = "resources/generated/pickles"
@@ -167,7 +165,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
                         airport_weather_df.record_start_date.iloc[current_weather]:
                     current_weather += 1
                 flight_ind = airport_flight_df.index[current_flight]
-                flight_df.loc[flight_ind, weather_cols] = airport_weather_df.iloc[current_weather, :]
+                flight_df.loc[flight_ind, weather_cols]=airport_weather_df.iloc[current_weather, :]
                 current_flight += 1
     print("Data successfully attached!                                       ", end="\r")
     sys.stdout.flush()
@@ -204,4 +202,3 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
     combined_flight_data = match_flight_and_weather_data(relevant_flights_df, weather_data)
 
     combined_flight_data.to_pickle(PICKLE_FOLDER_PATH + "/combined_flight_data")
-

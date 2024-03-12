@@ -157,28 +157,21 @@ class FlightUi(QMainWindow):
         displays the predicted probability of delay or severity prediction.
         """
         # Obtaining user input
-        date = self.user_int.date_selection.date()
-        time = self.user_int.time_selection.time()
+        date_input = self.user_int.date_selection.date()
+        time_input = self.user_int.time_selection.time()
         airport_selected = self.user_int.airport_selection.currentText()
-        # airline_selected = self.user_int.airline_selection.currentText()
-        day_input = date.day()
-        year_input = date.year()
 
         # Combining data and time selection to convert to unit timestamp for weather forecast.
-        gmt_timezone = QTimeZone.utc()
-        date_time_selection = QDateTime(date, time, gmt_timezone)
+        date_time_selection = QDateTime(date_input, time_input, QTimeZone.utc())
         unix_timestamp = date_time_selection.toSecsSinceEpoch()
 
         # If selected day is within 15 days from today, then we are able to give a prediction
-        current_date = datetime.now()
-        date_selected = datetime(date.year(), date.month(), date.day())
-        difference = date_selected - current_date
-        month_input = date.month()
-        day_difference = int(difference.days)
-        if 1 < day_difference <= 15:
+        date_selected = datetime(date_input.year(), date_input.month(), date_input.day())
+        day_difference = int((date_selected - datetime.now()).days)
+        if 0 <= day_difference <= 15:
             # 1. Create a list of relevant input columns, and a list of the inputs.
             relevant_user_input_columns = ['Year', 'Month', 'DayofMonth', 'Origin']
-            user_input = [year_input, month_input, day_input, airport_selected]
+            user_input = [date_input.year(), date_input.month(), date_input.day(), airport_selected]
 
             # 2. Calls the get_weather_forecast() from weather module.
             forecast_weather_df = weather.get_weather_forecast(airport_selected, unix_timestamp)

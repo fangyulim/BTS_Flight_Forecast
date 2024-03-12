@@ -28,9 +28,9 @@ PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
 # Q: Which variable is forecasted weather data??
 
-def pre_process_dataset(df_to_process, target_col=TARGET_COL_CLASSIFIER,
-                        relevant_columns=RELEVANT_COLS,
-                        encoder_path=PICKLE_FOLDER_PATH + "/unknown_encoder.pkl"):
+def pre_process_dataset(df_to_process, target_col,
+                        relevant_columns,
+                        encoder_path):
     '''
     Preprocesses flight data for use in training an sklearn model.
 
@@ -173,11 +173,13 @@ def create_model_from_dataset(data_path=PICKLE_FOLDER_PATH+"/combined_flight_dat
     delay_df = pd.read_pickle(data_path)
     processed_datasets = pre_process_dataset(delay_df,
                                              target_col=TARGET_COL_CLASSIFIER,
+                                             relevant_columns=RELEVANT_COLS,
                                              encoder_path=(PICKLE_FOLDER_PATH +
                                                            "/classification_encoder.pkl"))
     classifier_modelling_results = train_classifier(processed_datasets)
     processed_datasets = pre_process_dataset(delay_df,
                                              target_col=TARGET_COL_REGRESSOR,
+                                             relevant_columns=RELEVANT_COLS,
                                              encoder_path=(PICKLE_FOLDER_PATH +
                                                            "/regression_encoder.pkl"))
     regressor_modelling_results = train_regressor(processed_datasets)
