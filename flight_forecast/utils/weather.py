@@ -403,4 +403,3 @@ def get_weather_forecast(airport_code, timestamp):
         raise ValueError(f"Forcast data unavailable for given airport {airport_code} at "
                          f"time {timestamp}")
     return focused_forecast_df
-

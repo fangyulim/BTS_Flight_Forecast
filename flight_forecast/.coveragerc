@@ -6,9 +6,6 @@ omit =
 [report]
 omit =
 	*__init__*
-	*tests*
+	*test_*
 exclude_lines = 
 	if __name__ == .__main__.:
-
-
-
