@@ -9,7 +9,7 @@ Flight delays are a constant source of frustration for travelers, causing missed
 |            Name            |      GitHub       |
 |:--------------------------:|:-----------------:|
 | **Bruno Carvalho Barreto** |    *BrunoB42*     |
-|      **Fang Yu Lim**       |    *fanguilim*    |
+|      **Fang Yu Lim**       |    *fangyulim*     |
 |    **Sushma Vankayala**    | *sushmavankayala* |
 
 ## Table of Contents
@@ -47,7 +47,6 @@ Here is an overview of our project structure:
 │   ├── Milestone.md
 │   ├── PseudoCode.md
 │   ├── TechnologyReview.pdf
-│   ├── README.md
 │   ├── UseCases.md
 │   ├── UserStories.pdf
 ├── flight_forecast/
@@ -55,37 +54,30 @@ Here is an overview of our project structure:
 │   │   ├── flight_data/
 │   │   │   ├── On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_5.zip
 │   │   │   ├── ...
-│   │   │   ├── README.md
 │   │   ├── generated/
 │   │   │   ├── pickles
 │   │   │   │   ├── combined_flight_data
-│   │   │   │   ├── README.md
 │   │   │   ├── weather_data
 │   │   │   │   ├── BIL.csv
 │   │   │   │   ├── BLI.csv
 │   │   │   │   ├── ...
 │   │   │   │   ├── TWF.csv
-│   │   │   │   ├── README.md
-│   │   │   ├── README.md
-│   │   ├── README.md
 │   ├── tests/
 │   │   ├── __init__.py
 │   │   ├── tests_user_interface.py
 │   │   ├── tests_weather.py
 │   ├── utils/
 │   │   ├── __init__.py
-│   │   ├── data_combination_1.py
-│   │   ├── delay_modelling_2.py
+│   │   ├── data_processing.py
+│   │   ├── delay_predictor.py
 │   │   ├── flight_delay_multi_page_ui.py
 │   │   ├── weather.py
-│   ├── README.md
 ├── POC/
 │   ├── BTS_Demo_1_Data_Combination.ipynb 
 │   ├── BTS_Demo_2_Delay_Prediction_Cleaning_And_Modelling.ipynb 
 │   ├── BTS_Demo_3_Delay_Severity_Prediction_Cleaning_And_Modelling.ipynb 
 │   ├── PyQT5_Demo.py
 │   ├── PyQt5_GUI_Demo.ui
-│   ├── README.md
 ├── .gitignore
 ├── environment.yml
 ├── LICENSE
@@ -125,13 +117,38 @@ Please note that Conda must be installed for the above commands to work. For ins
 
 <a id="data"></a>
 ### Data
+For this project, we use has a static list of airports in the Pacific Northwest. This information is stored in the resources folder as airport_codes.csv
 The raw data for our project is obtained from three different sources:
 1. **Historical Flight Delays**: Data on past flight delays is obtained from the Bureau of Transportation Statistics (BTS) [https://www.transtats.bts.gov/Tables.asp?DB_ID=111]. 
 2. **Weather Data**:
    - **Historic Weather Data**: Weather Underground's historical weather data API (https://api.weather.com/v1/location/KSEA:9:US/observations/historical.json) is used to gather historical weather information for various airport locations.
    - **Real-time Weather Forecasts**: The tool integrates with the Weather.com API (https://api.weather.com/v3/wx/forecast/hourly/15day) to access real-time and forecasted weather data for specific airport locations. 
 
-[//]: # (TODO: Add Script for loading and training the data   )
+### Pre-trained Predictive Model
+Predictive models pretrained on historic data of 33 airports from 2022-2023 are stored in the resources folder as pickles. The tool uses these models to predict the probability and severity of delays.
+
+### Customizations (optional)
+The current model is trained on historic flight and weather data corresponding to Pacific North West airports over the years 2022 - 2023.
+
+1. **Extending to other airports**: The airport_codes.csv list needs to be updated to include information about new airport codes. If any airport has multiple airport codes, please use the code compatible with Weather Wunder APIs.
+2. **Extending to other years**: Years of interest can be provided as input in the UI or as arguments to the script.
+
+You can download data and retrain the model in the 2 ways listed below. Please note that this step involves fetching the historic data for all airports listed in the airports_cv over the given range of years. 
+Note: For 2 year worth of data corresponding to 33 airports in the airport_codes.csv, this step (data collection, data processing and model training) takes about 1 hour.
+
+1. **Using tool's GUI**:
+   - Download data from BTS.
+   - Use the admin page in the tool to upload the flight data.
+   - Provide start and end years of the data.
+   - Click retrain.
+2. **Using script**:
+   ```bash
+    conda activate BTS_Flight_Forecast
+    cd flight_forecast
+    python -m scripts.reset_and_setup 2022 2023
+    conda deactivate
+    cd ..
+    ```
 
 <a id="application"></a>
 ### Application
@@ -139,8 +156,9 @@ A local application can be generated with the code:
 ```bash
 conda activate BTS_Flight_Forecast
 cd flight_forecast
-python -m utils.flight_delay_multi_page_ui.py
+python -m utils.flight_delay_multi_page_ui
 ```
 This will pop up our tool's GUI.
+
 
 [//]: # (TODO: Add examples folder and demo)
