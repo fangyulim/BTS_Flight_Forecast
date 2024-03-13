@@ -245,8 +245,7 @@ class FlightUi(QMainWindow):
         :param years_input_info: the start and end years entered by the admin.
                Obtained by handle_return_input() function.
         """
-        mes = "Please enter start & end year in correct" +\
-              "\n"+ "format (no space) and press enter!"
+        mes = "Please enter start & end year in correct format (no space) and press enter!"
         if "," in years_input_info:
             try:
                 years = years_input_info.split(",")
