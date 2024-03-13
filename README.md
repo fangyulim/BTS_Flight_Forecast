@@ -46,7 +46,10 @@ Here is an overview of our project structure:
 ├── docs/
 │   ├── Background.md
 │   ├── Component.md
+│   ├── Component_Diagram.png
 │   ├── ComponentInteractionDiagramV2.pdf
+│   ├── Interaction_Diagram_1.png
+│   ├── Interaction_Diagram_2.png
 │   ├── Milestone.md
 │   ├── PseudoCode.md
 │   ├── TechnologyReview.pdf
@@ -58,13 +61,23 @@ Here is an overview of our project structure:
 │   │   │   ├── On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_5.zip
 │   │   │   ├── ...
 │   │   ├── generated/
-│   │   │   ├── pickles
+│   │   │   ├── pickles/
 │   │   │   │   ├── combined_flight_data
-│   │   │   ├── weather_data
+│   │   │   ├── weather_data/
 │   │   │   │   ├── BIL.csv
 │   │   │   │   ├── BLI.csv
 │   │   │   │   ├── ...
 │   │   │   │   ├── TWF.csv
+│   │   ├── testing_resources/
+│   │   │   ├── invalid_name_weather_data/
+│   │   │   ├── test_airport_data/
+│   │   │   ├── test_weather_data/
+│   │   │   ├── encoder.pkl
+│   │   │   ├── test_date_df.csv
+│   │   │   ├── weather_test.csv
+│   │   ├── airport_codes.csv
+│   │   ├── flight_delay_multi_page.ui
+│   │   ├── README.md
 │   ├── tests/
 │   │   ├── __init__.py
 │   │   ├── test_user_interface.py
