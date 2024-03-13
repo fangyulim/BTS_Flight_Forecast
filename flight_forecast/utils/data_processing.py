@@ -126,6 +126,9 @@ def match_flight_and_weather_data(flight_df, weather_df):
     A DataFrame containing the entries in flight_df with the weather data at each flight's
     departure time added as additional columns.
     '''
+    if (not isinstance(flight_df, pd.DataFrame)) or (not isinstance(weather_df, pd.DataFrame)):
+        raise TypeError("Both flight_df and weather_df must be Pandas DataFrames. Currently, " + \
+                        f"they are a {type(flight_df)} and a {type(weather_df)} respectively.")
     # Preparing flight dataframe to recieve weather data rows
     flight_df = flight_df.reset_index()
     flight_df.loc[:, weather_df.columns] = pd.NA
