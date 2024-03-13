@@ -3,10 +3,11 @@
 ### Background 
 BTS Flight Forecast is a tool to predict flight delays.
 
+Flight delays are a constant source of frustration for travelers, causing missed connections and disrupted schedules.
 Our goal is to utilize historical flight delay data along with past weather information to generate accurate predictions.
 By analysing existing datasets and integrating with weather forecast APIs.
 This tool assesses the likelihood of delays for a specified airport code, data, and time.
-Datasets of interest:
+
 
 <b> User profile </b>
 User 1: Fiona
