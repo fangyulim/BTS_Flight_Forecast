@@ -43,7 +43,6 @@ class FlightUi(QMainWindow):
         """
         function documentation: This function sets up the windows and actions for specific changes
         """
-        # super(Milestone2V2, self).__init__()
         super().__init__()
         self.user_int = ui_main_window()
         self.user_int.setupUi(self)
@@ -70,7 +69,6 @@ class FlightUi(QMainWindow):
 
         # Instantiating widgets and functions used on main page.
         self.load_airport_list()
-        # self.load_airlines_list()
 
     def setup_signal_slot_connection(self):
         """
@@ -82,8 +80,6 @@ class FlightUi(QMainWindow):
         # Moves to main page when "Main Page" button is clicked
         self.user_int.main_page_btn.clicked.connect(
             lambda: self.stacked_widget_pages.setCurrentIndex(0))
-        # This will be used if we decide to move airport_selection as it's own function.
-        # self.user_int.airport_selection.currentTextChanged.connect(self.airport_changed)
         self.user_int.PredictButton.clicked.connect(self.prediction)
 
         # Authentication page.
@@ -110,6 +106,7 @@ class FlightUi(QMainWindow):
         self.user_int.prob_delay_result.setVisible(False)
         self.user_int.label_5.setVisible(False)
         self.user_int.fail_predict_lb.setVisible(False)
+        self.user_int.success_lb.setVisible(False)
 
         # Authentication page
         self.user_int.error_msg_lb.setVisible(False)
@@ -119,7 +116,7 @@ class FlightUi(QMainWindow):
         self.user_int.new_mod_lb.setVisible(False)
         self.user_int.mod_title_lb.setVisible(False)
         # self.user_int.year_indicator.setVisible(False)
-        # self.user_int.option_btn.setVisible(False)
+        self.user_int.option_btn.setVisible(False)
         # self.user_int.retrain_optionlb.setVisible(False)
         # self.user_int.refit_lb.setVisible(False)
 
@@ -185,7 +182,7 @@ class FlightUi(QMainWindow):
             if self.user_int.check_box.isChecked():
 
                 severity_probability = delay_predictor.predict_delay_severity(combined_df)
-                severity_prediction = f"The results are {severity_probability[0]:.2f}%."
+                severity_prediction = f"The results are {severity_probability[0]:.2f}min."
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
                 self.user_int.label_6.setVisible(True)
@@ -251,7 +248,7 @@ class FlightUi(QMainWindow):
                 if len(years) == 2 and all(len(year) == 4 and year.isdigit() for year in years):
                     self.user_int.year_indicator.setVisible(True)
                     self.start_year, self.end_year = min(years), max(years)
-                    self.user_int.year_indicator.setText("The start_year is: "
+                    self.user_int.year_indicator.setText("The start year is: "
                                                          + str(self.start_year)
                                                          + "\n" + "The end year is: "
                                                          + str(self.end_year))
@@ -277,11 +274,11 @@ class FlightUi(QMainWindow):
         except TypeError:
             self.user_int.file_lb.setText("You have not entered a start or end year.")
         else:
-            # if self.start_year is not None and self.end_year is not None:
-            #     start_year_input = int(self.start_year)
-            #     end_year_input = int(self.end_year)
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
+                self.user_int.file_lb.setVisible(False)
+                self.user_int.success_lb.setText("You have uploaded " +
+                                                 str(num_uploaded) + " files.")
                 # 1) Obtain entered start and end years entered by user.
                 airports = pd.read_csv('resources/airport_codes.csv')
 
@@ -306,7 +303,7 @@ class FlightUi(QMainWindow):
                 delay_severity_metrics = delay_predictor.get_regressor_metrics()
                 delay_severity_metrics_results = ', '.join(str(item)
                                                            for item in delay_severity_metrics)
-                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
+                self.user_int.new_mod_lb.setText("The model has been successfully trained!\n"
                                                  + "The training metrics for probability "
                                                    "of delay is \n"
                                                  + delay_probability_metrics_results + "\n"
@@ -317,8 +314,6 @@ class FlightUi(QMainWindow):
                 self.user_int.mod_title_lb.setVisible(True)
             else:
                 print("Unable to retrain")
-        # else:
-        #     self.user_int.file_lb.setText("You have not entered a start or end year.")
 
     def upload_files(self):
         """
@@ -352,9 +347,9 @@ class FlightUi(QMainWindow):
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
             folder_path = "resources/flight_data"
-
-            self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
-            self.user_int.file_lb.setVisible(True)
+            self.user_int.success_lb.setVisible(True)
+            self.user_int.success_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
+            self.user_int.file_lb.setVisible(False)
 
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)

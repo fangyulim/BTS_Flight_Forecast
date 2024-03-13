@@ -41,8 +41,6 @@ class TestUi(unittest.TestCase):
         Certain labels and widget is not visible before actions have been taken.
         """
         self.ui.setup_ui()
-        # self.assertEqual(self.ui.width(), 1200)
-        # self.assertEqual(self.ui.height(), 750)
         # Following labels and widgets appear false initially
         self.assertFalse(self.ui.user_int.avg_delay_result.isVisible())
         self.assertFalse(self.ui.user_int.label_6.isVisible())
@@ -58,9 +56,6 @@ class TestUi(unittest.TestCase):
         self.assertFalse(self.ui.user_int.new_mod_lb.isVisible())
         self.assertFalse(self.ui.user_int.mod_title_lb.isVisible())
         self.assertFalse(self.ui.user_int.year_indicator.isVisible())
-        # self.assertFalse(self.ui.user_int.option_btn.isVisible())
-        # self.assertFalse(self.ui.user_int.retrain_optionlb.isVisible())
-        # self.assertFalse(self.ui.user_int.refit_lb.isVisible())
 
     def test_main_window_displayed_correctly(self):
         """
@@ -304,7 +299,7 @@ class TestUi(unittest.TestCase):
         This function checks if there is a comma in the years entered by admin.
         If not, prompts users to re-enter start and end years in the correct format.
         """
-        mes = "The start_year is: " + str(2010) + "\n" + "The end year is: "\
+        mes = "The start year is: " + str(2010) + "\n" + "The end year is: "\
                                     + str(2022)
         years_input_info = "2010,2022"
         self.ui.process_input(years_input_info)
@@ -321,8 +316,6 @@ class TestUi(unittest.TestCase):
         years_input_info = "20102022"
         self.ui.process_input(years_input_info)
         self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
-        # Somehow can't test this?? Gives error False is not True
-        # self.assertTrue(self.ui.user_int.year_indicator.isVisible())
 
     def test_handle_return_input(self):
         """
@@ -331,15 +324,17 @@ class TestUi(unittest.TestCase):
         self.ui.user_int.years_input.setText("1990,2022")
         result = self.ui.handle_return_input()
         self.assertEqual(result, "1990,2022")
-    # """"
+
+    # The following codes are all related to file dialog tests.
+
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload(self, mock_get_open_file_names):
     #     # def test_upload(self):
-    #
+    #     """
     #     This function checks that by clicking the upload button the file dialog
     #     appears.
     #     :param mock_getOpenFileNames
-    #
+    #     """
     #     mock_get_open_file_names.return_value=(
     #         ["resources/testing_files/June2022.zip"], "")
     #     # Simulate clicking the upload button
@@ -348,7 +343,6 @@ class TestUi(unittest.TestCase):
     #
     #     # Check if the upload_files method is called
     #     self.ui.upload_files()
-    # """
     # """
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload_none(self, mock_get_open_file_names):
@@ -402,24 +396,7 @@ class TestUi(unittest.TestCase):
     #     self.assertEqual(self.retrain_models_mock.call_count, 1)
     #     self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
     # """
-    # """
-    # # Can't do this test because I'm asking for users to input until I get a correct format.
-    # def test_process_time_invalid_years(self):
-    #     This function tests that if 2 valid years were given.
-    #     If not raise ValueError.
-    #     years_input_info = "2010,111"  # Only one year has 3 digits
-    #
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
-    #
-    #     years_input_info = "2010,20200"  # One year has 5 digits
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
-    #
-    #     years_input_info = "2010,abcd"  # One year is not a valid number
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
-    # """
+
 
 if __name__ == '__main__':
     unittest.main()
