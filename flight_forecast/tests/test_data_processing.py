@@ -10,7 +10,7 @@ from utils.data_processing import (
     combine_zipped_data,
     combine_weather_data,
     match_flight_and_weather_data,
-    #create_dataset
+    create_dataset
 ) # pylint: disable=import-error
 
 AIRPORT_FOLDER_PATH = "resources/flight_data"
@@ -25,14 +25,14 @@ class TestDataCombination(unittest.TestCase):
 
     # Running smoke tests
 
-    #def test_smoke_create_dataset(self):
-    #    '''
-    #    Runs a smoke test of combine_zipped_data, combine_weather_data,
-    #    match_flight_and_weather_data, and create_dataset on a collection
-    #    of typical airport and weather data.
-    #    '''
-    #    create_dataset(AIRPORT_FOLDER_PATH, WEATHER_FOLDER_PATH)
-    #    self.assertTrue(True) # pylint: disable=redundant-unittest-assert
+    def test_smoke_create_dataset(self):
+        '''
+        Runs a smoke test of combine_zipped_data, combine_weather_data,
+        match_flight_and_weather_data, and create_dataset on a collection
+        of typical airport and weather data.
+        '''
+        create_dataset(AIRPORT_FOLDER_PATH, WEATHER_FOLDER_PATH)
+        self.assertTrue(True) # pylint: disable=redundant-unittest-assert
 
     # Running one-shot and pattern tests
 
