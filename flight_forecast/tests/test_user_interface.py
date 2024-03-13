@@ -4,8 +4,8 @@ This module contains the test case for flight_delay_multi_page module.
 
 import sys
 import unittest
-import shutil
-from unittest.mock import patch, call
+# import shutil
+from unittest.mock import patch  #, call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -347,8 +347,9 @@ class TestUi(unittest.TestCase):
         # Check if the upload_files method is called
         self.ui.upload_files()
 
-    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=([], ""))
-    def test_upload_none(self, mock_getOpenFileNames):
+    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=([], ""))
+    # def test_upload_none(self, mock_getOpenFileNames):
+    def test_upload_none(self):
         """
         This function mocks the case where users click the upload button but doesn't
         upload anything.
