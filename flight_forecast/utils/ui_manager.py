@@ -358,6 +358,7 @@ class FlightUi(QMainWindow):
 
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
+                print(file_path)
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
