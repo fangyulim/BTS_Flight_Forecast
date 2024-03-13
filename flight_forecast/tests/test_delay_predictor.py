@@ -6,7 +6,6 @@ reporting functionalities of delay_predictor.py are tested both for typical use 
 '''
 
 import unittest
-from pathlib import Path
 import pandas as pd
 import scipy
 
