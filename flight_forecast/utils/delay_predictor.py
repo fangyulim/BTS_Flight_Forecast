@@ -251,7 +251,7 @@ def predict_delay_probability(predictors,
         delay_predictor = pickle.load(file)
     with open(encoder_path, 'rb') as file:
         encoder = pickle.load(file)
-    if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
+    if predictors.columns.shape[0] != encoder.feature_names_in_.shape[0]:
         raise ValueError("Prediction DataFrame must have the same columns used to train" + \
                          f" the model. Predictions have {predictors.columns.shape[0]} " + \
                          "columns while the encoder expects " + \
