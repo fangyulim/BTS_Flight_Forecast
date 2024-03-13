@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1196</width>
-    <height>802</height>
+    <width>1192</width>
+    <height>793</height>
    </rect>
   </property>
   <property name="font">
@@ -682,8 +682,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1196</width>
-     <height>27</height>
+     <width>1192</width>
+     <height>34</height>
     </rect>
    </property>
   </widget>

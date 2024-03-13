@@ -185,7 +185,7 @@ class FlightUi(QMainWindow):
             if self.user_int.check_box.isChecked():
 
                 severity_probability = delay_predictor.predict_delay_severity(combined_df)
-                severity_prediction = f"The results are {severity_probability[0]:.2f}%."
+                severity_prediction = f"The results are {severity_probability[0]:.2f}min."
                 self.user_int.avg_delay_result.setText(severity_prediction)
                 self.user_int.avg_delay_result.setVisible(True)
                 self.user_int.label_6.setVisible(True)
