@@ -20,11 +20,6 @@ from utils.delay_predictor import (
     get_regressor_metrics
 ) # pylint: disable=import-error
 
-#TARGET_COL_CLASSIFIER = "ArrDel15"
-#TARGET_COL_REGRESSOR = "ArrDelayMinutes"
-#RELEVANT_COLS = ['Year', 'Month', 'DayofMonth',
-#                 'Origin', 'temp', 'dewPt', 'day_ind',
-#                 'rh', 'wdir_cardinal', 'gust', 'wspd', 'pressure', 'wx_phrase']
 PICKLE_FOLDER_PATH = "resources/testing_resources/pickles"
 
 

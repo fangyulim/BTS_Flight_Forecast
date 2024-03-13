@@ -98,6 +98,7 @@ jobs:
         run: |
           cd flight_forecast
           export QT_QPA_PLATFORM=offscreen
+          export QT_DEBUG_PLUGINS=1
           coverage run -m unittest discover
           coverage report
           coverage lcov
@@ -113,7 +114,7 @@ jobs:
           # The following two options are needed for "parallel"
           # runs - ie if you have a matrix of python versions.
           # This holds off on reporting code coverage to
-          # coveralls until all runs are done. If you don't have
+          # coveralls, until all runs are done. If you don't have
           # a matrix, this isn't needed.
           flag-name: run ${{ join(matrix.*, ' - ') }}
           parallel: true
