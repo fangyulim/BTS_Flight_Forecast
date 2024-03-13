@@ -1,39 +1,35 @@
-## BTS Flight Forecast
+# User Profiles
 
-### Background 
-BTS Flight Forecast is a tool to predict flight delays.
-
-Flight delays are a constant source of frustration for travelers, causing missed connections and disrupted schedules.
-Our goal is to utilize historical flight delay data along with past weather information to generate accurate predictions.
-By analysing existing datasets and integrating with weather forecast APIs.
-This tool assesses the likelihood of delays for a specified airport code, data, and time.
-
-
-<b> User profile </b>
-User 1: Fiona
-Type: Traveller 
+## User 1: Fiona
+### <b>Type: Traveller </b>
 
 - Wants to know the probability of a flight being delayed or expected severity of a delay.
 - Interacts with the tool by providing flight details on a website or application.
 - Needs low expertise and intuitive interface to navigate and understand the insight provided by the tool.
 - Skills required to locate and provide flight details.
 
-User 2: Bruno
-Type: Technician
+## User 2: Bruno
+### <b>Type: Technician</b>
 
 - Wants to update the model with new data and understand feature importance.
 - Interacts with the model by running scripts to add data and retrain the model.
 - Needs quick interface to update model and check new testing accuracy.
-- Skills required to be able to upload the data and understand modelling.
+- Skills required to be able to upload the data and understand modelling. Some technical skills required are python, bash, excel etc.
 
-### Data source 
-1. Flight Data:https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
-2. Weather Data: https://www.wunderground.com/history
+# Use Cases
 
-### Use case
+## BTS Flight Forecast
+- <b> Background </b>
+  
+  - BTS Flight Forecast is a tool to predict flight delays utilizing past weather data, and weather forecast, given a specified airport code, date, and time.
+- <b> Data source </b>
+  
+  - Flight Data: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
+  - Weather Data: https://www.wunderground.com/history
 
-<b> Use case 1: View Flight Delay Prediction </b>
-Objective: Information Validation and Viewing Delay Prediction
+### Usecase 1: View Flight Delay Prediction
+
+<b>Objective: Information Validation and Viewing Delay Prediction</b>
 
 - User: Accesses the website/ application.
 - System: Displays dropdowns to select departure airport code, date and time.
@@ -42,8 +38,9 @@ Objective: Information Validation and Viewing Delay Prediction
 - User: Clicks button to view the likelihood of delay of a flight starting from the departure airport at the given datetime.
 - System: Displays the predicted delay for the selected airport, date and time.
 
-<b> Use case 2: Loading new data and re-training model </b>
-Objective: Training the model with new flight data.
+### Usecase 2: Loading new data and re-training model
+
+<b>Objective: Training the model with new flight data.</b>
 
 - User: Access the admin page
 - System: Provides an option to upload new flight data. ( This data should be downloaded from BTS. Outside the scope of this tool)
