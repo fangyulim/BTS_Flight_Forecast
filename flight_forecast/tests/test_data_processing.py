@@ -10,7 +10,7 @@ from utils.data_processing import (
     combine_zipped_data,
     combine_weather_data,
     match_flight_and_weather_data,
-    create_dataset
+    #create_dataset
 ) # pylint: disable=import-error
 
 AIRPORT_FOLDER_PATH = "resources/flight_data"
@@ -56,7 +56,7 @@ class TestDataCombination(unittest.TestCase):
         self.assertAlmostEqual(weather_df.airport_code.unique().shape[0], 2)
 
     # Running edge case tests
-    
+
     def test_edge_case_non_dataframe_match(self):
         '''
         This module tests that a TypeError is raised when non-DataFrames are bassed to the
