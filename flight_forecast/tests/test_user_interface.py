@@ -5,8 +5,8 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-# import shutil
-# from unittest.mock import patch  # , call
+import shutil
+from unittest.mock import patch  # , call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -331,15 +331,16 @@ class TestUi(unittest.TestCase):
         self.ui.user_int.years_input.setText("1990,2022")
         result = self.ui.handle_return_input()
         self.assertEqual(result, "1990,2022")
-    # """"
+
+
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload(self, mock_get_open_file_names):
     #     # def test_upload(self):
-    #
+    #     """
     #     This function checks that by clicking the upload button the file dialog
     #     appears.
     #     :param mock_getOpenFileNames
-    #
+    #     """
     #     mock_get_open_file_names.return_value=(
     #         ["resources/testing_files/June2022.zip"], "")
     #     # Simulate clicking the upload button
@@ -348,7 +349,6 @@ class TestUi(unittest.TestCase):
     #
     #     # Check if the upload_files method is called
     #     self.ui.upload_files()
-    # """
     # """
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload_none(self, mock_get_open_file_names):
