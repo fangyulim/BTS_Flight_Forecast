@@ -1,6 +1,6 @@
 ## BTS Flight Forecast
 
-<b> Background </b>b>
+<b> Background </b>
 BTS Flight Forecast is a tool to predict flight delays utilizing past weather data, and weather forecast, given a specified airport code, date, and time.
 <b> Data source </b>
 1. Flight Data: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
