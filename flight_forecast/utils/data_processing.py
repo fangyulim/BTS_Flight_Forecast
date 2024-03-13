@@ -29,7 +29,7 @@ def combine_zipped_data(root_data_folder_path):
     ----------
     root_data_folder_path: A string containing the path to a folder containing zip files
                            with csv data.
-    
+
     Returns
     -------
     A Pandas Dataframe with all csv data found in the given folder, combined together along
@@ -59,6 +59,8 @@ def combine_zipped_data(root_data_folder_path):
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
     sys.stdout.flush()
+    if len(data_to_combine) < 1:
+        raise ValueError("The given folder path must contain a valid file. No zipped csvs found.")
     combined_data = pd.concat(data_to_combine)
     print('Airport data successfully combined!           ')
     sys.stdout.flush()
@@ -94,12 +96,17 @@ def combine_weather_data(root_data_folder_path):
             if entry.is_file() and entry.name[-4:] == ".csv":
                 # Collecting csv files for combination
                 airport_df = pd.read_csv(entry.path)
+                if len(entry.name) > 7:
+                    raise ValueError("Weather data files must be named after 3-letter airport " +
+                                      f"codes. Current name is {entry.name[:-4]}.")
                 airport_df.loc[:, "airport_code"] = entry.name[:-4]
                 airport_df = airport_df.fillna(value={"gust": 0})
                 data_to_combine.append(airport_df)
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
     sys.stdout.flush()
+    if len(data_to_combine) < 1:
+        raise ValueError("File path must contain a valid file. No files csvs found.")
     combined_data = pd.concat(data_to_combine)
     print('Weather data successfully combined!           ')
     sys.stdout.flush()
@@ -121,10 +128,14 @@ def match_flight_and_weather_data(flight_df, weather_df):
     A DataFrame containing the entries in flight_df with the weather data at each flight's
     departure time added as additional columns.
     '''
+    if (not isinstance(flight_df, pd.DataFrame)) or (not isinstance(weather_df, pd.DataFrame)):
+        raise TypeError("Both flight_df and weather_df must be Pandas DataFrames. Currently, " + \
+                        f"they are a {type(flight_df)} and a {type(weather_df)} respectively.")
     # Preparing flight dataframe to recieve weather data rows
     flight_df = flight_df.reset_index()
     flight_df.loc[:, weather_df.columns] = pd.NA
     weather_cols = weather_df.columns
+    # Testing if any matching data exists
     # Recording airport counts to display function's current progress
     num_airports_to_inspect = len(flight_df.Origin.unique())
     airports_with_known_weather_data = weather_df.airport_code.unique()
@@ -157,6 +168,24 @@ def match_flight_and_weather_data(flight_df, weather_df):
                 .apply(dt.strptime, \
                        args=time_str)
             airport_weather_df = airport_weather_df.sort_values(by="record_start_date")
+            # Checking that weather data aligns with airport dates
+            sys.stdout.flush()
+            print(f"{airport_weather_df.record_start_date.min()} to " + \
+                f"{airport_weather_df.record_start_date.max()} " + \
+                "While the weather dataset covers " + \
+                f"{airport_flight_df.FlightDate.min()} to " + \
+                f"{airport_flight_df.FlightDate.max()}.")
+            sys.stdout.flush()
+            if airport_weather_df.record_start_date.min() > airport_flight_df.FlightDate.max() or \
+               airport_weather_df.record_start_date.max() < airport_flight_df.FlightDate.min():
+                raise ValueError("The flight dataset and weather dataset must have" + \
+                                 " overlapping time periods for each airport of interest." + \
+                                 "For the current airport, the flight dataset covers" + \
+                                 f"{airport_weather_df.record_start_date.min()} to " + \
+                                 f"{airport_weather_df.record_start_date.max()} " + \
+                                 "While the weather dataset covers " + \
+                                 f"{airport_flight_df.FlightDate.min()} to " + \
+                                 f"{airport_flight_df.FlightDate.max()}.")
             # Matching flight and weather data by ascending along both date columns
             current_flight = 0
             current_weather = 0
