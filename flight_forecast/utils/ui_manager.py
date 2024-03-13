@@ -52,11 +52,13 @@ class FlightUi(QMainWindow):
         # Instantiated stacked widget and set default page to be main page(user).
         self.stacked_widget_pages = self.user_int.stacked_widget
         self.stacked_widget_pages.setCurrentIndex(0)
-        self.setup_signal_slot_connection()
+
         self.start_year = None
         self.end_year = None
         self.num_uploaded = None
         self.day_difference = 0
+        self.file_dialog = None
+        self.setup_signal_slot_connection()
 
         # Centering labels
         label_main_page = self.user_int.main_page_lb
@@ -116,6 +118,7 @@ class FlightUi(QMainWindow):
         self.user_int.file_lb.setVisible(False)
         self.user_int.new_mod_lb.setVisible(False)
         self.user_int.mod_title_lb.setVisible(False)
+        # self.user_int.year_indicator.setVisible(False)
         # self.user_int.option_btn.setVisible(False)
         # self.user_int.retrain_optionlb.setVisible(False)
         # self.user_int.refit_lb.setVisible(False)
@@ -232,6 +235,7 @@ class FlightUi(QMainWindow):
         """
         years_input_info = self.user_int.years_input.text()
         self.process_input(years_input_info)
+        return years_input_info
 
     def process_input(self, years_input_info):
         """
@@ -240,16 +244,28 @@ class FlightUi(QMainWindow):
         :param years_input_info: the start and end years entered by the admin.
                Obtained by handle_return_input() function.
         """
+        mes = "Please enter start & end year in correct format (no space) and press enter!"
         if "," in years_input_info:
-            years = years_input_info.split(",")
-            if len(years) == 2 and all(len(year) == 4 and year.isdigit() for year in years):
-                self.start_year, self.end_year = min(years), max(years)
-                print("The start_year is", self.start_year)
-                print("The end year is", self.end_year)
-            else:
-                print("Please enter start and end year in format YYYY,YYYY with no space.")
+            try:
+                years = years_input_info.split(",")
+                if len(years) == 2 and all(len(year) == 4 and year.isdigit() for year in years):
+                    self.user_int.year_indicator.setVisible(True)
+                    self.start_year, self.end_year = min(years), max(years)
+                    self.user_int.year_indicator.setText("The start_year is: "
+                                                         + str(self.start_year)
+                                                         + "\n" + "The end year is: "
+                                                         + str(self.end_year))
+                else:
+                    self.user_int.year_indicator.setText(mes)
+                    self.user_int.year_indicator.setVisible(True)
+
+            except ValueError:
+                self.user_int.year_indicator.setVisible(True)
+                self.user_int.year_indicator.setText(mes)
         else:
-            print("Please enter start and end year in format YYYY,YYYY with no space.")
+            # Can't raise value error. Prompting admin to re-enter years in correct format.
+            self.user_int.year_indicator.setVisible(True)
+            self.user_int.year_indicator.setText(mes)
 
     def retrain_models(self, num_uploaded):
         """
@@ -325,14 +341,18 @@ class FlightUi(QMainWindow):
         """
 
         # Creates file upload dialog
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        files, _ = file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
-
+        self.file_dialog = QFileDialog()
+        self.file_dialog.setFileMode(QFileDialog.ExistingFiles)
+        files, _= self.file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
+        num_uploaded = len(files)
+        if not files:
+            self.user_int.file_lb.setText("No files have been uploaded.")
+            self.user_int.file_lb.setVisible(True)
+            return
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
             folder_path = "resources/flight_data"
-            num_uploaded = len(files)
+
             self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
             self.user_int.file_lb.setVisible(True)
 
@@ -353,9 +373,7 @@ class FlightUi(QMainWindow):
                 destination_path = os.path.join(folder_path, file_name)
                 shutil.copy(file_path, destination_path)
             self.retrain_models(num_uploaded)
-        else:
-            self.user_int.file_lb.setText("No files have been uploaded.")
-            self.user_int.file_lb.setVisible(True)
+
 
 
 if __name__ == '__main__':

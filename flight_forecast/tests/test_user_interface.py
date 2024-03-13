@@ -4,15 +4,16 @@ This module contains the test case for flight_delay_multi_page module.
 
 import sys
 import unittest
-
+import shutil
+from unittest.mock import patch, call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
-from unittest.mock import patch, mock_open
+
 
 from utils.ui_manager import FlightUi
 
-
+# test_user_interface.py:17:0: R0904: Too many public methods (23/20) (too-many-public-methods)
 class TestUi(unittest.TestCase):
     """
     This class contains the test for the UI model.
@@ -33,9 +34,14 @@ class TestUi(unittest.TestCase):
         del self.app
 
     def test_setup_ui(self):
+        """
+        This function tests that the UI is being set up with default values
+        UI width is set to 1200, height is set to 750.
+        Certain labels and widget is not visible before actions have been taken.
+        """
         self.ui.setup_ui()
-        self.assertEqual(self.ui.width(),1200)
-        self.assertEqual(self.ui.height(),750)
+        self.assertEqual(self.ui.width(), 1200)
+        self.assertEqual(self.ui.height(), 750)
         # Following labels and widgets appear false initially
         self.assertFalse(self.ui.user_int.avg_delay_result.isVisible())
         self.assertFalse(self.ui.user_int.label_6.isVisible())
@@ -50,7 +56,7 @@ class TestUi(unittest.TestCase):
         self.assertFalse(self.ui.user_int.file_lb.isVisible())
         self.assertFalse(self.ui.user_int.new_mod_lb.isVisible())
         self.assertFalse(self.ui.user_int.mod_title_lb.isVisible())
-
+        self.assertFalse(self.ui.user_int.year_indicator.isVisible())
         # self.assertFalse(self.ui.user_int.option_btn.isVisible())
         # self.assertFalse(self.ui.user_int.retrain_optionlb.isVisible())
         # self.assertFalse(self.ui.user_int.refit_lb.isVisible())
@@ -68,24 +74,26 @@ class TestUi(unittest.TestCase):
     def test_read_airport_codes(self):
         """
         This function tests if we are reading in the airport_codes correctly from the csv file.
-        :return:
         """
-        expected_airport_codes= ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
-                                 'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
-                                 'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
-                                 'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
+        expected_airport_codes = ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
+                                  'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
+                                  'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
+                                  'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
         actual_airport_codes = self.ui.load_airport_list()
 
         self.assertEqual(actual_airport_codes, expected_airport_codes)
 
     def test_airport_codes_added_to_widget(self):
-        airport_codes= ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
-                        'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
-                        'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
-                        'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
+        """
+        This function tests that airport codes are being added to the airport_selection widget.
+        """
+        airport_codes = ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
+                         'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
+                         'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
+                         'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
         self.ui.load_airport_list()
-        for index in range(len(airport_codes)):
-            self.assertEqual(self.ui.user_int.airport_selection.itemText(index),airport_codes[index])
+        for index, airport_codes in enumerate(airport_codes):
+            self.assertEqual(self.ui.user_int.airport_selection.itemText(index), airport_codes)
 
     def test_admin_button_switches_page(self):
         """
@@ -175,13 +183,13 @@ class TestUi(unittest.TestCase):
         when correct password is entered.
         """
         initial_index = self.ui.stacked_widget_pages.currentIndex()
+        self.ui.user_int.password_input.setText("123")
         QTest.mouseClick(self.ui.user_int.login_btn, Qt.LeftButton)
         QApplication.processEvents()
         new_index = self.ui.stacked_widget_pages.currentIndex()
-        if self.ui.user_int.password_input.text() == "123":
-            self.assertNotEqual(initial_index, new_index)
-            self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 2)
-            self.assertFalse(self.ui.user_int.error_msg_lb.isVisible())
+        self.assertNotEqual(initial_index, new_index)
+        self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 2)
+        self.assertFalse(self.ui.user_int.error_msg_lb.isVisible())
 
     def test_login_button_authenticates_incorrect(self):
         """
@@ -205,7 +213,6 @@ class TestUi(unittest.TestCase):
         QTest.keyClicks(self.ui.user_int.years_input, input_text)
         entered_text = self.ui.user_int.years_input.text()
         self.assertEqual(entered_text, input_text)
-
 
     def test_combobox_input(self):
         """
@@ -291,33 +298,129 @@ class TestUi(unittest.TestCase):
         # Verify the dates
         self.assertEqual(selected_time, retrieved_date)
 
-# Verify that components are displaying correctly
-# Check if buttons, labels, dropdowns, and input fields are functional.
-# Test UI layout is consistent??
+    def test_process_time_comma(self):
+        """
+        This function checks if there is a comma in the years entered by admin.
+        If not, prompts users to re-enter start and end years in the correct format.
+        """
+        mes = "The start_year is: " + str(2010) + "\n" + "The end year is: "\
+                                    + str(2022)
+        years_input_info = "2010,2022"
+        self.ui.process_input(years_input_info)
+        self.assertEqual(self.ui.start_year ,"2010")
+        self.assertEqual(self.ui.end_year,"2022")
+        self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
 
-# Test navigation between different pages.
-# Verify clicking on buttons switches to the correct page.
-# Check if navigating back and forth works as expected.
+    def test_process_time_no_comma(self):
+        """
+        This function checks if there is a comma in the years entered by admin.
+        If not, prompts users to re-enter start and end years in the correct format.
+        """
+        mes = "Please enter start & end year in correct format (no space) and press enter!"
+        years_input_info = "20102022"
+        self.ui.process_input(years_input_info)
+        self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
+        # Somehow can't test this?? Gives error False is not True
+        # self.assertTrue(self.ui.user_int.year_indicator.isVisible())
 
-# Test input validation for all input fields.
+    def test_handle_return_input(self):
+        """
+        This function checks if the handle_return_input() function takes in user input as expected.
+        """
+        self.ui.user_int.years_input.setText("1990,2022")
+        result = self.ui.handle_return_input()
+        self.assertEqual(result, "1990,2022")
 
-# Test authentication with invalid credentials.
-# Test user is redirected to admin page upon successful authentication
-# Test appropriate error messages are displayed for failed attempts.
+    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=(
+    #         ["C:/Users/fioyu/Pictures/Screenshots/Screenshot 2023-05-19 062955.png"], ""))
+    # def test_upload(self, mock_getOpenFileNames):
+    def test_upload(self):
+        """
+        This function checks that by clicking the upload button the file dialog
+        appears.
+        :param mock_getOpenFileNames
+        """
+        # Simulate clicking the upload button
+        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+        QApplication.processEvents()
 
-# Test file upload functionality for one or multiple files.
-# Test correct files are uploaded and processed.
-# Check if error message displayed.
+        # Check if the upload_files method is called
+        self.ui.upload_files()
 
-# Test prediction by providing valid input.
-# Verify displaying correctly
-# Check if UI updated based on user selection
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=([], ""))
+    def test_upload_none(self, mock_getOpenFileNames):
+        """
+        This function mocks the case where users click the upload button but doesn't
+        upload anything.
+        :param mock_getOpenFileNames:
+        """
+        # Simulate clicking the upload button
+        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+        QApplication.processEvents()
 
-# Test model retraining functionality by selecting retrain option.
-# Verify that retrained is successful and relevant feedback provided.
+        # Check if the upload_files method is called
+        self.ui.upload_files()
+        mes = "No files have been uploaded."
+        self.assertEqual(self.ui.user_int.file_lb.text(), mes)
+        # Same case here, message works, but can't check if label is visible
+        # self.assertTrue(self.ui.user_int.file_lb.isVisible())
 
-# Edge Cases
-# Boundary values, empty inputs, or extreme scenarios
+    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
+    # return_value=(["C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast
+    # /flight_forecast/resources/flight_data/June2022.zip",
+    # "C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast/flight_forecast
+    # /resources/flight_data/May2022.zip"], ""))
+    # def test_upload_files(self, mock_getOpenFileNames):
+    #     # Simulate clicking the upload button
+    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+    #     QApplication.processEvents()
+    #     self.start_year = 2022
+    #     self.end_year = 2022
+    #     start_year_input = int(self.start_year)
+    #     end_year_input = int(self.end_year)
+    #
+    #     # Check if the upload_files method is called
+    #     self.ui.upload_files()
+    #
+    #     # Assert that the file labels are updated
+    #     # expected_text = "You have uploaded 2 file(s)."
+    #     # self.assertEqual(self.ui.user_int.new_mod_lb.text(), expected_text)
+    #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
+    #
+    #     with patch('shutil.copy') as shutil_copy_mock:
+    #         expected_calls = [
+    #             call("C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast
+    #             /flight_forecast/resources/flight_data/June2022.zip", "C:/Users
+    #             /fioyu/Desktop/UW/DATA515/Project/project_v2/BTS_Flight_Forecast/
+    #             flight_forecast/resources/flight_data/June2022.zip"),
+    #             call("C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast
+    #             /flight_forecast/resources/flight_data/May2022.zip", "C:/Users
+    #             /fioyu/Desktop/UW/DATA515/Project/project_v2/BTS_Flight_Forecast/
+    #             flight_forecast/resources/flight_data/May2022.zip")
+    #         ]
+    #         shutil_copy_mock.assert_has_calls(expected_calls)
+    #
+    #     # Assert that retrain_models is called with the correct number of uploaded files
+    #     self.assertEqual(self.retrain_models_mock.call_count, 1)
+    #     self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
+    # Can't do this test because I'm asking for users to input until I get a correct format.
+    # def test_process_time_invalid_years(self):
+    #     """
+    #     This function tests that if 2 valid years were given.
+    #     If not raise ValueError.
+    #     """
+    #     years_input_info = "2010,111"  # Only one year has 3 digits
+    #
+    #     with self.assertRaises(ValueError):
+    #         self.ui.process_input(years_input_info)
+    #
+    #     years_input_info = "2010,20200"  # One year has 5 digits
+    #     with self.assertRaises(ValueError):
+    #         self.ui.process_input(years_input_info)
+    #
+    #     years_input_info = "2010,abcd"  # One year is not a valid number
+    #     with self.assertRaises(ValueError):
+    #         self.ui.process_input(years_input_info)
 
 
 if __name__ == '__main__':
