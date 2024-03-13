@@ -5,8 +5,8 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-import shutil
-from unittest.mock import patch  # , call
+# import shutil
+# from unittest.mock import patch  # , call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime

@@ -285,7 +285,8 @@ class FlightUi(QMainWindow):
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
                 self.user_int.file_lb.setVisible(False)
-                self.user_int.success_lb.setText("You have uploaded " + str(num_uploaded) + " files.")
+                self.user_int.success_lb.setText("You have uploaded " +
+                                                 str(num_uploaded) + " files.")
                 # 1) Obtain entered start and end years entered by user.
                 airports = pd.read_csv('resources/airport_codes.csv')
 
