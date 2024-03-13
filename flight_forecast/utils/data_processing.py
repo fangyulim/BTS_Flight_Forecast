@@ -29,7 +29,7 @@ def combine_zipped_data(root_data_folder_path):
     ----------
     root_data_folder_path: A string containing the path to a folder containing zip files
                            with csv data.
-    
+
     Returns
     -------
     A Pandas Dataframe with all csv data found in the given folder, combined together along
@@ -40,6 +40,8 @@ def combine_zipped_data(root_data_folder_path):
     # Looping through raw data folder
     with os.scandir(root_data_folder_path) as root_data_folder:
         total_files = len(os.listdir(root_data_folder_path))
+        if total_files < 1:
+            raise ValueError("The given folder path must contain files.")
         current_progress = 0
         for entry in root_data_folder:
             # Displaying current progress
@@ -94,6 +96,9 @@ def combine_weather_data(root_data_folder_path):
             if entry.is_file() and entry.name[-4:] == ".csv":
                 # Collecting csv files for combination
                 airport_df = pd.read_csv(entry.path)
+                if len(entry.name) > 7:
+                    raise ValueError("Weather data files must be named after 3-letter airport" +
+                                      f"codes. Current length is {entry.name[:-4]}.")
                 airport_df.loc[:, "airport_code"] = entry.name[:-4]
                 airport_df = airport_df.fillna(value={"gust": 0})
                 data_to_combine.append(airport_df)
@@ -125,6 +130,7 @@ def match_flight_and_weather_data(flight_df, weather_df):
     flight_df = flight_df.reset_index()
     flight_df.loc[:, weather_df.columns] = pd.NA
     weather_cols = weather_df.columns
+    # Testing if any matching data exists
     # Recording airport counts to display function's current progress
     num_airports_to_inspect = len(flight_df.Origin.unique())
     airports_with_known_weather_data = weather_df.airport_code.unique()
@@ -157,6 +163,9 @@ def match_flight_and_weather_data(flight_df, weather_df):
                 .apply(dt.strptime, \
                        args=time_str)
             airport_weather_df = airport_weather_df.sort_values(by="record_start_date")
+            # Checking that weather data aligns with airport dates
+            if airport_weather_df.record_start_date.min() > airport_flight_df.FlightDate.max():
+                raise ValueError("")
             # Matching flight and weather data by ascending along both date columns
             current_flight = 0
             current_weather = 0
