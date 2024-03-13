@@ -11,6 +11,7 @@ import pickle
 
 import pandas as pd
 import numpy as np
+import scipy
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -26,15 +27,13 @@ RELEVANT_COLS = ['Year', 'Month', 'DayofMonth',
 PICKLE_FOLDER_PATH = "resources/generated/pickles"
 
 
-# Q: Which variable is forecasted weather data??
-
 def pre_process_dataset(df_to_process, target_col,
                         relevant_columns,
                         encoder_path):
     '''
     Preprocesses flight data for use in training an sklearn model.
 
-    This function takes in a Pandas DtaFrame of flight and weather data and pre-processes it by
+    This function takes in a Pandas DataFrame of flight and weather data and pre-processes it by
     by splitting the data into train/test pairs and into target/predictor datasets. The split
     data is then prepared for training by scaling numeric data onto a mean of 0 and variance
     of 1 and by one-hot encoding categorical variables into simple numeric data columns.
@@ -44,6 +43,7 @@ def pre_process_dataset(df_to_process, target_col,
     df_to_process: A Pandas dataframe containing the data to be pre-processed.
     target_col: The columns that will be the prediction target of the future model
     relevant_columns: The columns that will be used to predict the target
+    encoder_path: A path at which to generate an encoder object trained during preprocessing
 
     Returns
     -------
@@ -53,6 +53,18 @@ def pre_process_dataset(df_to_process, target_col,
     * a scipy sparse matrix with testing predictor data
     * a Pandas Series with testing target data
     '''
+    if not isinstance(df_to_process, pd.DataFrame):
+        raise TypeError("The df_to_process must be a Pandas DataFrame object. Currently it" + \
+                        f"is a {type(df_to_process)}.")
+    if not target_col in df_to_process.columns.tolist():
+        raise ValueError(f"The target column for prediction, {target_col}," +\
+                         " must be present in the given dataframe.")
+    if not set(relevant_columns).issubset(df_to_process.columns.tolist()):
+        raise ValueError(("The relevant columns selected for pre-processing, " + \
+                          f"{relevant_columns}, must be present in the given dataframe."))
+    if not isinstance(encoder_path, str):
+        raise TypeError("The encoder_path must contain a string. This string should contain" + \
+                        " the path at which to create a pickled encoder")
     target_series = df_to_process[[target_col]]
     input_df = df_to_process.drop(target_col, axis=1)
     input_df = input_df[relevant_columns]
@@ -89,10 +101,10 @@ def train_classifier(datasets):
     Parameters
     ----------
     datasets: a tuple containing, in order:
-    * a scipy sparse matrix with training predictor data
-    * a Pandas Series with training target data
-    * a scipy sparse matrix with testing predictor data
-    * a Pandas Series with testing target data
+    * a scipy csr_matrix with training predictor data
+    * a Pandas DataFrame with training target data
+    * a scipy csr_matrix with testing predictor data
+    * a Pandas DataFrame with testing target data
 
     Returns
     -------
@@ -101,6 +113,18 @@ def train_classifier(datasets):
     * The training score of the model
     * The testing score of the model
     '''
+    if len(datasets) != 4:
+        raise ValueError("The input dataset must be a collection of 4 elements.")
+    if not isinstance(datasets[0], scipy.sparse.csr_matrix) or \
+       not isinstance(datasets[2], scipy.sparse.csr_matrix):
+        raise TypeError("The elements at indices 0 and 2 of the datasets parameter must be " + \
+                        f"scipy csr matrices. They are currently {type(datasets[0])} and " + \
+                        f"{type(datasets[2])}, respectively.")
+    if not isinstance(datasets[1], pd.DataFrame) or \
+       not isinstance(datasets[3], pd.DataFrame):
+        raise TypeError("The elements at indices 1 and 3 of the datasets parameter must be " + \
+                        f"Pandas DataFrames. They are currently {type(datasets[1])} and " + \
+                        f"{type(datasets[3])}, respectively.")
     # Defining logistic regression parameters to sweep over
     logreg_params = {
         'penalty': ['l1', 'l2'],
@@ -139,6 +163,18 @@ def train_regressor(datasets):
     * The training score of the model
     * The testing score of the model
     '''
+    if len(datasets) != 4:
+        raise ValueError("The input dataset must be a collection of 4 elements.")
+    if not isinstance(datasets[0], scipy.sparse.csr_matrix) or \
+       not isinstance(datasets[2], scipy.sparse.csr_matrix):
+        raise TypeError("The elements at indices 0 and 2 of the datasets parameter must be " + \
+                        f"scipy csr matrices. They are currently {type(datasets[0])} and " + \
+                        f"{type(datasets[2])}, respectively.")
+    if not isinstance(datasets[1], pd.DataFrame) or \
+       not isinstance(datasets[3], pd.DataFrame):
+        raise TypeError("The elements at indices 1 and 3 of the datasets parameter must be " + \
+                        f"Pandas DataFrames. They are currently {type(datasets[1])} and " + \
+                        f"{type(datasets[3])}, respectively.")
     # Running Linear Regression
     linreg = LinearRegression()
     linreg.fit(datasets[0], np.ravel(datasets[1]))
@@ -192,7 +228,9 @@ def create_model_from_dataset(data_path=PICKLE_FOLDER_PATH+"/combined_flight_dat
     with open(PICKLE_FOLDER_PATH + '/regressor_metrics.pkl', 'wb') as file:
         pickle.dump(regressor_modelling_results[1:], file)
 
-def predict_delay_probability(predictors):
+def predict_delay_probability(predictors,
+                              classifier_path = PICKLE_FOLDER_PATH + '/classifier.pkl',
+                              encoder_path = PICKLE_FOLDER_PATH + '/classification_encoder.pkl'):
     '''
     Predicts the probability of a given flight being delayed.
 
@@ -206,19 +244,27 @@ def predict_delay_probability(predictors):
     -------
     A float containing the log-probability of a flight delay.
     '''
-    with open(PICKLE_FOLDER_PATH + '/classifier.pkl', 'rb') as file:
+    if not isinstance(predictors, pd.DataFrame):
+        raise TypeError("Predictor inputs into the model must be in the form of a Pandas " + \
+                        f"DataFrame. Current type is {type(predictors)}, instead.")
+    with open(classifier_path, 'rb') as file:
         delay_predictor = pickle.load(file)
-    with open(PICKLE_FOLDER_PATH + '/classification_encoder.pkl', 'rb') as file:
+    with open(encoder_path, 'rb') as file:
         encoder = pickle.load(file)
+    if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
+        raise ValueError("Prediction DataFrame must have the same columns used to train" + \
+                         f" the model. Predictions have {predictors.columns.shape[0]} " + \
+                         "columns while the encoder expects " + \
+                         f"{encoder.feature_names_in_.shape[0]}.")
     encoded_pred = encoder.transform(predictors)
     return delay_predictor.predict_proba(encoded_pred)
 
 
-def get_classifier_metrics():
+def get_classifier_metrics(metrics_path = PICKLE_FOLDER_PATH + '/classifier_metrics.pkl'):
     '''
     Returns training metrics for "classifier.pkl".
     '''
-    with open(PICKLE_FOLDER_PATH + '/classifier_metrics.pkl', 'rb') as file:
+    with open(metrics_path, 'rb') as file:
         delay_predictor_metrics = pickle.load(file)
     return delay_predictor_metrics
 
@@ -237,10 +283,18 @@ def predict_delay_severity(predictors):
     -------
     A float containing the estimated minutes of flight delay.
     '''
+    if not isinstance(predictors, pd.DataFrame):
+        raise TypeError("Predictor inputs into the model must be in the form of a Pandas " + \
+                        f"DataFrame. Current type is {type(predictors)}, instead.")
     with open(PICKLE_FOLDER_PATH + '/regressor.pkl', 'rb') as file:
         severity_predictor = pickle.load(file)
     with open(PICKLE_FOLDER_PATH + '/regression_encoder.pkl', 'rb') as file:
         encoder = pickle.load(file)
+    if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
+        raise ValueError("Prediction DataFrame must have the same columns used to train" + \
+                         f" the model. Predictions have {predictors.columns.shape[0]} " + \
+                         "columns while the encoder expects " + \
+                         f"{encoder.feature_names_in_.shape[0]}.")
     encoded_pred = encoder.transform(predictors)
     return severity_predictor.predict(encoded_pred)
 

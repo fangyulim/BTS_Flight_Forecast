@@ -14,6 +14,7 @@ on:
       - main
       - vanksu
       - Fiona
+      - bruno-barreto
   pull_request:
     # Configuring this means that your PRs will get a GitHub comment
     # from Coveralls with your coverage.
