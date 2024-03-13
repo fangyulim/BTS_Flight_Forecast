@@ -167,8 +167,23 @@ def match_flight_and_weather_data(flight_df, weather_df):
                        args=time_str)
             airport_weather_df = airport_weather_df.sort_values(by="record_start_date")
             # Checking that weather data aligns with airport dates
-            if airport_weather_df.record_start_date.min() > airport_flight_df.FlightDate.max():
-                raise ValueError("")
+            sys.stdout.flush()
+            print(f"{airport_weather_df.record_start_date.min()} to " + \
+                f"{airport_weather_df.record_start_date.max()} " + \
+                "While the weather dataset covers " + \
+                f"{airport_flight_df.FlightDate.min()} to " + \
+                f"{airport_flight_df.FlightDate.max()}.")
+            sys.stdout.flush()
+            if airport_weather_df.record_start_date.min() > airport_flight_df.FlightDate.max() or \
+               airport_weather_df.record_start_date.max() < airport_flight_df.FlightDate.min():
+                raise ValueError("The flight dataset and weather dataset must have" + \
+                                 " overlapping time periods for each airport of interest." + \
+                                 "For the current airport, the flight dataset covers" + \
+                                 f"{airport_weather_df.record_start_date.min()} to " + \
+                                 f"{airport_weather_df.record_start_date.max()} " + \
+                                 "While the weather dataset covers " + \
+                                 f"{airport_flight_df.FlightDate.min()} to " + \
+                                 f"{airport_flight_df.FlightDate.max()}.")
             # Matching flight and weather data by ascending along both date columns
             current_flight = 0
             current_weather = 0

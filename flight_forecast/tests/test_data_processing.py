@@ -87,8 +87,8 @@ class TestDataCombination(unittest.TestCase):
         datasets do not have a time overlap that can be used to match them together.
         '''
         with self.assertRaises(ValueError):
-            test_airport_df = combine_zipped_data(TEST_RESOURCES_PATH + "/empty_test_folder")
-            test_weather_df = combine_weather_data(TEST_RESOURCES_PATH + "/empty_test_folder")
+            test_airport_df = combine_zipped_data(TEST_RESOURCES_PATH + "/test_airport_data")
+            test_weather_df = combine_weather_data(TEST_RESOURCES_PATH + "/test_weather_data")
             match_flight_and_weather_data(test_airport_df, test_weather_df)
 
     def test_edge_case_invalid_airport_names(self):
