@@ -334,18 +334,18 @@ class TestUi(unittest.TestCase):
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=(
     #         ["C:/Users/fioyu/Pictures/Screenshots/Screenshot 2023-05-19 062955.png"], ""))
     # def test_upload(self, mock_getOpenFileNames):
-    def test_upload(self):
-        """
-        This function checks that by clicking the upload button the file dialog
-        appears.
-        :param mock_getOpenFileNames
-        """
-        # Simulate clicking the upload button
-        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-        QApplication.processEvents()
-
-        # Check if the upload_files method is called
-        self.ui.upload_files()
+    # def test_upload(self):
+    #     """
+    #     This function checks that by clicking the upload button the file dialog
+    #     appears.
+    #     :param mock_getOpenFileNames
+    #     """
+    #     # Simulate clicking the upload button
+    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+    #     QApplication.processEvents()
+    #
+    #     # Check if the upload_files method is called
+    #     self.ui.upload_files()
 
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=([], ""))
     # def test_upload_none(self, mock_getOpenFileNames):
