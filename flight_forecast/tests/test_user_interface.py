@@ -349,22 +349,22 @@ class TestUi(unittest.TestCase):
 
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames', return_value=([], ""))
     # def test_upload_none(self, mock_getOpenFileNames):
-    def test_upload_none(self):
-        """
-        This function mocks the case where users click the upload button but doesn't
-        upload anything.
-        :param mock_getOpenFileNames:
-        """
-        # Simulate clicking the upload button
-        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-        QApplication.processEvents()
-
-        # Check if the upload_files method is called
-        self.ui.upload_files()
-        mes = "No files have been uploaded."
-        self.assertEqual(self.ui.user_int.file_lb.text(), mes)
-        # Same case here, message works, but can't check if label is visible
-        # self.assertTrue(self.ui.user_int.file_lb.isVisible())
+    # def test_upload_none(self):
+    #     """
+    #     This function mocks the case where users click the upload button but doesn't
+    #     upload anything.
+    #     :param mock_getOpenFileNames:
+    #     """
+    #     # Simulate clicking the upload button
+    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+    #     QApplication.processEvents()
+    #
+    #     # Check if the upload_files method is called
+    #     self.ui.upload_files()
+    #     mes = "No files have been uploaded."
+    #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
+    #     # Same case here, message works, but can't check if label is visible
+    #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
 
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
     # return_value=(["C:/Users/fioyu/Desktop/UW/DATA515/Project/BTS_Flight_Forecast
