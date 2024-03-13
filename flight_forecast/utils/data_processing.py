@@ -40,8 +40,6 @@ def combine_zipped_data(root_data_folder_path):
     # Looping through raw data folder
     with os.scandir(root_data_folder_path) as root_data_folder:
         total_files = len(os.listdir(root_data_folder_path))
-        if total_files < 1:
-            raise ValueError("The given folder path must contain files.")
         current_progress = 0
         for entry in root_data_folder:
             # Displaying current progress
@@ -61,6 +59,8 @@ def combine_zipped_data(root_data_folder_path):
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
     sys.stdout.flush()
+    if len(data_to_combine) < 1:
+        raise ValueError("The given folder path must contain a valid file. No zipped csvs found.")
     combined_data = pd.concat(data_to_combine)
     print('Airport data successfully combined!           ')
     sys.stdout.flush()
@@ -97,14 +97,16 @@ def combine_weather_data(root_data_folder_path):
                 # Collecting csv files for combination
                 airport_df = pd.read_csv(entry.path)
                 if len(entry.name) > 7:
-                    raise ValueError("Weather data files must be named after 3-letter airport" +
-                                      f"codes. Current length is {entry.name[:-4]}.")
+                    raise ValueError("Weather data files must be named after 3-letter airport " +
+                                      f"codes. Current name is {entry.name[:-4]}.")
                 airport_df.loc[:, "airport_code"] = entry.name[:-4]
                 airport_df = airport_df.fillna(value={"gust": 0})
                 data_to_combine.append(airport_df)
     # Attempting to combine and return collected data
     print('All files unpacked. Combining data...         ', end='\r')
     sys.stdout.flush()
+    if len(data_to_combine) < 1:
+        raise ValueError("File path must contain a valid file. No files csvs found.")
     combined_data = pd.concat(data_to_combine)
     print('Weather data successfully combined!           ')
     sys.stdout.flush()
