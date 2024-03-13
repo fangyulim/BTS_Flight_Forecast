@@ -112,7 +112,8 @@ jobs:
           # The following two options are needed for "parallel"
           # runs - ie if you have a matrix of python versions.
           # This holds off on reporting code coverage to
-          # coveralls until all runs are done. If you don't have
+          # coveralls, return_value=(
+          #            ["resources/testing_files/June2022.zip"], "") until all runs are done. If you don't have
           # a matrix, this isn't needed.
           flag-name: run ${{ join(matrix.*, ' - ') }}
           parallel: true

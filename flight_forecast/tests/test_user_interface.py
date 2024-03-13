@@ -4,8 +4,8 @@ This module contains the test case for flight_delay_multi_page module.
 
 import sys
 import unittest
-import shutil
-from unittest.mock import patch, call
+# import shutil
+from unittest.mock import patch  # , call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -332,14 +332,14 @@ class TestUi(unittest.TestCase):
         self.assertEqual(result, "1990,2022")
 
     @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    def test_upload(self, mock_getOpenFileNames):
+    def test_upload(self, mock_get_open_file_names):
         # def test_upload(self):
         """
         This function checks that by clicking the upload button the file dialog
         appears.
         :param mock_getOpenFileNames
         """
-        mock_getOpenFileNames.return_value=(
+        mock_get_open_file_names.return_value=(
             ["resources/testing_files/June2022.zip"], "")
         # Simulate clicking the upload button
         QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
@@ -349,14 +349,14 @@ class TestUi(unittest.TestCase):
         self.ui.upload_files()
 
     @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    def test_upload_none(self, mock_getOpenFileNames):
+    def test_upload_none(self, mock_get_open_file_names):
         # def test_upload_none(self):
         """
         This function mocks the case where users click the upload button but doesn't
         upload anything.
         :param mock_getOpenFileNames:
         """
-        mock_getOpenFileNames.return_value = ([],"")
+        mock_get_open_file_names.return_value = ([],"")
         # Simulate clicking the upload button
         QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
         QApplication.processEvents()
