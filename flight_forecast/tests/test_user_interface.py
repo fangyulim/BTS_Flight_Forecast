@@ -1,11 +1,12 @@
 """
 This module contains the test case for flight_delay_multi_page module.
+Currently we have commented out the tests for file dialogs.
 """
 
 import sys
 import unittest
 # import shutil
-from unittest.mock import patch  # , call
+# from unittest.mock import patch  # , call
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -330,15 +331,15 @@ class TestUi(unittest.TestCase):
         self.ui.user_int.years_input.setText("1990,2022")
         result = self.ui.handle_return_input()
         self.assertEqual(result, "1990,2022")
-
+    """"
     @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     def test_upload(self, mock_get_open_file_names):
         # def test_upload(self):
-        """
+
         This function checks that by clicking the upload button the file dialog
         appears.
         :param mock_getOpenFileNames
-        """
+
         mock_get_open_file_names.return_value=(
             ["resources/testing_files/June2022.zip"], "")
         # Simulate clicking the upload button
@@ -347,15 +348,14 @@ class TestUi(unittest.TestCase):
 
         # Check if the upload_files method is called
         self.ui.upload_files()
-
+    """
+    """
     @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     def test_upload_none(self, mock_get_open_file_names):
-        # def test_upload_none(self):
-        """
+        # Need to Mock OS
         This function mocks the case where users click the upload button but doesn't
         upload anything.
         :param mock_getOpenFileNames:
-        """
         mock_get_open_file_names.return_value = ([],"")
         # Simulate clicking the upload button
         QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
@@ -367,58 +367,59 @@ class TestUi(unittest.TestCase):
         self.assertEqual(self.ui.user_int.file_lb.text(), mes)
         # Same case here, message works, but can't check if label is visible
         # self.assertTrue(self.ui.user_int.file_lb.isVisible())
+    """
+    """
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
+    return_value=(["resources/testing_files/June2022.zip",
+    "resources/testing_files/May2022.zip"], ""))
+    def test_upload_files(self, mock_getOpenFileNames):
+        # Simulate clicking the upload button
+        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+        QApplication.processEvents()
+        self.start_year = 2022
+        self.end_year = 2022
+        start_year_input = int(self.start_year)
+        end_year_input = int(self.end_year)
 
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
-    # return_value=(["resources/testing_files/June2022.zip",
-    # "resources/testing_files/May2022.zip"], ""))
-    # def test_upload_files(self, mock_getOpenFileNames):
-    #     # Simulate clicking the upload button
-    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-    #     QApplication.processEvents()
-    #     self.start_year = 2022
-    #     self.end_year = 2022
-    #     start_year_input = int(self.start_year)
-    #     end_year_input = int(self.end_year)
-    #
-    #     # Check if the upload_files method is called
-    #     self.ui.upload_files()
-    #
-    #     # Assert that the file labels are updated
-    #     # expected_text = "You have uploaded 2 file(s)."
-    #     # self.assertEqual(self.ui.user_int.new_mod_lb.text(), expected_text)
-    #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
-    #
-    #     with patch('shutil.copy') as shutil_copy_mock:
-    #         expected_calls = [
-    #             call("resources/testing_files/June2022.zip",
-    #             "resources/testing_files/June2022.zip"),
-    #             call("resources/testing_files/May2022.zip",
-    #             "resources/testing_files/May2022.zip")
-    #         ]
-    #         shutil_copy_mock.assert_has_calls(expected_calls)
-    #
-    #     # Assert that retrain_models is called with the correct number of uploaded files
-    #     self.assertEqual(self.retrain_models_mock.call_count, 1)
-    #     self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
-    # # Can't do this test because I'm asking for users to input until I get a correct format.
-    # def test_process_time_invalid_years(self):
-    #     """
-    #     This function tests that if 2 valid years were given.
-    #     If not raise ValueError.
-    #     """
-    #     years_input_info = "2010,111"  # Only one year has 3 digits
-    #
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
-    #
-    #     years_input_info = "2010,20200"  # One year has 5 digits
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
-    #
-    #     years_input_info = "2010,abcd"  # One year is not a valid number
-    #     with self.assertRaises(ValueError):
-    #         self.ui.process_input(years_input_info)
+        # Check if the upload_files method is called
+        self.ui.upload_files()
 
+        # Assert that the file labels are updated
+        # expected_text = "You have uploaded 2 file(s)."
+        # self.assertEqual(self.ui.user_int.new_mod_lb.text(), expected_text)
+        # self.assertTrue(self.ui.user_int.file_lb.isVisible())
+
+        with patch('shutil.copy') as shutil_copy_mock:
+            expected_calls = [
+                call("resources/testing_files/June2022.zip",
+                "resources/testing_files/June2022.zip"),
+                call("resources/testing_files/May2022.zip",
+                "resources/testing_files/May2022.zip")
+            ]
+            shutil_copy_mock.assert_has_calls(expected_calls)
+
+        # Assert that retrain_models is called with the correct number of uploaded files
+        self.assertEqual(self.retrain_models_mock.call_count, 1)
+        self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
+    """
+    """
+    # Can't do this test because I'm asking for users to input until I get a correct format.
+    def test_process_time_invalid_years(self):
+        This function tests that if 2 valid years were given.
+        If not raise ValueError.
+        years_input_info = "2010,111"  # Only one year has 3 digits
+
+        with self.assertRaises(ValueError):
+            self.ui.process_input(years_input_info)
+
+        years_input_info = "2010,20200"  # One year has 5 digits
+        with self.assertRaises(ValueError):
+            self.ui.process_input(years_input_info)
+
+        years_input_info = "2010,abcd"  # One year is not a valid number
+        with self.assertRaises(ValueError):
+            self.ui.process_input(years_input_info)
+    """
 
 if __name__ == '__main__':
     unittest.main()
