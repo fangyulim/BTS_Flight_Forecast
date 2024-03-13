@@ -6,9 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>811</height>
+    <width>1196</width>
+    <height>802</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -328,42 +333,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
-       <widget class="QLabel" name="airline_lb">
-        <property name="geometry">
-         <rect>
-          <x>700</x>
-          <y>120</y>
-          <width>141</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Select Airline:</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="airline_selection">
-        <property name="geometry">
-         <rect>
-          <x>860</x>
-          <y>110</y>
-          <width>291</width>
-          <height>38</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: white;</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="fail_predict_lb">
         <property name="geometry">
          <rect>
@@ -597,7 +566,7 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
        <widget class="QDialogButtonBox" name="option_btn">
@@ -642,33 +611,33 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="airport_date_lb">
         <property name="geometry">
          <rect>
-          <x>530</x>
-          <y>130</y>
-          <width>511</width>
-          <height>61</height>
+          <x>540</x>
+          <y>140</y>
+          <width>631</width>
+          <height>51</height>
          </rect>
         </property>
         <property name="font">
          <font>
-          <pointsize>9</pointsize>
+          <pointsize>12</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Please enter your start year (YYYY), end year (YYYY), and airport code:</string>
+         <string>Please enter your start year (YYYY), end year (YYYY), and prese enter.</string>
         </property>
        </widget>
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>610</x>
-          <y>190</y>
+          <x>640</x>
+          <y>220</y>
           <width>421</width>
           <height>16</height>
          </rect>
         </property>
         <property name="font">
          <font>
-          <pointsize>8</pointsize>
+          <pointsize>12</pointsize>
          </font>
         </property>
         <property name="text">
@@ -678,11 +647,29 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="years_input">
         <property name="geometry">
          <rect>
-          <x>610</x>
-          <y>210</y>
+          <x>640</x>
+          <y>260</y>
           <width>231</width>
           <height>31</height>
          </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="year_indicator">
+        <property name="geometry">
+         <rect>
+          <x>640</x>
+          <y>310</y>
+          <width>491</width>
+          <height>311</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </widget>
@@ -695,8 +682,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>26</height>
+     <width>1196</width>
+     <height>27</height>
     </rect>
    </property>
   </widget>
