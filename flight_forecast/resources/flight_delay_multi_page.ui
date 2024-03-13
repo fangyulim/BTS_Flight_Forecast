@@ -494,45 +494,6 @@ p, li { white-space: pre-wrap; }
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QPushButton" name="upload_btn">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>150</y>
-          <width>93</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color:white;</string>
-        </property>
-        <property name="text">
-         <string>Upload</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="file_lb">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>200</y>
-          <width>411</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
        <widget class="QLabel" name="mod_title_lb">
         <property name="geometry">
          <rect>
@@ -548,38 +509,7 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>New Model Information</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="new_mod_lb">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>360</y>
-          <width>441</width>
-          <height>231</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
          <string/>
-        </property>
-       </widget>
-       <widget class="QDialogButtonBox" name="option_btn">
-        <property name="geometry">
-         <rect>
-          <x>210</x>
-          <y>630</y>
-          <width>193</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="standardButtons">
-         <set>QDialogButtonBox::No|QDialogButtonBox::Yes</set>
         </property>
        </widget>
        <widget class="QLabel" name="retrain_optionlb">
@@ -595,23 +525,10 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
        </widget>
-       <widget class="QLabel" name="refit_lb">
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>660</y>
-          <width>261</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
        <widget class="QLabel" name="airport_date_lb">
         <property name="geometry">
          <rect>
-          <x>507</x>
+          <x>10</x>
           <y>140</y>
           <width>641</width>
           <height>51</height>
@@ -629,7 +546,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>520</x>
+          <x>23</x>
           <y>220</y>
           <width>421</width>
           <height>16</height>
@@ -647,7 +564,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="years_input">
         <property name="geometry">
          <rect>
-          <x>530</x>
+          <x>33</x>
           <y>260</y>
           <width>231</width>
           <height>31</height>
@@ -657,7 +574,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="year_indicator">
         <property name="geometry">
          <rect>
-          <x>530</x>
+          <x>33</x>
           <y>310</y>
           <width>491</width>
           <height>311</height>
@@ -672,11 +589,94 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
        </widget>
+       <widget class="QPushButton" name="upload_btn">
+        <property name="geometry">
+         <rect>
+          <x>670</x>
+          <y>140</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:white;</string>
+        </property>
+        <property name="text">
+         <string>Upload</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="refit_lb">
+        <property name="geometry">
+         <rect>
+          <x>740</x>
+          <y>650</y>
+          <width>261</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QDialogButtonBox" name="option_btn">
+        <property name="geometry">
+         <rect>
+          <x>840</x>
+          <y>620</y>
+          <width>193</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::No|QDialogButtonBox::Yes</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="new_mod_lb">
+        <property name="geometry">
+         <rect>
+          <x>610</x>
+          <y>350</y>
+          <width>531</width>
+          <height>231</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
        <widget class="QLabel" name="success_lb">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>270</y>
+          <x>670</x>
+          <y>260</y>
+          <width>411</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="file_lb">
+        <property name="geometry">
+         <rect>
+          <x>670</x>
+          <y>190</y>
           <width>411</width>
           <height>51</height>
          </rect>
