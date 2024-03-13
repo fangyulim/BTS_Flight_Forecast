@@ -8,8 +8,9 @@ import unittest
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
+from unittest.mock import patch, mock_open
 
-from utils.flight_delay_multi_page_ui import FlightUi
+from utils.ui_manager import FlightUi
 
 
 class TestUi(unittest.TestCase):
@@ -31,16 +32,60 @@ class TestUi(unittest.TestCase):
         del self.ui
         del self.app
 
+    def test_setup_ui(self):
+        self.ui.setup_ui()
+        self.assertEqual(self.ui.width(),1200)
+        self.assertEqual(self.ui.height(),750)
+        # Following labels and widgets appear false initially
+        self.assertFalse(self.ui.user_int.avg_delay_result.isVisible())
+        self.assertFalse(self.ui.user_int.label_6.isVisible())
+        self.assertFalse(self.ui.user_int.prob_delay_result.isVisible())
+        self.assertFalse(self.ui.user_int.label_5.isVisible())
+        self.assertFalse(self.ui.user_int.fail_predict_lb.isVisible())
+
+        # Authentication page
+        self.assertFalse(self.ui.user_int.error_msg_lb.isVisible())
+
+        # Admin page
+        self.assertFalse(self.ui.user_int.file_lb.isVisible())
+        self.assertFalse(self.ui.user_int.new_mod_lb.isVisible())
+        self.assertFalse(self.ui.user_int.mod_title_lb.isVisible())
+
+        # self.assertFalse(self.ui.user_int.option_btn.isVisible())
+        # self.assertFalse(self.ui.user_int.retrain_optionlb.isVisible())
+        # self.assertFalse(self.ui.user_int.refit_lb.isVisible())
+
     def test_main_window_displayed_correctly(self):
         """
         This function tests if the main window displays correctly.
-        :return:
         """
         # Wait for the window to be exposed
         QTest.qWaitForWindowExposed(self.ui)
         self.ui.show()
         # Check if the main window is visible
         self.assertTrue(self.ui.isVisible())
+
+    def test_read_airport_codes(self):
+        """
+        This function tests if we are reading in the airport_codes correctly from the csv file.
+        :return:
+        """
+        expected_airport_codes= ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
+                                 'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
+                                 'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
+                                 'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
+        actual_airport_codes = self.ui.load_airport_list()
+
+        self.assertEqual(actual_airport_codes, expected_airport_codes)
+
+    def test_airport_codes_added_to_widget(self):
+        airport_codes= ['BIL', 'BLI', 'BOI', 'BTM', 'BZN', 'CLM', 'ORS', 'EUG', 'GPI',
+                        'FHR', 'GDV', 'GEG', 'GGW', 'GTF', 'HLN', 'HVR', 'IDA', 'SEA',
+                        'LMT', 'LWS', 'LWT', 'MLS', 'MSO', 'OKH', 'OLF', 'PDT', 'PDX',
+                        'PIH', 'PUW', 'SDY', 'SEA', 'SUN', 'TWF']
+        self.ui.load_airport_list()
+        for index in range(len(airport_codes)):
+            self.assertEqual(self.ui.user_int.airport_selection.itemText(index),airport_codes[index])
 
     def test_admin_button_switches_page(self):
         """
@@ -124,7 +169,7 @@ class TestUi(unittest.TestCase):
             self.assertFalse(self.ui.user_int.prob_delay_result.isVisible())
             self.assertFalse(self.ui.user_int.label_5.isVisible())
 
-    def test_login_button_authenticates(self):
+    def test_login_button_authenticates_correct(self):
         """
         This function tests is login_btn works and brings admin to admin page
         when correct password is entered.
@@ -135,8 +180,22 @@ class TestUi(unittest.TestCase):
         new_index = self.ui.stacked_widget_pages.currentIndex()
         if self.ui.user_int.password_input.text() == "123":
             self.assertNotEqual(initial_index, new_index)
-        else:
+            self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 2)
+            self.assertFalse(self.ui.user_int.error_msg_lb.isVisible())
+
+    def test_login_button_authenticates_incorrect(self):
+        """
+        This function tests if login_btn works and doesn't bring admin to admin page
+        when incorrect password is entered.
+        """
+        initial_index = self.ui.stacked_widget_pages.currentIndex()
+        QTest.mouseClick(self.ui.user_int.login_btn, Qt.LeftButton)
+        QApplication.processEvents()
+        new_index = self.ui.stacked_widget_pages.currentIndex()
+        if self.ui.user_int.password_input.text() == "abc":
             self.assertEqual(initial_index, new_index)
+            self.assertTrue(self.ui.user_int.error_msg_lb.isVisible())
+            self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 1)
 
     def test_line_edit_text_input(self):
         """
@@ -146,6 +205,7 @@ class TestUi(unittest.TestCase):
         QTest.keyClicks(self.ui.user_int.years_input, input_text)
         entered_text = self.ui.user_int.years_input.text()
         self.assertEqual(entered_text, input_text)
+
 
     def test_combobox_input(self):
         """

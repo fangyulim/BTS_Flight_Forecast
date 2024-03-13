@@ -68,7 +68,7 @@ class FlightUi(QMainWindow):
 
         # Instantiating widgets and functions used on main page.
         self.load_airport_list()
-        self.load_airlines_list()
+        # self.load_airlines_list()
 
     def setup_signal_slot_connection(self):
         """
@@ -80,8 +80,6 @@ class FlightUi(QMainWindow):
         # Moves to main page when "Main Page" button is clicked
         self.user_int.main_page_btn.clicked.connect(
             lambda: self.stacked_widget_pages.setCurrentIndex(0))
-        # Authentication page.
-        self.user_int.login_btn.clicked.connect(self.authenticate)
         # This will be used if we decide to move airport_selection as it's own function.
         # self.user_int.airport_selection.currentTextChanged.connect(self.airport_changed)
         self.user_int.PredictButton.clicked.connect(self.prediction)
@@ -118,9 +116,9 @@ class FlightUi(QMainWindow):
         self.user_int.file_lb.setVisible(False)
         self.user_int.new_mod_lb.setVisible(False)
         self.user_int.mod_title_lb.setVisible(False)
-        self.user_int.option_btn.setVisible(False)
-        self.user_int.retrain_optionlb.setVisible(False)
-        self.user_int.refit_lb.setVisible(False)
+        # self.user_int.option_btn.setVisible(False)
+        # self.user_int.retrain_optionlb.setVisible(False)
+        # self.user_int.refit_lb.setVisible(False)
 
     def load_airport_list(self):
         """
@@ -130,28 +128,17 @@ class FlightUi(QMainWindow):
 
         # Reads in the airport codes from csv file.
         with open("resources/airport_codes.csv", "r", encoding="utf-8") as file:
-            next(file)  # skips the header.
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # skips the header
             airport_codes = [row[0] for row in csv.reader(file)]
 
         # Clear the existing items in airport_selection widget
         self.user_int.airport_selection.clear()
         # Adds airport codes to the widget
         self.user_int.airport_selection.addItems(airport_codes)
-
-    def load_airlines_list(self):
-        """
-        This function displays the list of airlines in the airline_selection widget.
-        """
-        with open("resources/airline_list.csv", "r", encoding="utf-8") as file:
-
-            next(file)  # skips the header.
-            airline_list = [row[0] for row in csv.reader(file)]
-
-        self.user_int.airline_selection.clear()
-        self.user_int.airline_selection.addItems(airline_list)
+        return airport_codes
 
     def prediction(self):
-        # Too many local variables.
         """
         This function takes user input, fetches forecasted weather, runs prediction model and
         displays the predicted probability of delay or severity prediction.
@@ -264,7 +251,7 @@ class FlightUi(QMainWindow):
         else:
             print("Please enter start and end year in format YYYY,YYYY with no space.")
 
-    def retrain_models(self,num_uploaded):
+    def retrain_models(self, num_uploaded):
         """
         This function triggers models to be retrained after new files have been uploaded.
         """
@@ -277,7 +264,7 @@ class FlightUi(QMainWindow):
             # if self.start_year is not None and self.end_year is not None:
             #     start_year_input = int(self.start_year)
             #     end_year_input = int(self.end_year)
-                # Only triggers model combination if more than 2 files are uploaded
+            # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
                 # 1) Obtain entered start and end years entered by user.
                 airports = pd.read_csv('resources/airport_codes.csv')
@@ -288,7 +275,7 @@ class FlightUi(QMainWindow):
                 # 3) Call data processing util
 
                 data_processing.create_dataset(airport_path=AIRPORT_FOLDER_PATH,
-                                                  weather_path=WEATHER_FOLDER_PATH)
+                                               weather_path=WEATHER_FOLDER_PATH)
                 # 4) Calls model training
                 delay_predictor.create_model_from_dataset(
                     data_path="resources/generated/pickles/combined_flight_data")
@@ -316,7 +303,6 @@ class FlightUi(QMainWindow):
                 print("Unable to retrain")
         # else:
         #     self.user_int.file_lb.setText("You have not entered a start or end year.")
-
 
     def upload_files(self):
         """
