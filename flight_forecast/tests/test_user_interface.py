@@ -304,7 +304,7 @@ class TestUi(unittest.TestCase):
         This function checks if there is a comma in the years entered by admin.
         If not, prompts users to re-enter start and end years in the correct format.
         """
-        mes = "The start_year is: " + str(2010) + "\n" + "The end year is: "\
+        mes = "The start year is: " + str(2010) + "\n" + "The end year is: "\
                                     + str(2022)
         years_input_info = "2010,2022"
         self.ui.process_input(years_input_info)
