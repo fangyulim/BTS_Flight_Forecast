@@ -310,7 +310,7 @@ class FlightUi(QMainWindow):
                 delay_severity_metrics = delay_predictor.get_regressor_metrics()
                 delay_severity_metrics_results = ', '.join(str(item)
                                                            for item in delay_severity_metrics)
-                self.user_int.new_mod_lb.setText("The model has been successfully trained!"
+                self.user_int.new_mod_lb.setText("The model has been successfully trained!\n"
                                                  + "The training metrics for probability "
                                                    "of delay is \n"
                                                  + delay_probability_metrics_results + "\n"
