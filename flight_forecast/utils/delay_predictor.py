@@ -238,11 +238,16 @@ def predict_delay_probability(predictors,
 
     Parameters
     ----------
-    pred_vector: A vector of flight properties. Must contain the columns used to train the model.
+    predictors: A Pandas DataFrame of flight properties for which the probability of a delay will
+                be predicted. Column names must match those used to train the model.
+    classifier_path: A string containing a path to the pickled classifier model.
+    encoder_path: A string containing a path to the pickled ColumnTransformer used to preprocess
+                  the data for the classifier model
 
     Returns
     -------
-    A float containing the log-probability of a flight delay.
+    A list (or collection of lists) containing the log-probability of each given flight being not
+    delayed and the log-probability of it being delayed.
     '''
     if not isinstance(predictors, pd.DataFrame):
         raise TypeError("Predictor inputs into the model must be in the form of a Pandas " + \
@@ -262,7 +267,8 @@ def predict_delay_probability(predictors,
 
 def get_classifier_metrics(metrics_path = PICKLE_FOLDER_PATH + '/classifier_metrics.pkl'):
     '''
-    Returns training metrics for "classifier.pkl".
+    Returns the training accuracy, testing accuracy, and confusion matrix for the trained
+    delay severity regressor.
     '''
     with open(metrics_path, 'rb') as file:
         delay_predictor_metrics = pickle.load(file)
@@ -277,11 +283,12 @@ def predict_delay_severity(predictors):
 
     Parameters
     ----------
-    pred_vector: A vector of flight properties. Must contain the columns used to train the model.
+    predictors: A Pandas DataFrame of flight properties for which the probability of a delay will
+                be predicted. Column names must match those used to train the model.
 
     Returns
     -------
-    A float containing the estimated minutes of flight delay.
+    A float (or list of floats) containing the predicted delay in minutes of each given flight.
     '''
     if not isinstance(predictors, pd.DataFrame):
         raise TypeError("Predictor inputs into the model must be in the form of a Pandas " + \
@@ -301,7 +308,7 @@ def predict_delay_severity(predictors):
 
 def get_regressor_metrics():
     '''
-    Returns training metrics for "regressor.pkl"
+    Returns the R-Squared and testing accuracy for the trained delay severity regressor.
     '''
     with open(PICKLE_FOLDER_PATH + '/regressor_metrics.pkl', 'rb') as file:
         severity_predictor_metrics = pickle.load(file)

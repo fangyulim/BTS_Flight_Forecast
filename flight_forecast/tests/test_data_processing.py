@@ -1,7 +1,8 @@
 '''
 This module uses the unittest framework to run tests on data_processing.py.
 
-[INSERT DOCUMENTATION]
+Within this module, the ability of data_processing.py to combine zipped flight data,
+combine labelled weather data, and match both datasets by time are tested.
 '''
 
 import unittest
