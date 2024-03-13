@@ -56,11 +56,11 @@ def pre_process_dataset(df_to_process, target_col,
     if not isinstance(df_to_process, pd.DataFrame):
         raise TypeError("The df_to_process must be a Pandas DataFrame object. Currently it" + \
                         f"is a {type(df_to_process)}.")
-    if not (target_col in df_to_process.columns.tolist()):
+    if not target_col in df_to_process.columns.tolist():
         raise ValueError(f"The target column for prediction, {target_col}," +\
                          " must be present in the given dataframe.")
-    if not (set(relevant_columns).issubset(df_to_process.columns.tolist())):
-        raise ValueError((f"The relevant columns selected for pre-processing, " + \
+    if not set(relevant_columns).issubset(df_to_process.columns.tolist()):
+        raise ValueError(("The relevant columns selected for pre-processing, " + \
                           f"{relevant_columns}, must be present in the given dataframe."))
     if not isinstance(encoder_path, str):
         raise TypeError("The encoder_path must contain a string. This string should contain" + \
@@ -115,13 +115,13 @@ def train_classifier(datasets):
     '''
     if len(datasets) != 4:
         raise ValueError("The input dataset must be a collection of 4 elements.")
-    if not (isinstance(datasets[0], scipy.sparse.csr_matrix)) or \
-       not (isinstance(datasets[2], scipy.sparse.csr_matrix)):
+    if not isinstance(datasets[0], scipy.sparse.csr_matrix) or \
+       not isinstance(datasets[2], scipy.sparse.csr_matrix):
         raise TypeError("The elements at indices 0 and 2 of the datasets parameter must be " + \
                         f"scipy csr matrices. They are currently {type(datasets[0])} and " + \
                         f"{type(datasets[2])}, respectively.")
-    if not (isinstance(datasets[1], pd.DataFrame)) or \
-       not (isinstance(datasets[3], pd.DataFrame)):
+    if not isinstance(datasets[1], pd.DataFrame) or \
+       not isinstance(datasets[3], pd.DataFrame):
         raise TypeError("The elements at indices 1 and 3 of the datasets parameter must be " + \
                         f"Pandas DataFrames. They are currently {type(datasets[1])} and " + \
                         f"{type(datasets[3])}, respectively.")
@@ -165,13 +165,13 @@ def train_regressor(datasets):
     '''
     if len(datasets) != 4:
         raise ValueError("The input dataset must be a collection of 4 elements.")
-    if not (isinstance(datasets[0], scipy.sparse.csr_matrix)) or \
-       not (isinstance(datasets[2], scipy.sparse.csr_matrix)):
+    if not isinstance(datasets[0], scipy.sparse.csr_matrix) or \
+       not isinstance(datasets[2], scipy.sparse.csr_matrix):
         raise TypeError("The elements at indices 0 and 2 of the datasets parameter must be " + \
                         f"scipy csr matrices. They are currently {type(datasets[0])} and " + \
                         f"{type(datasets[2])}, respectively.")
-    if not (isinstance(datasets[1], pd.DataFrame)) or \
-       not (isinstance(datasets[3], pd.DataFrame)):
+    if not isinstance(datasets[1], pd.DataFrame) or \
+       not isinstance(datasets[3], pd.DataFrame):
         raise TypeError("The elements at indices 1 and 3 of the datasets parameter must be " + \
                         f"Pandas DataFrames. They are currently {type(datasets[1])} and " + \
                         f"{type(datasets[3])}, respectively.")
@@ -254,7 +254,7 @@ def predict_delay_probability(predictors,
     if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
         raise ValueError("Prediction DataFrame must have the same columns used to train" + \
                          f" the model. Predictions have {predictors.columns.shape[0]} " + \
-                         f"columns while the encoder expects " + \
+                         "columns while the encoder expects " + \
                          f"{encoder.feature_names_in_.shape[0]}.")
     encoded_pred = encoder.transform(predictors)
     return delay_predictor.predict_proba(encoded_pred)
@@ -293,7 +293,7 @@ def predict_delay_severity(predictors):
     if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
         raise ValueError("Prediction DataFrame must have the same columns used to train" + \
                          f" the model. Predictions have {predictors.columns.shape[0]} " + \
-                         f"columns while the encoder expects " + \
+                         "columns while the encoder expects " + \
                          f"{encoder.feature_names_in_.shape[0]}.")
     encoded_pred = encoder.transform(predictors)
     return severity_predictor.predict(encoded_pred)
