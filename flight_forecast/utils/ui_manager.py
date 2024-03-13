@@ -110,6 +110,7 @@ class FlightUi(QMainWindow):
         self.user_int.prob_delay_result.setVisible(False)
         self.user_int.label_5.setVisible(False)
         self.user_int.fail_predict_lb.setVisible(False)
+        self.user_int.success_lb.setVisible(False)
 
         # Authentication page
         self.user_int.error_msg_lb.setVisible(False)
@@ -119,7 +120,7 @@ class FlightUi(QMainWindow):
         self.user_int.new_mod_lb.setVisible(False)
         self.user_int.mod_title_lb.setVisible(False)
         # self.user_int.year_indicator.setVisible(False)
-        # self.user_int.option_btn.setVisible(False)
+        self.user_int.option_btn.setVisible(False)
         # self.user_int.retrain_optionlb.setVisible(False)
         # self.user_int.refit_lb.setVisible(False)
 
@@ -244,14 +245,15 @@ class FlightUi(QMainWindow):
         :param years_input_info: the start and end years entered by the admin.
                Obtained by handle_return_input() function.
         """
-        mes = "Please enter start & end year in correct format (no space) and press enter!"
+        mes = "Please enter start & end year in correct" +\
+              "\n"+ "format (no space) and press enter!"
         if "," in years_input_info:
             try:
                 years = years_input_info.split(",")
                 if len(years) == 2 and all(len(year) == 4 and year.isdigit() for year in years):
                     self.user_int.year_indicator.setVisible(True)
                     self.start_year, self.end_year = min(years), max(years)
-                    self.user_int.year_indicator.setText("The start_year is: "
+                    self.user_int.year_indicator.setText("The start year is: "
                                                          + str(self.start_year)
                                                          + "\n" + "The end year is: "
                                                          + str(self.end_year))
@@ -282,6 +284,8 @@ class FlightUi(QMainWindow):
             #     end_year_input = int(self.end_year)
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 2:
+                self.user_int.file_lb.setVisible(False)
+                self.user_int.success_lb.setText("You have uploaded " + str(num_uploaded) + " files.")
                 # 1) Obtain entered start and end years entered by user.
                 airports = pd.read_csv('resources/airport_codes.csv')
 
@@ -352,9 +356,9 @@ class FlightUi(QMainWindow):
         if files:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
             folder_path = "resources/flight_data"
-
-            self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
-            self.user_int.file_lb.setVisible(True)
+            self.user_int.success_lb.setVisible(True)
+            self.user_int.success_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
+            self.user_int.file_lb.setVisible(False)
 
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)

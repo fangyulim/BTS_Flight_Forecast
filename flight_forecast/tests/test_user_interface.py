@@ -332,6 +332,7 @@ class TestUi(unittest.TestCase):
         result = self.ui.handle_return_input()
         self.assertEqual(result, "1990,2022")
 
+    # The following codes are all related to file dialog tests.
 
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload(self, mock_get_open_file_names):

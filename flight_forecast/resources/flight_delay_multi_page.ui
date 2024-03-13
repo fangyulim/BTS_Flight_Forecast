@@ -497,8 +497,8 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="upload_btn">
         <property name="geometry">
          <rect>
-          <x>100</x>
-          <y>170</y>
+          <x>40</x>
+          <y>150</y>
           <width>93</width>
           <height>28</height>
          </rect>
@@ -518,15 +518,15 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="file_lb">
         <property name="geometry">
          <rect>
-          <x>100</x>
-          <y>220</y>
+          <x>40</x>
+          <y>200</y>
           <width>411</width>
           <height>51</height>
          </rect>
         </property>
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -536,7 +536,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="mod_title_lb">
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>20</x>
           <y>330</y>
           <width>311</width>
           <height>21</height>
@@ -554,7 +554,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="new_mod_lb">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>40</x>
           <y>360</y>
           <width>441</width>
           <height>231</height>
@@ -572,7 +572,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QDialogButtonBox" name="option_btn">
         <property name="geometry">
          <rect>
-          <x>290</x>
+          <x>210</x>
           <y>630</y>
           <width>193</width>
           <height>28</height>
@@ -592,7 +592,7 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
        <widget class="QLabel" name="refit_lb">
@@ -605,31 +605,31 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
        <widget class="QLabel" name="airport_date_lb">
         <property name="geometry">
          <rect>
-          <x>540</x>
+          <x>507</x>
           <y>140</y>
-          <width>631</width>
+          <width>641</width>
           <height>51</height>
          </rect>
         </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Please enter your start year (YYYY), end year (YYYY), and prese enter.</string>
+         <string>Please enter your start year (YYYY), end year (YYYY), and press enter.</string>
         </property>
        </widget>
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>640</x>
+          <x>520</x>
           <y>220</y>
           <width>421</width>
           <height>16</height>
@@ -637,7 +637,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -647,7 +647,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="years_input">
         <property name="geometry">
          <rect>
-          <x>640</x>
+          <x>530</x>
           <y>260</y>
           <width>231</width>
           <height>31</height>
@@ -657,7 +657,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="year_indicator">
         <property name="geometry">
          <rect>
-          <x>640</x>
+          <x>530</x>
           <y>310</y>
           <width>491</width>
           <height>311</height>
@@ -665,7 +665,25 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="success_lb">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>270</y>
+          <width>411</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
