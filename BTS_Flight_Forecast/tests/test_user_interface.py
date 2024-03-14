@@ -10,7 +10,6 @@ from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
 
-
 from utils.ui_manager import FlightUi
 
 # test_user_interface.py:17:0: R0904: Too many public methods (23/20) (too-many-public-methods)

@@ -227,6 +227,7 @@ def _clean_historic_weather_data(weather_data_raw, location_code, columns_of_int
         ValueError: If 'weather_data_raw' does not have all 'columns_of_interest'
     """
 
+    # Check if all columns_of_interest are present in weather_data_raw
     if not set(columns_of_interest) <= set(weather_data_raw.columns):
         raise ValueError("'weather_data_raw' does not have all the 'columns_of_interest'")
 
@@ -271,6 +272,8 @@ def get_historic_weather_data(airports, start_year=2022, end_year=2023):
 
     months_days = _generate_date_ranges(range(start_year, end_year + 1))
 
+    # Loop through airports and fetch weather data for each airport in the
+    # given range of years
     for ind, airport in enumerate(airports['Airport Code']):
         progress_str = f"Getting weather for airport {airport}. " + \
                        f"({ind}/{airports['Airport Code'].shape[0]})"
@@ -283,6 +286,7 @@ def get_historic_weather_data(airports, start_year=2022, end_year=2023):
 
         for time_period in months_days:
             time.sleep(1)
+            # Query params for the request
             params = {
                 'apiKey': API_TOKEN,
                 'units': 'e',
@@ -292,6 +296,9 @@ def get_historic_weather_data(airports, start_year=2022, end_year=2023):
 
             resp = requests.get(url=historic_weather_api, params=params, timeout=15)
 
+            # Proceed further only for a 2xx response code.
+            # No error raised for other response codes. We do not want one failure to stop
+            # the processing of future dates / other airports.
             if 200 <= resp.status_code < 300:
 
                 data = resp.json()
@@ -327,7 +334,7 @@ def _refine_forecasted_data(forecasted_weather_df_raw, columns_of_interest):
     Raises:
         ValueError: If 'forecasted_weather_df_raw' does not have all 'columns_of_interest'
     """
-
+    # Check if all columns_of_interest are present in forecasted_weather_df_raw
     if not set(columns_of_interest) <= set(forecasted_weather_df_raw.columns):
         raise ValueError("'forecasted_weather_df_raw' does not have all the columns of interest")
 
@@ -364,6 +371,7 @@ def get_weather_forecast(airport_code, timestamp):
     if timestamp <= 0:
         raise ValueError("'timestamp' cannot be negative.")
 
+    # create query params for the request
     params = {
         'apiKey': API_TOKEN,
         'icaoCode': f'K{airport_code}',
@@ -386,14 +394,19 @@ def get_weather_forecast(airport_code, timestamp):
         raise ValueError(f"Missing 'validTimeUtc' in the forecasted weather data for "
                          f"airport {airport_code}")
 
+    # The forecasted data has the list of entries sorted by validTimeUtc.
+    # validTimeUtc of a record is set as the expirationTimeUtc of its previous record
+    # expirationTimeUtc of the last record is set as an hour from its validTimeUtc
     forecasted_weather_df.loc[:, "expirationTimeUtc"] = \
         (forecasted_weather_df["validTimeUtc"]
          .shift(-1)
          .fillna(forecasted_weather_df["validTimeUtc"]
                  + 3600))
 
+    # Rename forecasted weather data columns to comply with predictive model's input schema
     refined_weather_df = _refine_forecasted_data(forecasted_weather_df, COI_FORECASTED)
 
+    # Find the forecasted weather data corresponding to the timestamp of interest
     focused_forecast_df = refined_weather_df[
         (refined_weather_df['valid_time_gmt'] <= timestamp) & \
         (timestamp < refined_weather_df['expire_time_gmt'])]

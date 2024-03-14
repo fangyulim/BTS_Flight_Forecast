@@ -115,10 +115,7 @@ class FlightUi(QMainWindow):
         self.user_int.file_lb.setVisible(False)
         self.user_int.new_mod_lb.setVisible(False)
         self.user_int.mod_title_lb.setVisible(False)
-        # self.user_int.year_indicator.setVisible(False)
         self.user_int.option_btn.setVisible(False)
-        # self.user_int.retrain_optionlb.setVisible(False)
-        # self.user_int.refit_lb.setVisible(False)
 
     def load_airport_list(self):
         """
@@ -369,7 +366,6 @@ class FlightUi(QMainWindow):
                 destination_path = os.path.join(folder_path, file_name)
                 shutil.copy(file_path, destination_path)
             self.retrain_models(num_uploaded)
-
 
 
 if __name__ == '__main__':
