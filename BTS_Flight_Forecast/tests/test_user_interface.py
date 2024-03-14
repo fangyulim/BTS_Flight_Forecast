@@ -47,6 +47,7 @@ class TestUi(unittest.TestCase):
         self.assertFalse(self.ui.user_int.prob_delay_result.isVisible())
         self.assertFalse(self.ui.user_int.label_5.isVisible())
         self.assertFalse(self.ui.user_int.fail_predict_lb.isVisible())
+        self.assertFalse(self.ui.user_int.success_lb.isVisible())
 
         # Authentication page
         self.assertFalse(self.ui.user_int.error_msg_lb.isVisible())
