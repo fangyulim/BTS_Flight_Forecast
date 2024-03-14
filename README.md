@@ -86,15 +86,14 @@ Here is an overview of our project structure:
 │   │   ├── weather.py
 ├── docs/
 │   ├── Background.md
-│   ├── Component.md
 │   ├── Component_Diagram.png
-│   ├── Component_Diagram.png
-│   ├── functional_specification.md
+│   ├── Component_specification.png
+│   ├── Functional_specification.md
 │   ├── Interaction_Diagram_1.png
 │   ├── Interaction_Diagram_2.png
 │   ├── Milestone.md
 │   ├── Project Presentation.pdf
-│   ├── PseudoCode.md
+│   ├── Pseudocode.md
 │   ├── TechnologyReview.pdf
 │   ├── UseCases.md
 │   ├── UserStories.pdf
