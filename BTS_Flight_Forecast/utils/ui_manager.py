@@ -339,7 +339,7 @@ class FlightUi(QMainWindow):
         # Creates file upload dialog
         self.file_dialog = QFileDialog()
         self.file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        files, _= self.file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
+        files, _ = self.file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
         num_uploaded = len(files)
         zip_files = [file for file in files if file.lower().endswith('.zip')]
         if not files:
@@ -380,7 +380,6 @@ class FlightUi(QMainWindow):
                 destination_path = os.path.join(folder_path, file_name)
                 shutil.copy(file_path, destination_path)
             self.retrain_models(num_uploaded)
-
 
 
 if __name__ == '__main__':
