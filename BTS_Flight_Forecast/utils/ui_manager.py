@@ -360,7 +360,7 @@ class FlightUi(QMainWindow):
                 except FileNotFoundError:
                     print(f"File not found: {file_path}")
                 except PermissionError:
-                    print(f"Permission desnied: {file_path} ")
+                    print(f"Permission denied: {file_path} ")
                 except OSError as exception:
                     print(f"OS error while deleting {file_path}: {exception}")
 
