@@ -272,7 +272,7 @@ class FlightUi(QMainWindow):
             self.user_int.file_lb.setText("You have not entered a start or end year.")
         else:
             # Only triggers model combination if more than 2 files are uploaded
-            if num_uploaded > 2:
+            if num_uploaded > 1:
                 self.user_int.file_lb.setVisible(False)
                 self.user_int.success_lb.setText("You have uploaded " +
                                                  str(num_uploaded) + " files.")
@@ -311,6 +311,8 @@ class FlightUi(QMainWindow):
                 self.user_int.mod_title_lb.setVisible(True)
             else:
                 print("Unable to retrain")
+                self.user_int.new_mod_lb.setVisible(True)
+                self.user_int.new_mod_lb.setText("Unable to retrain")
 
     def upload_files(self):
         """
