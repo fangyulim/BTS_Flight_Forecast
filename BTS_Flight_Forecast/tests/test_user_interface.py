@@ -5,7 +5,7 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-# from unittest.mock import patch  # Uncomment when running tests in local
+from unittest.mock import patch  # Uncomment when running tests in local
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -398,58 +398,59 @@ class TestUi(unittest.TestCase):
 
     # The following codes are all related to file dialog tests. -- Commented to get GIT  CI working
     # Uncomment while running in local
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    # def test_upload(self, mock_get_open_file_names):
-    #     """
-    #     This function checks that by clicking the upload button the file dialog
-    #     appears.
-    #     :param mock_getOpenFileNames
-    #     """
-    #     mock_get_open_file_names.return_value = (
-    #         ["resources/testing_files/June2022.zip"], "")
-    #     # Simulate clicking the upload button
-    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-    #     QApplication.processEvents()
-    #     # Check if the upload_files method is called
-    #     self.ui.upload_files()
-    #
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    # def test_retrain_models_single_file_no_date(self, mock_upload_files):
-    #     """
-    #     This function mocks uploading only file and trying to pass it into
-    #     retrain_models().
-    #     :param mock_upload_files:
-    #     """
-    #     # Mock the upload_files()
-    #     self.ui.user_int.years_input.setText("2020,2021")
-    #     QTest.keyPress(self.ui.user_int.years_input, Qt.Key_Return)
-    #     mock_upload_files.return_value = 0
-    #     self.ui.num_uploaded = 2
-    #
-    #     # Call retrain_models() with one file uploaded
-    #     self.ui.retrain_models(1)
-    #     self.assertEqual(self.ui.user_int.file_lb.isVisible(), False)
-    #     self.assertEqual(self.ui.user_int.success_lb.isVisible(), False)
-    #     self.assertEqual(self.ui.user_int.new_mod_lb.isVisible(), False)
-    #     self.assertEqual(self.ui.start_year, '2020')
-    #     self.assertEqual(self.ui.end_year, '2021')
-    #
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    # def test_upload_none(self, mock_get_open_file_names):
-    #     """
-    #     # This function mocks the case where users click the upload button but doesn't
-    #     # upload anything.
-    #     # :param mock_getOpenFileNames:
-    #     """
-    #     mock_get_open_file_names.return_value = ([], "")
-    #     # Simulate clicking the upload button
-    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-    #     QApplication.processEvents()
-    #
-    #     # Check if the upload_files method is called
-    #     self.ui.upload_files()
-    #     mes = "No files have been uploaded."
-    #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
+    # Current pylint might give an error as we are allowing only 26 public methods.
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
+    def test_upload(self, mock_get_open_file_names):
+        """
+        This function checks that by clicking the upload button the file dialog
+        appears.
+        :param mock_getOpenFileNames
+        """
+        mock_get_open_file_names.return_value = (
+            ["resources/testing_files/June2022.zip"], "")
+        # Simulate clicking the upload button
+        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+        QApplication.processEvents()
+        # Check if the upload_files method is called
+        self.ui.upload_files()
+
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
+    def test_retrain_models_single_file_no_date(self, mock_upload_files):
+        """
+        This function mocks uploading only file and trying to pass it into
+        retrain_models().
+        :param mock_upload_files:
+        """
+        # Mock the upload_files()
+        self.ui.user_int.years_input.setText("2020,2021")
+        QTest.keyPress(self.ui.user_int.years_input, Qt.Key_Return)
+        mock_upload_files.return_value = 0
+        self.ui.num_uploaded = 2
+
+        # Call retrain_models() with one file uploaded
+        self.ui.retrain_models(1)
+        self.assertEqual(self.ui.user_int.file_lb.isVisible(), False)
+        self.assertEqual(self.ui.user_int.success_lb.isVisible(), False)
+        self.assertEqual(self.ui.user_int.new_mod_lb.isVisible(), False)
+        self.assertEqual(self.ui.start_year, '2020')
+        self.assertEqual(self.ui.end_year, '2021')
+
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
+    def test_upload_none(self, mock_get_open_file_names):
+        """
+        # This function mocks the case where users click the upload button but doesn't
+        # upload anything.
+        # :param mock_getOpenFileNames:
+        """
+        mock_get_open_file_names.return_value = ([], "")
+        # Simulate clicking the upload button
+        QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
+        QApplication.processEvents()
+
+        # Check if the upload_files method is called
+        self.ui.upload_files()
+        mes = "No files have been uploaded."
+        self.assertEqual(self.ui.user_int.file_lb.text(), mes)
 
 
 if __name__ == '__main__':
