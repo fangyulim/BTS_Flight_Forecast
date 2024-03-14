@@ -1,9 +1,9 @@
 ### Component 1: User GUI
 
-Creating GUI elements within window class
+Creating GUI elements within window class - User Tab
 
 ```python
-import PyQT6
+import PyQT5
 
 layout = box_layout()
 
@@ -58,33 +58,10 @@ def run_model(self):
     self.predict_result.text = result
 ```
 
-### Component 2: Flight Delay Model
-
-Unpacking processed data
+Creating GUI elements within window class - Admin Tab
 
 ```python
-X_train_processed, X_test_processed, y_train, y_test = unpickle(data_file_paths)
-```
-Fitting and evaluating model
-
-Note: Final component will only include best performing model
-
-```python
-for current_model in list_of_models_being_considered:
-    model_with_parameter_sweep = grid_search(current_model())
-    model_with_parameter_sweep.fit(X_train_processed, y_train)
-    model_performance = model_with_parameter_sweep.score(X_test_processed, y_test)
-    plot(model_performance)
-
-pickle(best_model)
-```
-
-### Component 3: Admin Model Updating GUI
-
-Creating GUI elements within window class
-
-```python
-import PyQT6
+import PyQT5
 
 layout = box_layout()
 
@@ -133,9 +110,32 @@ def save_model(self):
     pickle(self.current_model)
 ```
 
-### Component 4: Weather Data API Caller
 
-Will be called by Component 6
+### Component 2: Delay Predictor
+
+Unpacking processed data
+
+```python
+X_train_processed, X_test_processed, y_train, y_test = unpickle(data_file_paths)
+```
+Fitting and evaluating model
+
+Note: Final component will only include best performing model
+
+```python
+for current_model in list_of_models_being_considered:
+    model_with_parameter_sweep = grid_search(current_model())
+    model_with_parameter_sweep.fit(X_train_processed, y_train)
+    model_performance = model_with_parameter_sweep.score(X_test_processed, y_test)
+    plot(model_performance)
+
+pickle(best_model)
+```
+
+
+### Component 3: Weather Util
+
+Fetching Historic weather data
 
 ```python
 airport_codes = airline_data.origin_codes.unique()
@@ -150,7 +150,13 @@ for airport in airport_codes:
 return airline_data
 ```
 
-### Component 5: Data Pre-processing Steps
+Fetching Forecasted weather data
+```python
+forecasted_weather_data = cal_weather_api(airport_code, datetime)
+return clean_data(forecasted_weather_data)
+```
+
+### Component 4: Data Processor
 
 Obtaining data and separating into target/predictors
 
@@ -159,16 +165,6 @@ df = unpickle("flight_data_path")
 target_df, predictor_df = separate(df)
 relevant_columns = ["..","..."]
 predictor_df = predictor_df[ relevant_columns ]
-```
-
-Looping over data for first-time-only EDA
-
-(Not included in final component)
-
-```python
-for column in relevant_columns:
-    bar_plot(sort(predictor_df.column))
-    histogram(predictor.columns)
 ```
 
 Cleaning and splitting data
@@ -186,20 +182,6 @@ X_train_processed = combine(scaler(get_numeric_columns(X_test)), encoder(get_cat
 pickle(X_train_processed, X_test_processed, y_train, y_test)
 ```
 
-### Component 6: Model Update Script
-
-Creating pipeline object
-
-Will only be performed once
-
-```python
-update_pipeline = sklearn.Pipeline()
-update_pipeline.add(cleaning_step, cleaning_transformer)
-update_pipeline.add(scaling_step, scaler)
-update_pipeline.add(encoding_step, encoder)
-update_pipeline.add(modelling_step, model_with_parameter_sweep)
-```
-
 Getting user data
 
 ```python
@@ -212,8 +194,4 @@ Parameter sweeping and retraining model
 ```python
 model, score = update_pipeline.fit(airline_data_with_weather, hyperparameters)
 return (model, score)
-
-does_user_approve_of_current_model = askUser()
-if does_user_approve_of_current_model:
-    pickle(model)
 ```
