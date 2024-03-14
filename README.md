@@ -43,26 +43,6 @@ Flight delays are a constant source of frustration for travelers, causing missed
 Here is an overview of our project structure:
 ```
 
-├── docs/
-│   ├── Background.md
-│   ├── Component.md
-│   ├── Component_Diagram.png
-│   ├── ComponentInteractionDiagramV2.pdf
-│   ├── Interaction_Diagram_1.png
-│   ├── Interaction_Diagram_2.png
-│   ├── Milestone.md
-│   ├── PseudoCode.md
-│   ├── TechnologyReview.pdf
-│   ├── UseCases.md
-│   ├── UserStories.pdf
-├── examples/
-│   ├── 1_Landing page - User.png
-│   ├── 2_Date and Time selection.png
-│   ├── 3_Delay Prediction.png
-│   ├── 4_Delay Severity Prediction.png
-│   ├── 5_Admin Login.png
-│   ├── 6_Admin Landing Page.png
-│   ├── 7_Model Training Response.png
 ├── BTS_Flight_Forecast/
 │   ├── resources/
 │   │   ├── flight_data/
@@ -96,6 +76,28 @@ Here is an overview of our project structure:
 │   │   ├── delay_predictor.py
 │   │   ├── flight_delay_multi_page_ui.py
 │   │   ├── weather.py
+├── docs/
+│   ├── Background.md
+│   ├── Component.md
+│   ├── Component_Diagram.png
+│   ├── Component_Diagram.png
+│   ├── functional_specification.md
+│   ├── Interaction_Diagram_1.png
+│   ├── Interaction_Diagram_2.png
+│   ├── Milestone.md
+│   ├── Project Presentation.pdf
+│   ├── PseudoCode.md
+│   ├── TechnologyReview.pdf
+│   ├── UseCases.md
+│   ├── UserStories.pdf
+├── examples/
+│   ├── 1_Landing page - User.png
+│   ├── 2_Date and Time selection.png
+│   ├── 3_Delay Prediction.png
+│   ├── 4_Delay Severity Prediction.png
+│   ├── 5_Admin Login.png
+│   ├── 6_Admin Landing Page.png
+│   ├── 7_Model Training Response.png
 ├── .gitignore
 ├── environment.yml
 ├── LICENSE
