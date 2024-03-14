@@ -55,6 +55,14 @@ Here is an overview of our project structure:
 │   ├── TechnologyReview.pdf
 │   ├── UseCases.md
 │   ├── UserStories.pdf
+├── examples/
+│   ├── 1_Landing page - User.png
+│   ├── 2_Date and Time selection.png
+│   ├── 3_Delay Prediction.png
+│   ├── 4_Delay Severity Prediction.png
+│   ├── 5_Admin Login.png
+│   ├── 6_Admin Landing Page.png
+│   ├── 7_Model Training Response.png
 ├── BTS_Flight_Forecast/
 │   ├── resources/
 │   │   ├── flight_data/
