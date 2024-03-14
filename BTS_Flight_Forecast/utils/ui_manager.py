@@ -271,7 +271,7 @@ class FlightUi(QMainWindow):
         except TypeError:
             self.user_int.file_lb.setText("You have not entered a start or end year.")
         else:
-            # Only triggers model combination if more than 2 files are uploaded
+            # Only triggers model combination if more than 1 file is uploaded
             if num_uploaded > 1:
                 self.user_int.file_lb.setVisible(False)
                 self.user_int.success_lb.setText("You have uploaded " +
