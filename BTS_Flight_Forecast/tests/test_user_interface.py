@@ -363,40 +363,7 @@ class TestUi(unittest.TestCase):
     #     # Same case here, message works, but can't check if label is visible
     #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
     # """
-    # """
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
-    # return_value=(["resources/testing_files/June2022.zip",
-    # "resources/testing_files/May2022.zip"], ""))
-    # def test_upload_files(self, mock_getOpenFileNames):
-    #     # Simulate clicking the upload button
-    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-    #     QApplication.processEvents()
-    #     self.start_year = 2022
-    #     self.end_year = 2022
-    #     start_year_input = int(self.start_year)
-    #     end_year_input = int(self.end_year)
-    #
-    #     # Check if the upload_files method is called
-    #     self.ui.upload_files()
-    #
-    #     # Assert that the file labels are updated
-    #     # expected_text = "You have uploaded 2 file(s)."
-    #     # self.assertEqual(self.ui.user_int.new_mod_lb.text(), expected_text)
-    #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
-    #
-    #     with patch('shutil.copy') as shutil_copy_mock:
-    #         expected_calls = [
-    #             call("resources/testing_files/June2022.zip",
-    #             "resources/testing_files/June2022.zip"),
-    #             call("resources/testing_files/May2022.zip",
-    #             "resources/testing_files/May2022.zip")
-    #         ]
-    #         shutil_copy_mock.assert_has_calls(expected_calls)
-    #
-    #     # Assert that retrain_models is called with the correct number of uploaded files
-    #     self.assertEqual(self.retrain_models_mock.call_count, 1)
-    #     self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
-    # """
+
 
 
 if __name__ == '__main__':
