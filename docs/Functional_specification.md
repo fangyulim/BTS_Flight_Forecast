@@ -1,3 +1,12 @@
+## BTS Flight Forecast
+
+### Background
+BTS Flight Forecast is a tool to predict flight delays.
+
+Flight delays are a constant source of frustration for travelers, causing missed connections and disrupted schedules.
+Our goal is to utilize historical flight delay data along with past weather information to generate accurate predictions.
+By analysing existing datasets and integrating with weather forecast APIs, this tool assesses the likelihood of delays for a specific airport, date, and time.
+
 # User Profiles
 
 ## User 1: Fiona
@@ -16,6 +25,12 @@
 - Needs quick interface to update model and check new testing accuracy.
 - Skills required to be able to upload the data and understand modelling. Some technical skills required are python, bash, excel etc.
 
+### Data source
+1. Flight Data: Historical flight delay information from the Bureau of Transportation Statistics (BTS)
+   https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
+2. Weather Data: WeatherWunder API
+   https://www.wunderground.com/history
+   
 # Use Cases
 
 ## BTS Flight Forecast
@@ -27,7 +42,7 @@
   - Flight Data: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
   - Weather Data: https://www.wunderground.com/history
 
-### Usecase 1: View Flight Delay Prediction
+### Use case 1: View Flight Delay Prediction
 
 <b>Objective: Information Validation and Viewing Delay Prediction</b>
 
@@ -38,14 +53,13 @@
 - User: Clicks button to view the likelihood of delay of a flight starting from the departure airport at the given datetime.
 - System: Displays the predicted delay for the selected airport, date and time.
 
-### Usecase 2: Loading new data and re-training model
+### Use case 2: Loading new data and re-training model
 
 <b>Objective: Training the model with new flight data.</b>
 
 - User: Access the admin page
 - System: Provides an option to upload new flight data. ( This data should be downloaded from BTS. Outside the scope of this tool)
 - User: Selects the data file and clicks upload.
-- System: Received the file uploaded. Throws error if it is not in the required format (eg: missing columns, different datatype)
-- User: Clicks "Retrain Model" button
-- System: Runs a script which retrains the model based on the uploaded data in conjunction with the existing data. Displays success or failure.
-- User: Views the training and testing results like model accuracy.
+- System: Received the file uploaded. Displays the number of files that are uploaded. Model is retrained if user uploads more than 2 files.
+  Runs a script which retrains the model based on the uploaded data. Displays success or failure and the new training and testing accuracy.
+- User: Views the training and testing results such as model accuracy.
