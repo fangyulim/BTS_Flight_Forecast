@@ -8,7 +8,6 @@ import unittest
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
-# from unittest.mock import patch
 from utils.ui_manager import FlightUi
 
 
