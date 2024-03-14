@@ -34,8 +34,7 @@ class TestUi(unittest.TestCase):
 
     def test_setup_ui(self):
         """
-        This function tests that the UI is being set up with default values
-        UI width is set to 1200, height is set to 750.
+        This function tests that the UI is being set up with defaults.
         Certain labels and widget is not visible before actions have been taken.
         """
         self.ui.setup_ui()
@@ -406,13 +405,6 @@ class TestUi(unittest.TestCase):
     #     self.ui.upload_files()
     #     mes = "No files have been uploaded."
     #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
-
-
-# Tests that I am unable to cover:
-# Sections which was trigger by actually uploading a file,
-# Resulting in moving to specified folder and triggering API call, retrain and create dataset.
-# However, these functions are tested for their own respective modules and
-# the GUI works as expected.
 
 
 if __name__ == '__main__':
