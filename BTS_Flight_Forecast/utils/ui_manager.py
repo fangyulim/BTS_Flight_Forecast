@@ -5,10 +5,8 @@ The first page allows users to selection airport code, date, and if they want
 a prediction of delay severity, or just delay prediction.
 
 The second page allows admin to upload more data and retrain the model.
-Comments: I ended up not putting state and airport name in option because
-not all airports have a name.
 
-To use this module, please use command: python -m utils.flight_delay_multi_page_ui in terminal.
+To use this module, please use command: python -m utils.ui_manager in terminal.
 To run using IDE, please change file paths.
 On the admin page, please enter start end year before uploading.
 """
@@ -271,9 +269,6 @@ class FlightUi(QMainWindow):
         except TypeError:
             self.user_int.file_lb.setText("You have not entered a start or end year.")
         else:
-            # if self.start_year is not None and self.end_year is not None:
-            #     start_year_input = int(self.start_year)
-            #     end_year_input = int(self.end_year)
             # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 1:
                 self.user_int.file_lb.setVisible(False)
