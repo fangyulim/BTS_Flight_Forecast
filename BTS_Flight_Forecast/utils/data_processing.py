@@ -169,13 +169,6 @@ def match_flight_and_weather_data(flight_df, weather_df):
                        args=time_str)
             airport_weather_df = airport_weather_df.sort_values(by="record_start_date")
             # Checking that weather data aligns with airport dates
-            sys.stdout.flush()
-            print(f"{airport_weather_df.record_start_date.min()} to " + \
-                f"{airport_weather_df.record_start_date.max()} " + \
-                "While the weather dataset covers " + \
-                f"{airport_flight_df.FlightDate.min()} to " + \
-                f"{airport_flight_df.FlightDate.max()}.")
-            sys.stdout.flush()
             if airport_weather_df.record_start_date.min() > airport_flight_df.FlightDate.max() or \
                airport_weather_df.record_start_date.max() < airport_flight_df.FlightDate.min():
                 raise ValueError("The flight dataset and weather dataset must have" + \
@@ -201,7 +194,8 @@ def match_flight_and_weather_data(flight_df, weather_df):
     return flight_df
 
 
-def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER_PATH):
+def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER_PATH,
+                   pickle_path=PICKLE_FOLDER_PATH):
     '''
     Creates a combined airport/weather dataset from paths to individual data files.
 
@@ -230,4 +224,4 @@ def create_dataset(airport_path=AIRPORT_FOLDER_PATH, weather_path=WEATHER_FOLDER
     relevant_flights_df = flight_data[flight_data.Origin.isin(weather_data.airport_code.unique())]
     combined_flight_data = match_flight_and_weather_data(relevant_flights_df, weather_data)
 
-    combined_flight_data.to_pickle(PICKLE_FOLDER_PATH + "/combined_flight_data")
+    combined_flight_data.to_pickle(pickle_path + "/combined_flight_data")
