@@ -32,7 +32,9 @@ class TestDataCombination(unittest.TestCase):
         match_flight_and_weather_data, and create_dataset on a collection
         of typical airport and weather data.
         '''
-        create_dataset(AIRPORT_FOLDER_PATH, WEATHER_FOLDER_PATH)
+        create_dataset(TEST_RESOURCES_PATH + "/test_smoke_data/test_smoke_flight_data",
+                       TEST_RESOURCES_PATH + "/test_smoke_data/test_smoke_weather_data",
+                       TEST_RESOURCES_PATH + "/pickles")
         self.assertTrue(True) # pylint: disable=redundant-unittest-assert
 
     # Running one-shot and pattern tests
@@ -98,9 +100,6 @@ class TestDataCombination(unittest.TestCase):
         '''
         with self.assertRaises(ValueError):
             combine_weather_data(TEST_RESOURCES_PATH + "/invalid_name_weather_data")
-
-
-
 
 
 if __name__ == '__main__':
