@@ -8,7 +8,6 @@ import unittest
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
-
 from utils.ui_manager import FlightUi
 
 
@@ -236,7 +235,7 @@ class TestUi(unittest.TestCase):
                         for i in range(self.ui.user_int.airport_selection.count())]
 
         # Insert an item into the combo box
-        new_item = "New Airport"
+        new_item = "Test Airport"
         self.ui.user_int.airport_selection.addItem(new_item)
 
         # Get the list of items after insertion
@@ -429,7 +428,6 @@ class TestUi(unittest.TestCase):
     #
     #     # Call retrain_models() with one file uploaded
     #     self.ui.retrain_models(1)
-    #     self.assertEqual(self.ui.user_int.file_lb.isVisible(), False)
     #     self.assertEqual(self.ui.user_int.success_lb.isVisible(), False)
     #     self.assertEqual(self.ui.user_int.new_mod_lb.isVisible(), False)
     #     self.assertEqual(self.ui.start_year, '2020')
@@ -451,6 +449,15 @@ class TestUi(unittest.TestCase):
     #     self.ui.upload_files()
     #     mes = "No files have been uploaded."
     #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
+    #
+    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
+    # def test_no_zip_files_uploaded(self, mock_get_open_file_names):
+    #     """
+    #     This function test the case where no zip files are uploaded
+    #     """
+    #     mock_get_open_file_names.return_value = (["file1.csv", "file2.csv"], "")
+    #     self.ui.upload_files()
+    #     self.assertEqual(self.ui.user_int.file_lb.text(), "No ZIP files have been uploaded.")
 
 
 if __name__ == '__main__':
