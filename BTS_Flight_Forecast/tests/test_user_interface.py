@@ -331,7 +331,11 @@ class TestUi(unittest.TestCase):
         self.assertIsNone(self.ui.end_year)
         self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
 
-    def test_prediction_within_15_days(self):
+    def test_prediction_within_15_days_checked(self):
+        """
+        This functions tests the case when user enters a day that is within 15 days from today.
+        Prediction severity checkbox checked.
+        """
         date_input = QDate.currentDate().addDays(5)
         time_input = QTime(12, 14)
         airport_selected = "SEA"
@@ -341,7 +345,25 @@ class TestUi(unittest.TestCase):
         self.ui.user_int.check_box.setChecked(True)
         self.ui.prediction()
 
-    def test_prediction_outside_15_days(self):
+    def test_prediction_within_15_days_not_checked(self):
+        """
+        This functions tests the case when user enters a day that is within 15 days from today.
+        Prediction severity checkbox not checked.
+        """
+        date_input = QDate.currentDate().addDays(5)
+        time_input = QTime(12, 14)
+        airport_selected = "SEA"
+        self.ui.user_int.date_selection.setDate(date_input)
+        self.ui.user_int.time_selection.setTime(time_input)
+        self.ui.user_int.airport_selection.setCurrentText(airport_selected)
+        self.ui.user_int.check_box.setChecked(False)
+        self.ui.prediction()
+
+    def test_prediction_outside_15_days_checked(self):
+        """
+        This function tests the case when user enters a day that is not within 15 days from today.
+        Prediction severity checkbox checked.
+        """
         date_input = QDate.currentDate().addDays(20)
         time_input = QTime(12, 14)
         airport_selected = "SEA"
@@ -350,6 +372,29 @@ class TestUi(unittest.TestCase):
         self.ui.user_int.airport_selection.setCurrentText(airport_selected)
         self.ui.user_int.check_box.setChecked(True)
         self.ui.prediction()
+        self.assertEqual(self.ui.user_int.avg_delay_result.isVisible(), False)
+        self.assertEqual(self.ui.user_int.label_6.isVisible(), False)
+        self.assertEqual(self.ui.user_int.prob_delay_result.isVisible(), False)
+        self.assertEqual(self.ui.user_int.label_5.isVisible(), False)
+
+    def test_prediction_outside_15_days_checked(self):
+        """
+        This function tests the case when user enters a day that is not within 15 days from today.
+        Prediction severity checkbox not checked.
+        """
+        date_input = QDate.currentDate().addDays(20)
+        time_input = QTime(12, 14)
+        airport_selected = "SEA"
+        self.ui.user_int.date_selection.setDate(date_input)
+        self.ui.user_int.time_selection.setTime(time_input)
+        self.ui.user_int.airport_selection.setCurrentText(airport_selected)
+        self.ui.user_int.check_box.setChecked(False)
+        self.ui.prediction()
+        self.assertEqual(self.ui.user_int.avg_delay_result.isVisible(), False)
+        self.assertEqual(self.ui.user_int.label_6.isVisible(), False)
+        self.assertEqual(self.ui.user_int.prob_delay_result.isVisible(), False)
+        self.assertEqual(self.ui.user_int.label_5.isVisible(), False)
+
 
     # The following codes are all related to file dialog tests. -- Commented to get GIT  CI working
     # Uncomment while running in local
