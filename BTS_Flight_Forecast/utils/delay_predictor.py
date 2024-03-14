@@ -297,7 +297,7 @@ def predict_delay_severity(predictors):
         severity_predictor = pickle.load(file)
     with open(PICKLE_FOLDER_PATH + '/regression_encoder.pkl', 'rb') as file:
         encoder = pickle.load(file)
-    if predictors.columns.shape[0] == encoder.feature_names_in_.shape[0]:
+    if predictors.columns.shape[0] != encoder.feature_names_in_.shape[0]:
         raise ValueError("Prediction DataFrame must have the same columns used to train" + \
                          f" the model. Predictions have {predictors.columns.shape[0]} " + \
                          "columns while the encoder expects " + \
