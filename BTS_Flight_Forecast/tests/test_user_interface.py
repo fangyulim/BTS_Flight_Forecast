@@ -5,8 +5,8 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-import pandas as pd
-from unittest.mock import patch  # Uncomment when running tests in local
+# from unittest.mock import patch  # Uncomment when running tests in local
+# import pandas as pd
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
