@@ -236,7 +236,7 @@ class TestUi(unittest.TestCase):
                         for i in range(self.ui.user_int.airport_selection.count())]
 
         # Insert an item into the combo box
-        new_item = "New Airport"
+        new_item = "Test Airport"
         self.ui.user_int.airport_selection.addItem(new_item)
 
         # Get the list of items after insertion
