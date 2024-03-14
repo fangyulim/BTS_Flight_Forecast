@@ -5,12 +5,10 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-# import shutil
-# from unittest.mock import patch  # , call
+# from unittest.mock import patch  # Uncomment when running tests in local
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
-
 
 from utils.ui_manager import FlightUi
 
@@ -326,8 +324,9 @@ class TestUi(unittest.TestCase):
         result = self.ui.handle_return_input()
         self.assertEqual(result, "1990,2022")
 
-    # The following codes are all related to file dialog tests.
-
+    # The following codes are all related to file dialog tests. -- Commented to get GIT  CI working
+    # Uncomment while running in local
+    #
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload(self, mock_get_open_file_names):
     #     # def test_upload(self):
@@ -344,13 +343,14 @@ class TestUi(unittest.TestCase):
     #
     #     # Check if the upload_files method is called
     #     self.ui.upload_files()
-    # """
+    #
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload_none(self, mock_get_open_file_names):
     #     # Need to Mock OS
-    #     This function mocks the case where users click the upload button but doesn't
-    #     upload anything.
-    #     :param mock_getOpenFileNames:
+    #     # This function mocks the case where users click the upload button but doesn't
+    #     # upload anything.
+    #     # :param mock_getOpenFileNames:
+    #
     #     mock_get_open_file_names.return_value = ([],"")
     #     # Simulate clicking the upload button
     #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
@@ -362,41 +362,6 @@ class TestUi(unittest.TestCase):
     #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
     #     # Same case here, message works, but can't check if label is visible
     #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
-    # """
-    # """
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames',
-    # return_value=(["resources/testing_files/June2022.zip",
-    # "resources/testing_files/May2022.zip"], ""))
-    # def test_upload_files(self, mock_getOpenFileNames):
-    #     # Simulate clicking the upload button
-    #     QTest.mouseClick(self.ui.user_int.upload_btn, Qt.LeftButton)
-    #     QApplication.processEvents()
-    #     self.start_year = 2022
-    #     self.end_year = 2022
-    #     start_year_input = int(self.start_year)
-    #     end_year_input = int(self.end_year)
-    #
-    #     # Check if the upload_files method is called
-    #     self.ui.upload_files()
-    #
-    #     # Assert that the file labels are updated
-    #     # expected_text = "You have uploaded 2 file(s)."
-    #     # self.assertEqual(self.ui.user_int.new_mod_lb.text(), expected_text)
-    #     # self.assertTrue(self.ui.user_int.file_lb.isVisible())
-    #
-    #     with patch('shutil.copy') as shutil_copy_mock:
-    #         expected_calls = [
-    #             call("resources/testing_files/June2022.zip",
-    #             "resources/testing_files/June2022.zip"),
-    #             call("resources/testing_files/May2022.zip",
-    #             "resources/testing_files/May2022.zip")
-    #         ]
-    #         shutil_copy_mock.assert_has_calls(expected_calls)
-    #
-    #     # Assert that retrain_models is called with the correct number of uploaded files
-    #     self.assertEqual(self.retrain_models_mock.call_count, 1)
-    #     self.assertEqual(self.retrain_models_mock.call_args[0][0], 2)
-    # """
 
 
 if __name__ == '__main__':

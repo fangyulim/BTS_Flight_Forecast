@@ -23,6 +23,8 @@ Flight delays are a constant source of frustration for travelers, causing missed
     * [Application](#application)
     * [Testing](#testing)
     * [Customizations](#customizations)
+* [Demo](#demo)
+* [Open Issues](#issues)
 
 [//]: # (* [Examples]&#40;#examples&#41;)
 
@@ -50,7 +52,13 @@ Here is an overview of our project structure:
 │   │   │   ├── ...
 │   │   ├── generated/
 │   │   │   ├── pickles/
+│   │   │   │   ├── classification_encoder.pkl
+│   │   │   │   ├── classifier.pkl
+│   │   │   │   ├── classifier_metrics.pkl
 │   │   │   │   ├── combined_flight_data
+│   │   │   │   ├── regression_encoder.pkl
+│   │   │   │   ├── regressor.pkl
+│   │   │   │   ├── regressor_metrics.pkl
 │   │   │   ├── weather_data/
 │   │   │   │   ├── BIL.csv
 │   │   │   │   ├── BLI.csv
@@ -78,15 +86,14 @@ Here is an overview of our project structure:
 │   │   ├── weather.py
 ├── docs/
 │   ├── Background.md
-│   ├── Component.md
 │   ├── Component_Diagram.png
-│   ├── Component_Diagram.png
-│   ├── functional_specification.md
+│   ├── Component_specification.png
+│   ├── Functional_specification.md
 │   ├── Interaction_Diagram_1.png
 │   ├── Interaction_Diagram_2.png
 │   ├── Milestone.md
 │   ├── Project Presentation.pdf
-│   ├── PseudoCode.md
+│   ├── Pseudocode.md
 │   ├── TechnologyReview.pdf
 │   ├── UseCases.md
 │   ├── UserStories.pdf
@@ -190,3 +197,11 @@ Note: For 2 year worth of data corresponding to 33 airports in the airport_codes
     python -m scripts.reset_and_setup
     conda deactivate
     ```
+   
+<a id="demo"></a>
+## Demo
+A video demonstration of our working application can be seen [here](https://drive.google.com/file/d/1nfR9rblGB5yJS_OIMmdBdeQnAraznEU7/view?usp=drive_link).
+
+<a id="issues"></a>
+## Open Issues
+A list of open issues can we found [here](https://github.com/fangyulim/BTS_Flight_Forecast/issues)
