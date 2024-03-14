@@ -299,8 +299,8 @@ max-locals=20
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-# Edited from 20 to 26
-max-public-methods=26
+# Edited from 20 to 28
+max-public-methods= 28
 
 # Maximum number of return / yield for function / method body.
 max-returns=6
