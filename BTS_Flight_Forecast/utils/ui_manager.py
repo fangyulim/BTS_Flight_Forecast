@@ -271,7 +271,10 @@ class FlightUi(QMainWindow):
         except TypeError:
             self.user_int.file_lb.setText("You have not entered a start or end year.")
         else:
-            # Only triggers model combination if more than 1 file is uploaded.
+            # if self.start_year is not None and self.end_year is not None:
+            #     start_year_input = int(self.start_year)
+            #     end_year_input = int(self.end_year)
+            # Only triggers model combination if more than 2 files are uploaded
             if num_uploaded > 1:
                 self.user_int.file_lb.setVisible(False)
                 self.user_int.success_lb.setText("You have uploaded " +
@@ -310,7 +313,6 @@ class FlightUi(QMainWindow):
                 self.user_int.new_mod_lb.setVisible(True)
                 self.user_int.mod_title_lb.setVisible(True)
             else:
-                print("Unable to retrain")
                 self.user_int.new_mod_lb.setVisible(True)
                 self.user_int.new_mod_lb.setText("Unable to retrain")
 
@@ -339,16 +341,26 @@ class FlightUi(QMainWindow):
         self.file_dialog.setFileMode(QFileDialog.ExistingFiles)
         files, _= self.file_dialog.getOpenFileNames(self, "Select Files", "", "All Files (*)")
         num_uploaded = len(files)
+        zip_files = [file for file in files if file.lower().endswith('.zip')]
         if not files:
             self.user_int.file_lb.setText("No files have been uploaded.")
             self.user_int.file_lb.setVisible(True)
             return
-        if files:
+        if not zip_files:
+            self.user_int.file_lb.setText("No ZIP files have been uploaded.")
+            self.user_int.file_lb.setVisible(True)
+            self.user_int.file_lb.repaint()
+            return
+        elif zip_files and num_uploaded < 1:
+            self.user_int.file_lb.setVisible(True)
+            self.user_int.file_lb.setText("You've uploaded less than 2 files.")
+            self.user_int.file_lb.repaint()
+        elif zip_files and num_uploaded > 1:
             # Should only run model training if we uploaded multiple .zip containing .csv files.
             folder_path = "resources/flight_data"
-            self.user_int.success_lb.setVisible(True)
-            self.user_int.success_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
-            self.user_int.file_lb.setVisible(False)
+            self.user_int.file_lb.setVisible(True)
+            self.user_int.file_lb.setText("You have uploaded " + str(num_uploaded) + " file(s).")
+            self.user_int.file_lb.repaint()
 
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
@@ -368,6 +380,7 @@ class FlightUi(QMainWindow):
                 destination_path = os.path.join(folder_path, file_name)
                 shutil.copy(file_path, destination_path)
             self.retrain_models(num_uploaded)
+
 
 
 if __name__ == '__main__':
