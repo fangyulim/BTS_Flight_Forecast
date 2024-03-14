@@ -6,7 +6,6 @@ Currently we have commented out the tests for file dialogs.
 import sys
 import unittest
 # from unittest.mock import patch  # Uncomment when running tests in local
-# import pandas as pd
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -95,18 +94,21 @@ class TestUi(unittest.TestCase):
         """
         This function checks if clicking the admin_button switches to the admin login page.
         """
+        initial_index = self.ui.stacked_widget_pages.currentIndex()
         QTest.mouseClick(self.ui.user_int.admin_login_btn, Qt.LeftButton)
         QApplication.processEvents()
         self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 1)
+        self.assertNotEqual(self.ui.stacked_widget_pages.currentIndex, initial_index)
 
     def test_main_button_switches_page(self):
         """
         This function checks if clicking the main_button switches to the main page.
         """
-        # intial_index = self.ui.stacked_widget_pages.currentIndex()
+        initial_index = self.ui.stacked_widget_pages.currentIndex()
         QTest.mouseClick(self.ui.user_int.main_page_btn, Qt.LeftButton)
         QApplication.processEvents()
         self.assertEqual(self.ui.stacked_widget_pages.currentIndex(), 0)
+        self.assertNotEqual(self.ui.stacked_widget_pages.currentIndex, initial_index)
 
     def test_predict_button_with_valid_conditions_1(self):
         """
@@ -114,7 +116,7 @@ class TestUi(unittest.TestCase):
         15 days from today and check_box is unchecked.
         """
         # Simulate conditions where prediction is valid
-        if self.ui.day_difference == 8 and not self.ui.user_int.check_box.isChecked():
+        if 1 < self.ui.day_difference <= 15 and not self.ui.user_int.check_box.isChecked():
             QTest.mouseClick(self.ui.user_int.PredictButton, Qt.LeftButton)
             QApplication.processEvents()
 
@@ -130,7 +132,7 @@ class TestUi(unittest.TestCase):
         This function checks if predict_button works when day difference is within
         15 days from today and check_box is checked.
         """
-        if self.ui.day_difference == 8 and self.ui.user_int.check_box.isChecked():
+        if 1 < self.ui.day_difference <= 15 and self.ui.user_int.check_box.isChecked():
             QTest.mouseClick(self.ui.user_int.PredictButton, Qt.LeftButton)
             QApplication.processEvents()
 
@@ -146,7 +148,7 @@ class TestUi(unittest.TestCase):
         This function checks if predict_button works when day difference is not within
         15 days from today and check_box is checked.
         """
-        if self.ui.day_difference == 21 and self.ui.user_int.check_box.isChecked():
+        if not (1 <= self.ui.day_difference <= 15) and self.ui.user_int.check_box.isChecked():
             QTest.mouseClick(self.ui.user_int.PredictButton, Qt.LeftButton)
             QApplication.processEvents()
 
@@ -162,7 +164,7 @@ class TestUi(unittest.TestCase):
         This function checks if predict_button works when day difference is not within
         15 days from today and check_box is not checked.
         """
-        if self.ui.day_difference == 21 and not self.ui.user_int.check_box.isChecked():
+        if not (1 <= self.ui.day_difference <= 15) and not self.ui.user_int.check_box.isChecked():
             QTest.mouseClick(self.ui.user_int.PredictButton, Qt.LeftButton)
             QApplication.processEvents()
 
@@ -219,10 +221,11 @@ class TestUi(unittest.TestCase):
         input_item = "SEA"
         index = self.ui.user_int.airport_selection.findText(input_item)
         self.assertNotEqual(index, -1, f"Item '{input_item}' not found in combo box")
-        self.ui.user_int.airport_selection.setCurrentIndex(index)
-        selected_item = self.ui.user_int.airport_selection.currentText()
 
-        # Verify if the selected item matches the expected input
+        self.ui.user_int.airport_selection.setCurrentIndex(index)
+
+        # Get the currently selected item
+        selected_item = self.ui.user_int.airport_selection.currentText()
         self.assertEqual(selected_item, input_item)
 
     def test_combobox_insertion(self):
@@ -242,7 +245,6 @@ class TestUi(unittest.TestCase):
         items_after = [self.ui.user_int.airport_selection.itemText(i)
                        for i in range(self.ui.user_int.airport_selection.count())]
 
-        # Verify if the new item is inserted into the combo box
         self.assertIn(new_item, items_after)
         self.assertEqual(len(items_before) + 1, len(items_after))
 
@@ -252,11 +254,12 @@ class TestUi(unittest.TestCase):
         """
         # Clear any potential initial value
         self.ui.user_int.date_selection.clear()
+
         selected_date = QDate(2024, 8, 9)
+
         # Set the date on the QDateEdit widget
         self.ui.user_int.date_selection.setDate(selected_date)
         QApplication.processEvents()
-        # Retrieve the selected date
         retrieved_date = self.ui.user_int.date_selection.date()
         self.assertEqual(selected_date, retrieved_date)
 
@@ -264,13 +267,10 @@ class TestUi(unittest.TestCase):
         """
         This function checks if we are getting time selection.
         """
-        # Clear any potential initial value
         self.ui.user_int.time_selection.clear()
         selected_time = QTime(3, 12, 0)
-        # Set the date on the QDateEdit widget
         self.ui.user_int.time_selection.setTime(selected_time)
         QApplication.processEvents()
-        # Retrieve the selected time
         retrieved_date = self.ui.user_int.time_selection.time()
         self.assertEqual(selected_time, retrieved_date)
 
@@ -279,8 +279,8 @@ class TestUi(unittest.TestCase):
         This function checks if there is a comma in the years entered by admin.
         If not, prompts users to re-enter start and end years in the correct format.
         """
-        mes = "The start year is: " + str(2010) + "\n" + "The end year is: "\
-                                    + str(2022)
+        mes = "The start year is: " + str(2010) + "\n" + "The end year is: " \
+              + str(2022)
         years_input_info = "2010,2022"
         self.ui.process_input(years_input_info)
         self.assertEqual(self.ui.start_year, "2010")
@@ -297,10 +297,18 @@ class TestUi(unittest.TestCase):
         self.ui.process_input(years_input_info)
         self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
 
+    def test_handle_return_input(self):
+        """
+        This function checks if the handle_return_input() function takes in user input as expected.
+        """
+        self.ui.user_int.years_input.setText("1990,2022")
+        result = self.ui.handle_return_input()
+        self.assertEqual(result, "1990,2022")
+
     def test_process_input_invalid(self):
         """
         This function checks displays appear correctly when
-        an invalid date was entered and passed into provess_input().
+        an invalid date was entered and passed into process_input().
         :return:
         """
         self.ui.process_input("2020,2021,2022")
@@ -324,13 +332,25 @@ class TestUi(unittest.TestCase):
         self.assertIsNone(self.ui.end_year)
         self.assertEqual(self.ui.user_int.year_indicator.text(), mes)
 
-    def test_handle_return_input(self):
-        """
-        This function checks if the handle_return_input() function takes in user input as expected.
-        """
-        self.ui.user_int.years_input.setText("1990,2022")
-        result = self.ui.handle_return_input()
-        self.assertEqual(result, "1990,2022")
+    def test_prediction_within_15_days(self):
+        date_input = QDate.currentDate().addDays(5)
+        time_input = QTime(12, 14)
+        airport_selected = "SEA"
+        self.ui.user_int.date_selection.setDate(date_input)
+        self.ui.user_int.time_selection.setTime(time_input)
+        self.ui.user_int.airport_selection.setCurrentText(airport_selected)
+        self.ui.user_int.check_box.setChecked(True)
+        self.ui.prediction()
+
+    def test_prediction_outside_15_days(self):
+        date_input = QDate.currentDate().addDays(20)
+        time_input = QTime(12, 14)
+        airport_selected = "SEA"
+        self.ui.user_int.date_selection.setDate(date_input)
+        self.ui.user_int.time_selection.setTime(time_input)
+        self.ui.user_int.airport_selection.setCurrentText(airport_selected)
+        self.ui.user_int.check_box.setChecked(True)
+        self.ui.prediction()
 
     # The following codes are all related to file dialog tests. -- Commented to get GIT  CI working
     # Uncomment while running in local
@@ -357,14 +377,18 @@ class TestUi(unittest.TestCase):
     #     :param mock_upload_files:
     #     """
     #     # Mock the upload_files()
+    #     self.ui.user_int.years_input.setText("2020,2021")
+    #     QTest.keyPress(self.ui.user_int.years_input, Qt.Key_Return)
     #     mock_upload_files.return_value = 0
-    #     self.ui.num_uploaded = 1
+    #     self.ui.num_uploaded = 2
     #
     #     # Call retrain_models() with one file uploaded
     #     self.ui.retrain_models(1)
     #     self.assertEqual(self.ui.user_int.file_lb.isVisible(), False)
     #     self.assertEqual(self.ui.user_int.success_lb.isVisible(), False)
     #     self.assertEqual(self.ui.user_int.new_mod_lb.isVisible(), False)
+    #     self.assertEqual(self.ui.start_year, '2020')
+    #     self.assertEqual(self.ui.end_year, '2021')
     #
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload_none(self, mock_get_open_file_names):
@@ -382,31 +406,12 @@ class TestUi(unittest.TestCase):
     #     self.ui.upload_files()
     #     mes = "No files have been uploaded."
     #     self.assertEqual(self.ui.user_int.file_lb.text(), mes)
-    #
-    # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
-    # def test_retrain_models(self, mock_upload_files):
-    #     """
-    #     This function tests that the model is being retrained when years
-    #     and more than 1 file is uploaded
-    #     :param mock_upload_files:
-    #     """
-    #
-    #     # Enter start and end years
-    #     self.ui.user_int.years_input.setText("2020,2021")
-    #     QTest.keyPress(self.ui.user_int.years_input, Qt.Key_Return)
-    #
-    #     # Mock the upload_files()
-    #     mock_upload_files.return_value = None
-    #     self.ui.num_uploaded = 2
-    #
-    #     self.assertEqual(self.ui.start_year, '2020')
-    #     self.assertEqual(self.ui.end_year, '2021')
-    #     self.assertEqual(self.ui.num_uploaded, 2)
+
 
 # Tests that I am unable to cover:
 # Sections which was trigger by actually uploading a file,
 # Resulting in moving to specified folder and triggering API call, retrain and create dataset.
-# However, since these functions are tested for their own respective modules and
+# However, these functions are tested for their own respective modules and
 # the GUI works as expected.
 
 
