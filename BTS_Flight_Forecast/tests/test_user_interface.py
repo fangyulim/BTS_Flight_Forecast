@@ -377,7 +377,7 @@ class TestUi(unittest.TestCase):
         self.assertEqual(self.ui.user_int.prob_delay_result.isVisible(), False)
         self.assertEqual(self.ui.user_int.label_5.isVisible(), False)
 
-    def test_prediction_outside_15_days_checked(self):
+    def test_prediction_outside_15_days_not_checked(self):
         """
         This function tests the case when user enters a day that is not within 15 days from today.
         Prediction severity checkbox not checked.
