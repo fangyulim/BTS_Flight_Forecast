@@ -351,7 +351,7 @@ class FlightUi(QMainWindow):
             self.user_int.file_lb.setVisible(True)
             self.user_int.file_lb.repaint()
             return
-        elif zip_files and num_uploaded < 1:
+        if zip_files and num_uploaded < 1:
             self.user_int.file_lb.setVisible(True)
             self.user_int.file_lb.setText("You've uploaded less than 2 files.")
             self.user_int.file_lb.repaint()
