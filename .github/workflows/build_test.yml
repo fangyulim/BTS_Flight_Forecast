@@ -15,6 +15,7 @@ on:
       - vanksu
       - Fiona
       - bruno-barreto
+      - fiona2
   pull_request:
     # Configuring this means that your PRs will get a GitHub comment
     # from Coveralls with your coverage.
@@ -98,7 +99,6 @@ jobs:
         run: |
           cd BTS_Flight_Forecast
           export QT_QPA_PLATFORM=offscreen
-          export QT_DEBUG_PLUGINS=1
           coverage run -m unittest discover
           coverage report
           coverage lcov
