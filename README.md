@@ -60,6 +60,10 @@ Here is an overview of our project structure:
 │   │   │   │   ├── regressor.pkl
 │   │   │   │   ├── regressor_metrics.pkl
 │   │   │   ├── weather_data/
+│   │   │   │   ├── BIL.csv
+│   │   │   │   ├── BLI.csv
+│   │   │   │   ├── ...
+│   │   │   │   ├── TWF.csv
 │   │   ├── testing_resources/
 │   │   │   ├── invalid_name_weather_data/
 │   │   │   ├── test_airport_data/
