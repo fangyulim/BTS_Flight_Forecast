@@ -5,7 +5,6 @@ Currently we have commented out the tests for file dialogs.
 
 import sys
 import unittest
-# from unittest.mock import patch  # Uncomment when running tests in local
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QDate, QTime
@@ -395,10 +394,11 @@ class TestUi(unittest.TestCase):
         self.assertEqual(self.ui.user_int.prob_delay_result.isVisible(), False)
         self.assertEqual(self.ui.user_int.label_5.isVisible(), False)
 
-
     # The following codes are all related to file dialog tests. -- Commented to get GIT  CI working
     # Uncomment while running in local
     # Current pylint may give an error as we are allowing max public methods to be 28.
+    # Please add import when running locally.
+    # from unittest.mock import patch when running locally
     # @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileNames')
     # def test_upload(self, mock_get_open_file_names):
     #     """
